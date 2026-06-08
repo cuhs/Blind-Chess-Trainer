@@ -8,5 +8,13 @@
   "scripts": {
     "mobile": "npm run start --workspace=@mindboard/mobile",
     "test": "npm run test --workspaces --if-present"
+  },
+  "dependencies": {
+    "react": "19.1.0",
+    "react-native-worklets": "0.5.1"
+  },
+  "overrides": {
+    "react": "19.1.0",
+    "react-native-worklets": "0.5.1"
   }
 }
