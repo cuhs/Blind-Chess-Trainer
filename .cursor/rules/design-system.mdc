@@ -1,0 +1,43 @@
+---
+description: MindBoard design system — Stitch-synced tokens and component specs
+globs: "apps/mobile/**/*.{tsx,ts}"
+alwaysApply: false
+---
+
+# Design System
+
+Read `DESIGN.md`. Import tokens from `@/theme` — **no inline hex or magic numbers**.
+
+```typescript
+import { colors, spacing, typography, touch, radius } from '@/theme';
+```
+
+## Stitch: Playful Tactile Minimalism
+
+- Light mode, mobile-first, 20px side margins
+- Fonts: Plus Jakarta Sans (headlines), Be Vietnam Pro (body)
+- 3D-offset buttons (4px press), 2pt strokes, 16px card radius
+- Inputs: 56px height; focus stroke → `colors.tertiaryContainer`
+
+## Blueprint Overrides (interaction)
+
+- Invisible Grid: no pieces after vanish
+- Training: text only; matches: voice-first
+- Clock freeze on parser failure; disambiguation: massive targets
+- Fog: `1 - (interactions / threshold)`
+
+## Components — Reuse First
+
+1. Search `apps/mobile/components/` and `DESIGN.md` catalog before writing new UI
+2. Reuse `PrimaryButton`, `MoveInput`, `Card`, `ProgressBar`, etc. — never duplicate styled markup
+3. Extract to `components/ui/` or domain folder when pattern appears 2+ times or screen JSX exceeds ~150 lines
+4. `screens/` compose components only; shared logic → `hooks/`
+5. Presentational components: props in, JSX out — no data fetching
+
+## No Stitch Frame?
+
+Infer visuals from the nearest sibling Stitch screen + `@/theme`. Reuse existing components — never invent new colors, fonts, or button styles. Interaction from blueprint. Flag `// TODO(stitch):` on the file. See `DESIGN.md` § Screens without a Stitch frame.
+
+## Accessibility
+
+WCAG 2.2 AA. Use `colors.contrastInk` on colored surfaces. Pair color with text/icons.

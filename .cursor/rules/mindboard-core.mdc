@@ -1,0 +1,29 @@
+---
+description: MindBoard identity, closed-loop system, non-negotiable product constraints
+alwaysApply: true
+---
+
+# MindBoard Core
+
+Repo: **Blind-Chess-Trainer**. Product: **MindBoard**. Context: `Product-Blueprint.md`, `AGENTS.md`, `DESIGN.md`.
+
+## Closed Loop
+
+Text training → voice matches → failures → custom puzzles → heatmap clears → repeat.
+
+## Hard Constraints
+
+- Motifs: deterministic TypeScript on chess.js — never LLM-inferred
+- LLM: JSON → English questions only
+- Training: text input. Matches: voice-first
+- Clock freezes on ambiguous/illegal voice input
+- Disambiguation uses same normalizer + legality filter (no shortcut)
+- Peek is a feature, not a failure
+
+## Scope
+
+Simplest correct solution for the current phase only.
+
+## UI
+
+Reuse `components/` and `DESIGN.md` catalog before new UI. Modularize when a pattern repeats — not before.

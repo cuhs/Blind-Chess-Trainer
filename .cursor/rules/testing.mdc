@@ -1,0 +1,47 @@
+---
+description: Testing standards — unit, integration, and test quality conventions
+globs: "**/*.{test,spec}.{ts,tsx}"
+alwaysApply: false
+---
+
+# Testing Standards
+
+## Test Pyramid
+
+| Layer | Tool | Coverage target |
+|-------|------|-----------------|
+| Unit | Vitest or Jest | Motif engine ≥90% branch coverage |
+| Integration | Vitest + chess.js fixtures | API routes, voice normalizer |
+| E2E | Detox or Maestro | Critical paths: onboarding hook, one voice move |
+
+## Structure (Arrange-Act-Assert)
+
+```typescript
+it('detects absolute pin to king', () => {
+  // Arrange
+  const fen = '...'; // comment: Bc4 pins Nf6 to Ke8
+  // Act
+  const result = detectMotifs(fen);
+  // Assert
+  expect(result).toContainEqual({ motif: 'pin', attacker: 'Bc4', target: 'Nf6', pinned_to: 'Ke8' });
+});
+```
+
+## Naming
+
+- File: `{module}.test.ts` colocated or in `__tests__/`
+- Describe block: function or module name
+- It block: `should {expected behavior} when {condition}`
+
+## Requirements
+
+- Motif engine: ≥5 positive + ≥3 negative FENs per motif type before merge
+- Voice normalizer: table-driven tests for homophones and filler stripping
+- No snapshot tests for chess positions — use explicit assertions
+- Mock LLM and STT at integration boundaries; never mock chess.js legality
+
+## Do Not
+
+- Skip tests for "simple" detection logic
+- Test implementation details (private functions) — test public API
+- Commit `.only` or focused tests

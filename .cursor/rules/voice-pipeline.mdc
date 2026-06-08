@@ -1,0 +1,29 @@
+---
+description: Voice match pipeline — STT, normalizer, clock freeze, integrity
+globs: "packages/voice-pipeline/**"
+alwaysApply: false
+---
+
+# Voice Pipeline
+
+```
+STT → Normalizer → Legality (chess.js) → Apply
+         ↑              ↓
+    Disambiguation ← Clock Freeze
+```
+
+## Rules
+
+- On-device STT primary; cloud fallback only
+- `normalizeMove` is a pure, table-tested function
+- Disambiguation responses re-enter the **same** pipeline — no shortcut
+- Clock freezes instantly on ambiguous/illegal input
+- Stockfish WASM off main thread
+
+## Homophones
+
+night→N, rook→R, bishop→B, queen→Q, king→K
+
+## UI
+
+Disambiguation overlay: black screen, ≥80pt targets — see `DESIGN.md`.

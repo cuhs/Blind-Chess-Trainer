@@ -1,0 +1,34 @@
+---
+description: Supabase, Express API — schema, validation, security
+globs: "{apps/api,supabase}/**"
+alwaysApply: false
+---
+
+# Backend & Data
+
+## Supabase
+
+- Migrations only in `supabase/migrations/` — never hand-edit production
+- Row Level Security on every user-data table
+- Onboarding works guest-first; auth optional until dashboard
+
+## API (Express)
+
+- Validate all request bodies with Zod middleware
+- Separate endpoints: `/motifs/detect` (deterministic) vs `/puzzles/generate` (LLM)
+- Return `{ data }` on success, `{ error, code }` on failure
+- Idempotent peek recording: dedupe by `(match_id, ply)`
+
+## Security
+
+- LLM and service keys server-side only — never in mobile bundle
+- `.env.local` for secrets; provide `.env.example` with placeholder keys
+- Rate-limit LLM templating endpoint
+
+## Key Tables
+
+`users`, `heatmap_interactions`, `peek_events`, `puzzles`, `matches` — see `heatmap-analytics` skill for schemas.
+
+## Peek → Puzzle
+
+Peek event → queue FEN → motif engine → LLM template → `daily_puzzles` row.

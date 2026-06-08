@@ -1,0 +1,41 @@
+---
+description: React Native + Expo — Stitch-aligned mobile patterns
+globs: "apps/mobile/**"
+alwaysApply: false
+---
+
+# React Native + Expo
+
+## Theme
+
+Import `@/theme` tokens. Load Plus Jakarta Sans + Be Vietnam Pro via `expo-font`.
+
+## Stitch Component Patterns
+
+- `PrimaryButton`: 4px 3D offset, translate down on press
+- `MoveInput`: 56px, 2pt stroke, `radius.lg` (16px)
+- `Card`: white, 2pt `colors.cardStroke`, 4px bottom offset — no drop shadow
+- `ChessBoard`: fluid width minus 40px margins; 4px square radius
+
+## Performance
+
+Reanimated for press animations. Stockfish WASM + STT off main thread.
+
+## Structure
+
+```
+screens/       → compose components, route params, thin orchestration
+components/ui/ → reusable primitives (check here first)
+components/*   → domain modules (chess, match, heatmap, replay)
+hooks/         → shared stateful logic
+```
+
+Reuse before creating. Extract when a block repeats across screens/states or a screen grows unwieldy. Do not over-abstract one-off UI.
+
+## State
+
+chess.js owns position. UI state in Zustand. Server state via TanStack Query.
+
+## Blueprint
+
+No board pieces during blindfold (except hook/replay/post-game). No voice in training.

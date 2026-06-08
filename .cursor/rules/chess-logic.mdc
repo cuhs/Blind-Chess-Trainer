@@ -1,0 +1,29 @@
+---
+description: chess.js source of truth and deterministic motif detection boundary
+globs: "packages/chess-core/**"
+alwaysApply: false
+---
+
+# Chess Logic
+
+## chess.js
+
+- All FEN validation, move generation, legality via chess.js
+- Store FEN in DB; reconstruct with `new Chess(fen)`
+- Never hand-roll castling, en passant, or promotion rules
+
+## Motif Boundary
+
+```
+Position → motif-engine (TS) → MotifResult[] → LLM (templating only)
+```
+
+Empty motifs → skip question. Never ask LLM to analyze the position.
+
+## Training Input
+
+Text only: coordinates (`e4`), SAN (`Nf3`), yes/no. Normalize before legality check.
+
+## Testing
+
+Every detection function: annotated FEN fixtures, negative cases, regression tests. See `.cursor/rules/testing.mdc`.

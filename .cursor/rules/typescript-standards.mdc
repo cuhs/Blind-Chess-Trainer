@@ -1,0 +1,45 @@
+---
+description: TypeScript conventions — strict typing, validation, error handling
+globs: "**/*.{ts,tsx}"
+alwaysApply: false
+---
+
+# TypeScript Standards
+
+## Compiler
+
+- `strict: true` in all `tsconfig.json` files
+- No `any` — use `unknown` + type guards at boundaries
+- Prefer `satisfies` over `as` for token objects
+
+## Types
+
+- `interface` for object shapes; `type` for unions/intersections
+- Shared domain types in `packages/shared/` — never duplicate
+- Branded types for `Square`, `Fen`, `San` where parsing matters
+
+## API Boundaries
+
+Validate external input with Zod at Express routes and Supabase edge functions:
+
+```typescript
+const DetectMotifsSchema = z.object({ fen: z.string().min(15) });
+```
+
+## Error Handling
+
+```typescript
+// ✅ Result type for expected failures
+type Result<T, E> = { ok: true; value: T } | { ok: false; error: E };
+
+// ✅ Structured API errors
+{ error: string; code: string }
+```
+
+- Motif engine: `Result` — never throw for illegal FEN
+- Voice pipeline: illegal moves are expected, not errors
+
+## Imports
+
+- Package-scoped aliases (`@mindboard/motif-engine`) — no deep relative paths across packages
+- No circular deps between `chess-core` and `motif-engine`

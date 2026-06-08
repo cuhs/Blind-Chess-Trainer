@@ -1,0 +1,20 @@
+---
+description: Deterministic motif detection — pure functions, JSON output, test coverage
+globs: "packages/motif-engine/**"
+alwaysApply: false
+---
+
+# Motif Engine
+
+See `.cursor/skills/motif-engine/SKILL.md` for algorithms and checklist.
+
+## Constraints
+
+- Pure functions only — no LLM, no side effects
+- Output `MotifResult[]` — empty array when no motifs
+- ≥90% branch coverage; ≥5 positive + ≥3 negative FENs per motif
+- Shared types from `packages/shared/`
+
+## LLM Boundary
+
+This package never imports or calls an LLM. Templating lives in `apps/api/`.

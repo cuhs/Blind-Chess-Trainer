@@ -1,0 +1,24 @@
+---
+description: Stitch frame references for MindBoard UI implementation
+globs: "apps/mobile/**/*.{tsx,ts}"
+alwaysApply: false
+---
+
+# Stitch Frames
+
+Project: `3837939560019732420` — Playful Tactile Minimalism.
+
+| RN screen | Stitch frame ID |
+|-----------|-----------------|
+| `HookBoard` | `a7e368689dde41bb8f4e006f32f4e854` |
+| `StoryPuzzle` | `16b75139d1d14931a1d17f54ce051a0e` |
+| `DailyDrill` | `f42d4f83e10a44df8c569ed060ad83a4` |
+| `VoiceMatch` | `2cbaa7be4acd4190a3f95dae66d1b0bc` |
+| `CognitiveHeatmap` | `61ce6c33f6fe4350b176eb6cd2ddace6` |
+| `ReplayTimeline` | `48bde48ed59748cba0907d6a02705475` |
+
+**Has frame:** `get_screen` before implementing.
+
+**No frame (new screen / blueprint-only):** infer from nearest sibling frame + `tokens.ts` + component catalog. Never invent a new palette or button style. `get_screen` on the sibling if unsure. Flag `// TODO(stitch): <name>` and ship.
+
+Blueprint wins interaction; Stitch (or inferred Stitch patterns) wins visuals.
