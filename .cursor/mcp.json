@@ -7,6 +7,52 @@
     "ios-simulator": {
       "command": "npx",
       "args": ["-y", "ios-simulator-mcp"]
+    },
+    "xcode-builder": {
+      "command": "npx",
+      "args": [
+        "-y",
+        "xcodebuild-mcp"
+      ],
+      "env": {}
+    },
+    "sequential-thinking": {
+      "command": "npx",
+      "args": [
+        "-y",
+        "@modelcontextprotocol/server-sequential-thinking"
+      ],
+      "env": {}
+    },
+    "supabase-postgres": {
+      "command": "npx",
+      "args": [
+        "-y",
+        "@modelcontextprotocol/server-postgres",
+        "postgresql://postgres:postgres@localhost:54322/postgres"
+      ],
+      "env": {
+        "COMMENT": "Points to your local Dockerized Supabase instance for schema and analytics checking"
+      }
+    },
+    "web-fetcher": {
+      "command": "npx",
+      "args": [
+        "-y",
+        "@modelcontextprotocol/server-fetch"
+      ],
+      "env": {}
+    },
+    "local-mac-automation": {
+      "command": "bash",
+      "args": [
+        "-c",
+        "echo '{\"mcpServers\":{}}'"
+      ],
+      "env": {
+        "COMMENT": "Standard shell proxy container enabling Cursor to run osascript or swift-cli audio tests"
+      }
     }
+  
   }
 }
