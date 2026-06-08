@@ -1,0 +1,29 @@
+{
+  "expo": {
+    "name": "MindBoard",
+    "slug": "mindboard",
+    "version": "1.0.0",
+    "orientation": "portrait",
+    "scheme": "mindboard",
+    "userInterfaceStyle": "light",
+    "newArchEnabled": true,
+    "splash": {
+      "resizeMode": "contain",
+      "backgroundColor": "#faf9f8"
+    },
+    "ios": {
+      "supportsTablet": false,
+      "bundleIdentifier": "com.mindboard.app"
+    },
+    "android": {
+      "adaptiveIcon": {
+        "backgroundColor": "#faf9f8"
+      },
+      "package": "com.mindboard.app"
+    },
+    "plugins": ["expo-router", "expo-font"],
+    "experiments": {
+      "typedRoutes": true
+    }
+  }
+}

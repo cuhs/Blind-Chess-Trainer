@@ -1,0 +1,13 @@
+{
+  "extends": "expo/tsconfig.base",
+  "compilerOptions": {
+    "strict": true,
+    "paths": {
+      "@/*": ["./*"],
+      "@mindboard/shared": ["../../packages/shared/src"],
+      "@mindboard/chess-core": ["../../packages/chess-core/src"],
+      "@mindboard/heatmap": ["../../packages/heatmap/src"]
+    }
+  },
+  "include": ["**/*.ts", "**/*.tsx", ".expo/types/**/*.ts", "expo-env.d.ts"]
+}
