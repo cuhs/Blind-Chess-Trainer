@@ -12,12 +12,14 @@ import { colors, radius, spacing, touch, typography } from '@/theme';
 interface PrimaryButtonProps extends Omit<PressableProps, 'style'> {
   label: string;
   variant?: 'primary' | 'secondary';
+  uppercase?: boolean;
   style?: StyleProp<ViewStyle>;
 }
 
 export function PrimaryButton({
   label,
   variant = 'primary',
+  uppercase = true,
   disabled,
   style,
   ...props
@@ -51,7 +53,15 @@ export function PrimaryButton({
       ]}
       {...props}
     >
-      <Text style={[styles.label, { color: labelColor }]}>{label}</Text>
+      <Text
+        style={[
+          styles.label,
+          { color: labelColor },
+          !uppercase && styles.labelMixedCase,
+        ]}
+      >
+        {label}
+      </Text>
     </Pressable>
   );
 }
@@ -69,6 +79,10 @@ const styles = StyleSheet.create({
     ...typography.headlineMd,
     textTransform: 'uppercase',
     letterSpacing: 0.5,
+  },
+  labelMixedCase: {
+    textTransform: 'none',
+    letterSpacing: 0,
   },
   disabled: {
     opacity: 0.5,

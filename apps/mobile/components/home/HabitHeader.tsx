@@ -1,6 +1,6 @@
 import { View, Text, StyleSheet } from 'react-native';
 import { colors, spacing, typography } from '@/theme';
-import { FireIcon } from '@/components/ui/icons/FireIcon';
+import { BoltIcon } from '@/components/ui/icons/BoltIcon';
 
 interface HabitHeaderProps {
   streakDays: number;
@@ -11,12 +11,14 @@ export function HabitHeader({ streakDays, boardMappedPercent }: HabitHeaderProps
   return (
     <View style={styles.row}>
       <View style={styles.stat}>
-        <FireIcon />
-        <Text style={styles.value}>{streakDays}</Text>
+        <View style={styles.streakValue}>
+          <BoltIcon size={28} />
+          <Text style={styles.value}>{streakDays}</Text>
+        </View>
         <Text style={styles.label}>Day Streak</Text>
       </View>
       <View style={styles.stat}>
-        <Text style={styles.value}>{boardMappedPercent}%</Text>
+        <Text style={[styles.value, styles.mappedValue]}>{boardMappedPercent}%</Text>
         <Text style={styles.label}>Board Mapped</Text>
       </View>
     </View>
@@ -26,17 +28,26 @@ export function HabitHeader({ streakDays, boardMappedPercent }: HabitHeaderProps
 const styles = StyleSheet.create({
   row: {
     flexDirection: 'row',
-    justifyContent: 'space-around',
-    paddingVertical: spacing.md,
-    marginBottom: spacing.md,
+    gap: spacing.md,
+    marginTop: spacing.sm,
   },
   stat: {
+    flex: 1,
+    alignItems: 'center',
+    justifyContent: 'center',
+    padding: spacing.md,
+  },
+  streakValue: {
+    flexDirection: 'row',
     alignItems: 'center',
     gap: spacing.xs,
   },
   value: {
-    ...typography.headlineLg,
+    ...typography.displayLgMobile,
     color: colors.onSurface,
+  },
+  mappedValue: {
+    color: colors.primary,
   },
   label: {
     ...typography.labelBold,

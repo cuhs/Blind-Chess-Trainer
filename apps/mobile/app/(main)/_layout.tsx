@@ -1,5 +1,7 @@
 import { Tabs } from 'expo-router';
+import { Pressable, StyleSheet, Text } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import type { BottomTabBarButtonProps } from '@react-navigation/bottom-tabs';
 import { colors, radius, spacing, typography, touch } from '@/theme';
 import {
   DrillsTabIcon,
@@ -8,7 +10,24 @@ import {
 } from '@/components/ui/icons/TabIcons';
 
 const TAB_ICON_SIZE = 22;
-const TAB_CONTENT_HEIGHT = 48;
+
+function TabBarButton({
+  accessibilityState,
+  children,
+  onPress,
+}: BottomTabBarButtonProps) {
+  const focused = accessibilityState?.selected ?? false;
+
+  return (
+    <Pressable
+      accessibilityRole="button"
+      onPress={onPress}
+      style={[styles.tabButton, focused && styles.tabButtonActive]}
+    >
+      {children}
+    </Pressable>
+  );
+}
 
 export default function MainLayout() {
   const insets = useSafeAreaInsets();
@@ -18,30 +37,35 @@ export default function MainLayout() {
     <Tabs
       screenOptions={{
         headerShown: false,
-        tabBarActiveTintColor: colors.primary,
-        tabBarInactiveTintColor: colors.onSurfaceVariant,
+        tabBarActiveTintColor: colors.onPrimaryContainer,
+        tabBarInactiveTintColor: colors.outline,
         tabBarStyle: {
           backgroundColor: colors.surface,
-          borderTopColor: colors.surfaceContainerHigh,
+          borderTopColor: colors.outlineVariant,
           borderTopWidth: touch.strokeWidth,
           borderTopLeftRadius: radius.lg,
           borderTopRightRadius: radius.lg,
-          paddingTop: spacing.xs,
+          paddingTop: spacing.sm,
           paddingBottom: bottomInset,
-          height: TAB_CONTENT_HEIGHT + bottomInset,
+          height: 64 + bottomInset,
         },
         tabBarItemStyle: {
-          paddingTop: spacing.xs,
+          paddingTop: 0,
         },
         tabBarIconStyle: {
           marginBottom: 2,
         },
-        tabBarLabelStyle: {
-          ...typography.labelBold,
-          fontSize: 10,
-          lineHeight: 12,
-          marginTop: 0,
-        },
+        tabBarLabel: ({ color, children, focused }) => (
+          <Text
+            style={[
+              styles.tabLabel,
+              { color: focused ? colors.onPrimaryContainer : color },
+            ]}
+          >
+            {children}
+          </Text>
+        ),
+        tabBarButton: (props) => <TabBarButton {...props} />,
       }}
     >
       <Tabs.Screen
@@ -74,3 +98,25 @@ export default function MainLayout() {
     </Tabs>
   );
 }
+
+const styles = StyleSheet.create({
+  tabButton: {
+    flex: 1,
+    alignItems: 'center',
+    justifyContent: 'center',
+    paddingHorizontal: spacing.md,
+    paddingVertical: spacing.xs,
+    borderRadius: radius.lg,
+    marginHorizontal: spacing.xs,
+  },
+  tabButtonActive: {
+    backgroundColor: colors.primaryContainer,
+    transform: [{ translateY: 1 }],
+  },
+  tabLabel: {
+    ...typography.labelBold,
+    fontSize: 10,
+    lineHeight: 12,
+    marginTop: 2,
+  },
+});

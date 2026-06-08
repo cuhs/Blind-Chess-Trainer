@@ -1,16 +1,21 @@
 import { View, Text, Pressable, StyleSheet } from 'react-native';
-import { colors, spacing, typography } from '@/theme';
+import { colors, radius, spacing, touch, typography } from '@/theme';
 import { MascotAvatar } from '@/components/ui/MascotAvatar';
 import { SettingsIcon } from '@/components/ui/icons/SettingsIcon';
 
 interface AppHeaderProps {
   showSettings?: boolean;
   onSettingsPress?: () => void;
+  bordered?: boolean;
 }
 
-export function AppHeader({ showSettings = true, onSettingsPress }: AppHeaderProps) {
+export function AppHeader({
+  showSettings = true,
+  onSettingsPress,
+  bordered = false,
+}: AppHeaderProps) {
   return (
-    <View style={styles.header}>
+    <View style={[styles.header, bordered && styles.bordered]}>
       <View style={styles.brand}>
         <MascotAvatar />
         <Text style={styles.title}>MindBoard</Text>
@@ -36,7 +41,13 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'space-between',
     paddingVertical: spacing.sm,
-    marginBottom: spacing.md,
+    minHeight: 64,
+  },
+  bordered: {
+    borderBottomWidth: touch.strokeWidth,
+    borderBottomColor: colors.outlineVariant,
+    paddingHorizontal: spacing.marginMobile,
+    backgroundColor: colors.background,
   },
   brand: {
     flexDirection: 'row',

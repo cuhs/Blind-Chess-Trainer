@@ -1,69 +1,72 @@
-// TODO(stitch): HomeDashboard — extend 61ce6c33 + closed-loop spec
+// Stitch frame: b1eff5fd32e743e2a7f8a4b78a340318 (MindBoard Home Enhanced Loop)
 import { Alert, ScrollView, StyleSheet, Text, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { colors, spacing, typography } from '@/theme';
 import { AppHeader } from '@/components/ui/AppHeader';
 import { HabitHeader } from '@/components/home/HabitHeader';
 import { InteractiveHeatmap } from '@/components/heatmap/InteractiveHeatmap';
-import { HeatmapStats } from '@/components/heatmap/HeatmapStats';
-import { HeatmapLegend } from '@/components/heatmap/HeatmapLegend';
-import { DailyMatrixCard } from '@/components/home/DailyMatrixCard';
+import { PrimaryButton } from '@/components/ui/PrimaryButton';
 import { VoiceMatchCard } from '@/components/home/VoiceMatchCard';
 import { useHabitStreak } from '@/hooks/useHabitStreak';
 import { useFogClearedPercent } from '@/hooks/useFogClearedPercent';
-import { useDailyMatrix } from '@/hooks/useDailyMatrix';
 import { useGuestStore } from '@/stores/guestStore';
 
 export function HomeDashboardScreen() {
   const { streakDays } = useHabitStreak();
-  const { boardMappedPercent, clarityPercent, masteryCount } =
-    useFogClearedPercent();
-  const { puzzleCount, loopBadge } = useDailyMatrix();
+  const { boardMappedPercent } = useFogClearedPercent();
   const matchElo = useGuestStore((s) => s.matchElo);
 
-  const handleTraining = () => {
+  const handleClearFog = () => {
     Alert.alert(
-      'Daily Matrix',
+      'Clear the Fog',
       'Training suite arrives in Phase 2. Your onboarding progress is saved.',
     );
   };
 
   const handleMatch = () => {
     Alert.alert(
-      'Voice Match',
+      'Blindfold Match',
       'Voice match engine arrives in Phase 3. Set expectations — peek freely!',
     );
   };
 
   return (
     <SafeAreaView style={styles.safe} edges={['top']}>
-      <ScrollView contentContainerStyle={styles.content}>
-        <AppHeader />
+      <AppHeader bordered />
+      <ScrollView
+        contentContainerStyle={styles.content}
+        showsVerticalScrollIndicator={false}
+      >
         <HabitHeader
           boardMappedPercent={boardMappedPercent}
           streakDays={streakDays}
         />
 
-        <Text style={styles.title}>Cognitive Heatmap</Text>
-        <Text style={styles.subtitle}>
-          Your mental map of the board. Clear the fog to master the game.
-        </Text>
+        <View style={styles.hero}>
+          <Text style={styles.title}>Cognitive Heatmap</Text>
+          <Text style={styles.subtitle}>
+            Your mental map of the board. Clear the fog to master the game.
+          </Text>
+        </View>
 
-        <HeatmapStats
-          clarityPercent={clarityPercent}
-          masteryCount={masteryCount}
-        />
-
-        <InteractiveHeatmap />
-
-        <HeatmapLegend />
-
-        <View style={styles.cards}>
-          <DailyMatrixCard
-            loopBadge={loopBadge}
-            onPress={handleTraining}
-            puzzleCount={puzzleCount}
+        <View style={styles.mapSection}>
+          <InteractiveHeatmap
+            fullWidthFrame={false}
+            horizontalInset={spacing.marginMobile * 2 + spacing.md * 2}
+            showLabels={false}
           />
+        </View>
+
+        <View style={styles.action}>
+          <View style={styles.primaryAction}>
+            <PrimaryButton
+              label="Clear the Fog"
+              onPress={handleClearFog}
+              style={styles.primaryButton}
+              uppercase={false}
+            />
+            <Text style={styles.actionHint}>Solve puzzles to unlock squares</Text>
+          </View>
           <VoiceMatchCard matchElo={matchElo} onPress={handleMatch} />
         </View>
       </ScrollView>
@@ -78,20 +81,43 @@ const styles = StyleSheet.create({
   },
   content: {
     paddingHorizontal: spacing.marginMobile,
-    paddingBottom: spacing.xl,
+    paddingBottom: 128,
+    gap: spacing.md,
+  },
+  hero: {
+    gap: spacing.sm,
+    alignItems: 'center',
+    paddingHorizontal: spacing.sm,
   },
   title: {
     ...typography.displayLgMobile,
     color: colors.onSurface,
-    marginBottom: spacing.sm,
+    textAlign: 'center',
   },
   subtitle: {
-    ...typography.bodyMd,
+    ...typography.bodyLg,
     color: colors.onSurfaceVariant,
-    marginBottom: spacing.md,
+    textAlign: 'center',
   },
-  cards: {
-    marginTop: spacing.sectionGap,
+  mapSection: {
+    alignSelf: 'stretch',
+    alignItems: 'center',
+    marginTop: spacing.xs,
+  },
+  action: {
     gap: spacing.md,
+  },
+  primaryAction: {
+    gap: spacing.sm,
+  },
+  primaryButton: {
+    minHeight: 60,
+  },
+  actionHint: {
+    ...typography.labelBold,
+    color: colors.outline,
+    textAlign: 'center',
+    textTransform: 'uppercase',
+    letterSpacing: 1.5,
   },
 });

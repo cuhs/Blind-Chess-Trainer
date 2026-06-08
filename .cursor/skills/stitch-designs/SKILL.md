@@ -35,6 +35,7 @@ disable-model-invocation: false
 | DailyDrill | `f42d4f83e10a44df8c569ed060ad83a4` | Interactive Active Recall Training |
 | VoiceMatch | `2cbaa7be4acd4190a3f95dae66d1b0bc` | Animated Match Engine |
 | CognitiveHeatmap | `61ce6c33f6fe4350b176eb6cd2ddace6` | Animated Cognitive Heatmap Dashboard |
+| HomeDashboard | `b1eff5fd32e743e2a7f8a4b78a340318` | MindBoard Home (Enhanced Loop) |
 | ReplayTimeline | `48bde48ed59748cba0907d6a02705475` | Populated Game Analysis & Review |
 
 ## Key Tokens (current sync)

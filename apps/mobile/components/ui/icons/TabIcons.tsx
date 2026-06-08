@@ -1,4 +1,4 @@
-import Svg, { Path, Rect } from 'react-native-svg';
+import Svg, { Path } from 'react-native-svg';
 import { colors } from '@/theme';
 
 interface TabIconProps {
@@ -14,44 +14,11 @@ export function HomeTabIcon({
 }: TabIconProps) {
   return (
     <Svg width={size} height={size} viewBox="0 0 24 24" fill="none">
-      <Rect
-        x={4}
-        y={4}
-        width={7}
-        height={7}
-        rx={1.5}
+      <Path
+        d="M4 10.5 12 4l8 6.5V20a1 1 0 0 1-1 1h-5v-6H10v6H5a1 1 0 0 1-1-1v-9.5Z"
         fill={filled ? color : 'none'}
         stroke={color}
-        strokeWidth={1.8}
-      />
-      <Rect
-        x={13}
-        y={4}
-        width={7}
-        height={7}
-        rx={1.5}
-        fill={filled ? color : 'none'}
-        stroke={color}
-        strokeWidth={1.8}
-      />
-      <Rect
-        x={4}
-        y={13}
-        width={7}
-        height={7}
-        rx={1.5}
-        fill={filled ? color : 'none'}
-        stroke={color}
-        strokeWidth={1.8}
-      />
-      <Rect
-        x={13}
-        y={13}
-        width={7}
-        height={7}
-        rx={1.5}
-        fill={filled ? color : 'none'}
-        stroke={color}
+        strokeLinejoin="round"
         strokeWidth={1.8}
       />
     </Svg>

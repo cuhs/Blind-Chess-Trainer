@@ -100,7 +100,8 @@ No soft drop shadows. Use **tonal offsets and 3D extrusions**:
 | Active Recall Training Phase | `16b75139d1d14931a1d17f54ce051a0e` | Phase 2 | `StoryPuzzle` |
 | Interactive Active Recall Training | `f42d4f83e10a44df8c569ed060ad83a4` | Phase 2 | `DailyDrill` |
 | Animated Match Engine | `2cbaa7be4acd4190a3f95dae66d1b0bc` | Phase 3 | `VoiceMatch` |
-| Animated Cognitive Heatmap Dashboard | `61ce6c33f6fe4350b176eb6cd2ddace6` | Phase 4 / onboarding fog | `CognitiveHeatmap` |
+| Animated Cognitive Heatmap Dashboard | `61ce6c33f6fe4350b176eb6cd2ddace6` | Phase 4 / onboarding fog | `CognitiveHeatmap` / `FogRevealScreen` |
+| MindBoard Home (Enhanced Loop) | `b1eff5fd32e743e2a7f8a4b78a340318` | Phase 1 exit | `HomeDashboard` |
 | Populated Game Analysis & Review | `48bde48ed59748cba0907d6a02705475` | Phase 4 | `ReplayTimeline` |
 | Product Strategy & Screen Plan | `48eea1d4614941f3b6c927d368d8b1f0` | Reference only | — |
 | Mascot logo | `b6e58aa5efdd4cd994cd1d6a03da943a` | Brand asset (legacy) | — |
@@ -114,7 +115,6 @@ No soft drop shadows. Use **tonal offsets and 3D extrusions**:
 | `StoryCheck` | listening, yes/no prompt (blank screen) |
 | `RewardPuzzle` | rapid puzzle ×2 |
 | `MatchPrimer` | expectation copy → unlock HomeDashboard |
-| `HomeDashboard` | closed-loop home — habit header, hero heatmap, action cards |
 | `DisambiguationOverlay` | black screen, two massive targets |
 | `VoiceMatch` | clock-frozen state (Stitch shows this) |
 
@@ -129,7 +129,6 @@ When a screen or state has no Stitch frame (new screen, blueprint-only flow, or 
 |---------------------|------------|
 | `StoryCheck`, `RewardPuzzle` | `HookBoard` + `StoryPuzzle` (prompt + `MoveInput` + progress bar) |
 | `MatchPrimer` | `HookBoard` (headline + `PrimaryButton` + `bodyMd` copy) |
-| `HomeDashboard` | `CognitiveHeatmap` (`61ce6c33`) + card CTAs |
 | `DisambiguationOverlay` | `VoiceMatch` (minimal chrome, large touch targets, `colors.background`) |
 | New training screen | `StoryPuzzle` or `DailyDrill` |
 | New settings / profile | `CognitiveHeatmap` (card layout, legend chips) |
@@ -190,17 +189,19 @@ These override Stitch visuals where they conflict:
 
 ---
 
-## HomeDashboard Layout (closed-loop home)
+## HomeDashboard Layout (Stitch: MindBoard Home Enhanced Loop)
 
-Post-onboarding `/(main)/index`. Not a traditional chess menu — validates habit and directs the next action.
+Post-onboarding `/(main)/index`. Habit validation + fog heatmap + closed-loop CTAs.
 
 | Zone (top → bottom) | Component | Data |
 |---------------------|-----------|------|
-| Header | `HabitHeader` | Streak days + Board Mapped % |
-| Hero | `InteractiveHeatmap` | 8×8 fog grid; tap → `SquareTooltip` |
-| Primary CTA | `DailyMatrixCard` | "Today's Matrix: N Positions"; loop badge from peek events |
-| Secondary CTA | `VoiceMatchCard` | "Start Voice Match" + opponent Elo chip |
-| Navigation | Expo tabs | Home · Drills · History |
+| Header | `AppHeader` (bordered) | Mascot + MindBoard + settings |
+| Stats | `HabitHeader` | Bolt streak + Board Mapped % (primary) |
+| Hero | Title + subtitle | "Cognitive Heatmap" + body copy |
+| Hero board | `InteractiveHeatmap` (`showLabels={false}`) | Centered compact card with 8×8 fog grid |
+| Primary CTA | `PrimaryButton` | "Clear the Fog" + hint subtitle |
+| Secondary CTA | `VoiceMatchCard` | "Start Blindfold Match" row + Elo + chevron |
+| Navigation | Expo tabs | Home · Drills · History (active tab green pill) |
 
 ---
 
@@ -305,11 +306,12 @@ Shared icons live in `components/ui/icons/`. Reuse — do not inline emoji as te
 | `AppHeader` | Mascot avatar + MindBoard title + settings | Onboarding + home |
 | `BoardFrame` | 3D card wrapper for boards/heatmap | Chess + heatmap |
 | `MascotAvatar` | Standalone Icon (`4709d4e8`) in green circle frame | `AppHeader` |
-| `HabitHeader` | Streak + Board Mapped % | HomeDashboard |
+| `HabitHeader` | Bolt streak + Board Mapped % | HomeDashboard |
 | `InteractiveHeatmap` | Hero 8×8 + `FogOverlay` + tap tooltips | Home + FogReveal |
 | `SquareTooltip` | Micro-tooltip on square tap | HomeDashboard |
-| `DailyMatrixCard` | Primary CTA + closed-loop badge | HomeDashboard |
-| `VoiceMatchCard` | Secondary CTA + Elo chip | HomeDashboard |
+| `DailyMatrixCard` | Primary CTA + closed-loop badge | Phase 2 (reserved) |
+| `VoiceMatchCard` | Blindfold match row + mic + Elo chip | HomeDashboard |
+| `BoltIcon` | Orange filled bolt for streak | `HabitHeader` |
 | `HeatmapStats` | CLARITY %, MASTERY count | FogReveal + heatmap |
 | `HeatmapLegend` | Three-state legend chips | FogReveal + heatmap |
 

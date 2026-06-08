@@ -4,7 +4,7 @@ import {
   Pressable,
   StyleSheet,
 } from 'react-native';
-import { colors, spacing } from '@/theme';
+import { colors } from '@/theme';
 import type { Square } from '@mindboard/shared';
 import { isSquareCleared } from '@mindboard/heatmap';
 import { useFogOpacity } from '@/hooks/useFogOpacity';
@@ -16,14 +16,32 @@ import { getVisibleSquareColor } from '../chess/boardColors';
 import { RankLabels, FileLabels } from '../chess/BoardLabels';
 import { BoardGrid } from '../chess/BoardGrid';
 import { BoardFrame } from '../chess/BoardFrame';
-import { useBoardDimensions } from '../chess/useBoardDimensions';
+import {
+  BOARD_CARD_INSET,
+  LABEL_GUTTER,
+  useBoardDimensions,
+} from '../chess/useBoardDimensions';
 
 interface InteractiveHeatmapProps {
   interactive?: boolean;
+  showLabels?: boolean;
+  fullWidthFrame?: boolean;
+  horizontalInset?: number;
 }
 
-export function InteractiveHeatmap({ interactive = true }: InteractiveHeatmapProps) {
-  const { squareSize, boardSize, labelGutter } = useBoardDimensions();
+export function InteractiveHeatmap({
+  interactive = true,
+  showLabels = true,
+  fullWidthFrame = true,
+  horizontalInset,
+}: InteractiveHeatmapProps) {
+  const { squareSize, boardSize, labelGutter } = useBoardDimensions({
+    labelGutter: showLabels ? LABEL_GUTTER : 0,
+    frameInset: BOARD_CARD_INSET,
+    horizontalInset,
+  });
+  const frameWidth =
+    boardSize + BOARD_CARD_INSET + (showLabels ? labelGutter : 0);
   const { getOpacity } = useFogOpacity();
   const { getInteractions } = useHeatmapLedger();
   const [selectedSquare, setSelectedSquare] = useState<Square | null>(null);
@@ -46,37 +64,47 @@ export function InteractiveHeatmap({ interactive = true }: InteractiveHeatmapPro
 
   return (
     <View style={styles.wrapper}>
-      <BoardFrame>
+      <BoardFrame
+        padding="md"
+        style={[
+          styles.frame,
+          fullWidthFrame ? styles.fullWidthFrame : { width: frameWidth },
+        ]}
+      >
         <View style={styles.row}>
-          <RankLabels labelGutter={labelGutter} squareSize={squareSize} />
-          <View>
-            <BoardGrid
-              boardSize={boardSize}
-              squareSize={squareSize}
-              renderSquare={(file, displayRank) => {
-                const square = squareFromIndex(file, displayRank);
-                const opacity = getOpacity(square);
+          {showLabels ? (
+            <RankLabels labelGutter={labelGutter} squareSize={squareSize} />
+          ) : null}
+          <BoardGrid
+            boardSize={boardSize}
+            squareSize={squareSize}
+            renderSquare={(file, displayRank) => {
+              const square = squareFromIndex(file, displayRank);
+              const opacity = getOpacity(square);
 
-                return (
-                  <Pressable
-                    accessibilityLabel={`Square ${square}`}
-                    disabled={!interactive}
-                    onPress={() => setSelectedSquare(square)}
-                    style={[
-                      styles.square,
-                      {
-                        backgroundColor: getSquareColor(square, file, displayRank),
-                      },
-                    ]}
-                  >
-                    <FogOverlay opacity={opacity} />
-                  </Pressable>
-                );
-              }}
-            />
+              return (
+                <Pressable
+                  accessibilityLabel={`Square ${square}`}
+                  disabled={!interactive}
+                  onPress={() => setSelectedSquare(square)}
+                  style={[
+                    styles.square,
+                    {
+                      backgroundColor: getSquareColor(square, file, displayRank),
+                    },
+                  ]}
+                >
+                  <FogOverlay opacity={opacity} />
+                </Pressable>
+              );
+            }}
+          />
+        </View>
+        {showLabels ? (
+          <View style={[styles.fileLabels, { marginLeft: labelGutter }]}>
             <FileLabels labelGutter={0} squareSize={squareSize} />
           </View>
-        </View>
+        ) : null}
       </BoardFrame>
 
       {selectedSquare && interactive ? (
@@ -97,11 +125,21 @@ export function InteractiveHeatmap({ interactive = true }: InteractiveHeatmapPro
 
 const styles = StyleSheet.create({
   wrapper: {
+    alignSelf: 'stretch',
     alignItems: 'center',
-    marginVertical: spacing.md,
+  },
+  frame: {
+    marginBottom: 0,
+  },
+  fullWidthFrame: {
+    alignSelf: 'stretch',
   },
   row: {
     flexDirection: 'row',
+    alignItems: 'flex-start',
+    justifyContent: 'center',
+  },
+  fileLabels: {
     alignItems: 'flex-start',
   },
   square: {

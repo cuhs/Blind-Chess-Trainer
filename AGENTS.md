@@ -94,25 +94,27 @@ supabase/migrations/
 | Interactive Active Recall Training | `DailyDrill` | 2 |
 | Animated Match Engine | `VoiceMatch` | 3 |
 | Animated Cognitive Heatmap Dashboard | `CognitiveHeatmap` / `FogRevealScreen` | 1 / 4 |
+| MindBoard Home (Enhanced Loop) | `HomeDashboard` | 1 exit |
 | Populated Game Analysis & Review | `ReplayTimeline` | 4 |
-| *(inferred)* | `HomeDashboard` | 1 exit — extends `61ce6c33` |
 
-Blueprint-only screens (no Stitch frame): `StoryCheck`, `RewardPuzzle`, `MatchPrimer`, `HomeDashboard`, `DisambiguationOverlay`. **Infer visuals** from nearest sibling Stitch screen + `@/theme` — never invent new design language. See `DESIGN.md` § Screens without a Stitch frame.
+Blueprint-only screens (no Stitch frame): `StoryCheck`, `RewardPuzzle`, `MatchPrimer`, `DisambiguationOverlay`. **Infer visuals** from nearest sibling Stitch screen + `@/theme` — never invent new design language. See `DESIGN.md` § Screens without a Stitch frame.
 
 ## Closed-Loop Home (`HomeDashboard`)
 
-Post-onboarding `/(main)/index` — not a traditional chess menu. Top-to-bottom:
+Post-onboarding `/(main)/index` — Stitch frame `b1eff5fd32e743e2a7f8a4b78a340318`. Top-to-bottom:
 
-1. **HabitHeader** — streak counter + Board Mapped %
-2. **InteractiveHeatmap** — hero 8×8 fog grid (tap → tooltip)
-3. **DailyMatrixCard** — primary CTA; loop badge when peek events exist
-4. **VoiceMatchCard** — secondary CTA with Elo chip
-5. **Tab bar** — Home | Drills | History
+1. **AppHeader** — bordered top bar with mascot + settings
+2. **HabitHeader** — bolt streak + Board Mapped %
+3. **Hero copy** — "Cognitive Heatmap" title + subtitle
+4. **InteractiveHeatmap** — centered compact card, label-free fog grid
+5. **Clear the Fog** — primary CTA + puzzle hint
+6. **VoiceMatchCard** — "Start Blindfold Match" secondary row
+7. **Tab bar** — Home | Drills | History (active green pill)
 
 ## Build Order
 
 1. Onboarding — `HookBoard` → `MatchPrimer` (Stitch: Invisible Grid Hook)
-1b. Home — `HomeDashboard` closed-loop tabs (infer from `61ce6c33`)
+1b. Home — `HomeDashboard` from Stitch `b1eff5fd32e743e2a7f8a4b78a340318`
 2. Training — `StoryPuzzle`, `DailyDrill`
 3. Voice match — `VoiceMatch` + `DisambiguationOverlay`
 4. Post-game — `ReplayTimeline`, `CognitiveHeatmap`

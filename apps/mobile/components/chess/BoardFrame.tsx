@@ -1,13 +1,25 @@
 import type { ReactNode } from 'react';
-import { View, StyleSheet } from 'react-native';
+import { View, StyleSheet, type StyleProp, type ViewStyle } from 'react-native';
 import { colors, radius, spacing, touch } from '@/theme';
 
 interface BoardFrameProps {
   children: ReactNode;
+  style?: StyleProp<ViewStyle>;
+  padding?: 'sm' | 'md';
 }
 
-export function BoardFrame({ children }: BoardFrameProps) {
-  return <View style={styles.frame}>{children}</View>;
+export function BoardFrame({ children, style, padding = 'sm' }: BoardFrameProps) {
+  return (
+    <View
+      style={[
+        styles.frame,
+        padding === 'md' && styles.frameMd,
+        style,
+      ]}
+    >
+      {children}
+    </View>
+  );
 }
 
 const styles = StyleSheet.create({
@@ -18,5 +30,9 @@ const styles = StyleSheet.create({
     borderColor: colors.surfaceContainerHighest,
     padding: spacing.xs,
     marginBottom: touch.buttonOffset,
+  },
+  frameMd: {
+    padding: spacing.md,
+    borderColor: colors.cardStroke,
   },
 });
