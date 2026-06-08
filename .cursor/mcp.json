@@ -3,6 +3,10 @@
     "stitch": {
       "command": "node",
       "args": [".cursor/stitch-mcp-proxy.mjs"]
+    },
+    "ios-simulator": {
+      "command": "npx",
+      "args": ["-y", "ios-simulator-mcp"]
     }
   }
 }

@@ -1,0 +1,30 @@
+---
+description: Chess board UI — geometry, notation correlation, shared grid
+globs: "apps/mobile/components/{chess,heatmap}/**"
+alwaysApply: false
+---
+
+# Chess Board UI
+
+Shared: `boardUtils.ts`, `BoardGrid`, `BoardLabels`. Notation semantics: `.cursor/skills/chess-ui/notation.md`.
+
+## Grid ↔ notation
+
+- `squareFromIndex(file, displayRank)` → algebraic `Square` (`e4`)
+- `displayRank` 0 = rank 8 (top), 7 = rank 1 (bottom); `file` 0 = `a`
+- `parseBoard(fen)[displayRank][file]` — same layout as `BoardGrid`
+- **a1** = file 0, displayRank 7, dark square
+
+Never map tap/index → square without `squareFromIndex` or chess.js.
+
+## Rendering
+
+- White at bottom; labels: files a–h bottom, ranks 8–1 left
+- Colors via `boardColors.ts`; pieces via `ChessPiece` SVG
+- Heatmap/peek `square` strings must match board squares exactly
+
+## Data alignment
+
+Puzzle `expected`, `squaresTouched`, prompts, and FEN must refer to the **same** square names. Verify with `chess.get(square)` after FEN changes.
+
+Update `notation.md` + `DESIGN.md` if coordinate conventions change (doc-maintenance).

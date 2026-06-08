@@ -20,6 +20,15 @@ Position → motif-engine (TS) → MotifResult[] → LLM (templating only)
 
 Empty motifs → skip question. Never ask LLM to analyze the position.
 
+## Notation semantics
+
+- **Square** = file (`a`–`h`) + rank (`1`–`8`); type in `@mindboard/shared`
+- FEN + moves: chess.js only; `applyMoves(fen, moves)` then query position
+- `normalizeSquare()` before comparing user input to `expected`
+- Motif JSON uses SAN piece refs (`Bc4`) — square names for locations
+
+See `.cursor/skills/chess-ui/notation.md` for grid index correlation.
+
 ## Training Input
 
 Text only: coordinates (`e4`), SAN (`Nf3`), yes/no. Normalize before legality check.

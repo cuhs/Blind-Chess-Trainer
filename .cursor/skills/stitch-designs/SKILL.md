@@ -67,6 +67,8 @@ No matching frame? **Do not block.** Compose from synced context:
 
 Example: `MatchPrimer` → infer from `HookBoard` (headline + green 3D button + body copy).
 
+After sync, run `doc-maintenance` checklist — verify `AGENTS.md` and skills match updated frames.
+
 ## Fidelity Checklist
 
 ```

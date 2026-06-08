@@ -1,5 +1,5 @@
 ---
-description: Testing standards — unit, integration, and test quality conventions
+description: Testing standards — unit, integration, iOS Simulator MCP
 globs: "**/*.{test,spec}.{ts,tsx}"
 alwaysApply: false
 ---
@@ -8,40 +8,41 @@ alwaysApply: false
 
 ## Test Pyramid
 
-| Layer | Tool | Coverage target |
-|-------|------|-----------------|
-| Unit | Vitest or Jest | Motif engine ≥90% branch coverage |
-| Integration | Vitest + chess.js fixtures | API routes, voice normalizer |
-| E2E | Detox or Maestro | Critical paths: onboarding hook, one voice move |
+| Layer | Tool | When |
+|-------|------|------|
+| Unit | Vitest | `packages/*` logic — **always before merge** |
+| Integration | Vitest + fixtures | API, normalizer, validate |
+| Simulator UI | **ios-simulator MCP** | `apps/mobile` screens/flows after UI changes |
+
+Motif engine: ≥90% branch coverage. Voice normalizer: table-driven homophone tests.
+
+Simulator testing skill: `.cursor/skills/ios-simulator-testing/SKILL.md`. Does not replace unit tests.
 
 ## Structure (Arrange-Act-Assert)
 
 ```typescript
-it('detects absolute pin to king', () => {
-  // Arrange
-  const fen = '...'; // comment: Bc4 pins Nf6 to Ke8
-  // Act
-  const result = detectMotifs(fen);
-  // Assert
-  expect(result).toContainEqual({ motif: 'pin', attacker: 'Bc4', target: 'Nf6', pinned_to: 'Ke8' });
+it('should detect pin when knight is pinned to king', () => {
+  const fen = '...'; // Bc4 pins Nf6 to Ke8
+  expect(detectMotifs(fen)).toContainEqual({
+    motif: 'pin', attacker: 'Bc4', target: 'Nf6', pinned_to: 'Ke8',
+  });
 });
 ```
 
 ## Naming
 
-- File: `{module}.test.ts` colocated or in `__tests__/`
-- Describe block: function or module name
-- It block: `should {expected behavior} when {condition}`
+- File: `{module}.test.ts`
+- It block: `should {behavior} when {condition}`
 
 ## Requirements
 
-- Motif engine: ≥5 positive + ≥3 negative FENs per motif type before merge
-- Voice normalizer: table-driven tests for homophones and filler stripping
-- No snapshot tests for chess positions — use explicit assertions
-- Mock LLM and STT at integration boundaries; never mock chess.js legality
+- Motif: ≥5 positive + ≥3 negative FENs per motif type
+- Chess positions: explicit assertions — no snapshots
+- Mock LLM/STT at boundaries; never mock chess.js legality
+- Mobile UI: grep `accessibilityLabel` exists for new interactives
 
 ## Do Not
 
-- Skip tests for "simple" detection logic
-- Test implementation details (private functions) — test public API
+- Skip unit tests for "simple" logic
+- Use simulator-only verification for pure functions
 - Commit `.only` or focused tests

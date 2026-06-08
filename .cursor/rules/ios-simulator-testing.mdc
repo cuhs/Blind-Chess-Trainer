@@ -1,0 +1,29 @@
+---
+description: iOS Simulator MCP — when and how to verify mobile UI after changes
+globs: "apps/mobile/**"
+alwaysApply: false
+---
+
+# iOS Simulator Testing
+
+MCP: `ios-simulator`. Skill: `.cursor/skills/ios-simulator-testing/SKILL.md`.
+
+## When to Run
+
+After changes to `apps/mobile/` screens, components, navigation, or accessibility:
+
+1. Run package unit tests first (`packages/chess-core`, `heatmap`, etc.)
+2. `cd apps/mobile && npx expo start --ios`
+3. MCP: `get_booted_sim_id` → `ui_describe_all` → interact → `screenshot`
+
+## Accessibility (required for MCP)
+
+Every `Pressable`, `TextInput`, and icon button needs:
+- `accessibilityLabel` — stable string for `ui_find_element`
+- `accessibilityRole` — `button`, `text`, `header`, etc.
+
+Test IDs alone are not enough — MCP searches AXLabel.
+
+## Bundle
+
+`com.mindboard.app` — use `launch_app` with `terminate_running: true` for cold-start onboarding tests.

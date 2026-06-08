@@ -112,7 +112,8 @@ No soft drop shadows. Use **tonal offsets and 3D extrusions**:
 | `HookBoard` | invisible-prompt (post-vanish), success |
 | `StoryCheck` | listening, yes/no prompt (blank screen) |
 | `RewardPuzzle` | rapid puzzle ×2 |
-| `MatchPrimer` | expectation copy → unlock dashboard |
+| `MatchPrimer` | expectation copy → unlock HomeDashboard |
+| `HomeDashboard` | closed-loop home — habit header, hero heatmap, action cards |
 | `DisambiguationOverlay` | black screen, two massive targets |
 | `VoiceMatch` | clock-frozen state (Stitch shows this) |
 
@@ -127,6 +128,7 @@ When a screen or state has no Stitch frame (new screen, blueprint-only flow, or 
 |---------------------|------------|
 | `StoryCheck`, `RewardPuzzle` | `HookBoard` + `StoryPuzzle` (prompt + `MoveInput` + progress bar) |
 | `MatchPrimer` | `HookBoard` (headline + `PrimaryButton` + `bodyMd` copy) |
+| `HomeDashboard` | `CognitiveHeatmap` (`61ce6c33`) + card CTAs |
 | `DisambiguationOverlay` | `VoiceMatch` (minimal chrome, large touch targets, `colors.background`) |
 | New training screen | `StoryPuzzle` or `DailyDrill` |
 | New settings / profile | `CognitiveHeatmap` (card layout, legend chips) |
@@ -187,6 +189,101 @@ These override Stitch visuals where they conflict:
 
 ---
 
+## HomeDashboard Layout (closed-loop home)
+
+Post-onboarding `/(main)/index`. Not a traditional chess menu — validates habit and directs the next action.
+
+| Zone (top → bottom) | Component | Data |
+|---------------------|-----------|------|
+| Header | `HabitHeader` | Streak days + Board Mapped % |
+| Hero | `InteractiveHeatmap` | 8×8 fog grid; tap → `SquareTooltip` |
+| Primary CTA | `DailyMatrixCard` | "Today's Matrix: N Positions"; loop badge from peek events |
+| Secondary CTA | `VoiceMatchCard` | "Start Voice Match" + opponent Elo chip |
+| Navigation | Expo tabs | Home · Drills · History |
+
+---
+
+## Chess Representation
+
+All board UIs share `apps/mobile/components/chess/boardUtils.ts`. FEN parsing via chess.js only.
+
+### Orientation & geometry
+
+- **White at bottom** (rank 1), black at top (rank 8) — standard white POV
+- **displayRank** 0 = rank 8 (top), 7 = rank 1 (bottom); **file** 0 = `a`
+- **a1 is a dark square** — `isLightSquare(file, displayRank)`: `(file + displayRank) % 2 === 0` → light
+- `squareFromIndex(file, displayRank)` → `Square` (`a1`–`h8`)
+
+### Notation correlation
+
+Every layer uses the same square names. Agent reference: `.cursor/skills/chess-ui/notation.md`.
+
+| Layer | How square `e4` is expressed |
+|-------|------------------------------|
+| Algebraic | `'e4'` (`Square` type) |
+| Grid index | file `4` (e-file), displayRank `4` → rank `8-4=4` |
+| `parseBoard` | `board[4][4]` → piece at e4 |
+| FEN | rank 4 field in FEN string (8th row of placement) |
+| User input | `normalizeSquare('E4')` → `'e4'` |
+| Heatmap / peek | `squaresTouched`, `PeekEvent.square`, `HeatmapCell.square` |
+
+**Semantic rule:** file = vertical column (a–h), rank = horizontal row from White's side (1–8). `e4` is the king-side center square — not "file 4" or "rank 4" as interchangeable indices.
+
+**Verify puzzles:** `chess.get(expected)` matches prompt; `squaresTouched` lists every square the exercise involves.
+
+### Square colors
+
+| Context | Light square | Dark square |
+|---------|--------------|-------------|
+| Visible board (`ChessBoard`) | `colors.surfaceContainerLow` | `colors.outlineVariant` |
+| Invisible grid | `colors.recessedBg` | `colors.fogStone` |
+| Heatmap (`InteractiveHeatmap`) | same mapping + `FogOverlay` opacity |
+
+Board border: 2pt `colors.cardStroke`. Square corners: `radius.boardSquare` (4px).
+
+### File & rank labels
+
+| Edge | Labels | Style |
+|------|--------|-------|
+| Bottom | `a` `b` `c` `d` `e` `f` `g` `h` | `typography.labelBold`, `colors.onSurfaceVariant` |
+| Left | `8` `7` `6` `5` `4` `3` `2` `1` (top → bottom) | same |
+
+Required on `ChessBoard` and `InteractiveHeatmap`. Optional on `InvisibleGrid`.
+
+### Shared primitives
+
+| Component | Path |
+|-----------|------|
+| `BoardGrid` | `components/chess/BoardGrid.tsx` |
+| `BoardLabels` | `components/chess/BoardLabels.tsx` (`RankLabels`, `FileLabels`) |
+| `boardColors` | `components/chess/boardColors.ts` |
+| `useBoardDimensions` | `components/chess/useBoardDimensions.ts` |
+| `ChessPiece` | `components/chess/pieces/ChessPiece.tsx` |
+
+Reuse `BoardGrid` for any 8×8 UI — do not duplicate grid loops.
+
+### Pieces (Stitch: mascot vectors)
+
+- SVG via `ChessPiece` — **no Unicode glyphs** (`♙♘♗♖♕♔`) or emoji
+- Simplified mascot style per Stitch; 2px hover offset on active piece
+
+---
+
+## Icons — No Emoji
+
+**No emoji characters anywhere in the UI** — not in buttons, tips, labels, or placeholders.
+
+| Need | Use instead |
+|------|-------------|
+| Lightbulb (tip) | `LightbulbIcon` in `components/ui/icons/` |
+| Peek / visibility | `PeekIcon` (SVG) |
+| Mic, pause, timer | SVG icons via `react-native-svg` or `@expo/vector-icons` |
+| Chess pieces | `components/chess/pieces/*.tsx` |
+
+Shared icons live in `components/ui/icons/`. Reuse — do not inline emoji as temporary icons.
+
+---
+
 ## Component Catalog
 
 | Component | Stitch spec | Blueprint constraint |
@@ -195,16 +292,26 @@ These override Stitch visuals where they conflict:
 | `MoveInput` | 56px height, 2pt stroke, blue focus | Text only in training |
 | `ProgressBar` | 12px pill, green fill, white shine | — |
 | `Card` | White, 2pt `#e5e5e5` stroke, 16px radius, 4px offset | — |
-| `ChessBoard` | 4px square radius, mascot pieces | Visible: hook, replay, post-game only |
-| `InvisibleGrid` | Fog/stone neutrals | No pieces |
+| `ChessBoard` | Labels, 4px square radius, SVG mascot pieces | Visible: hook, replay, post-game only |
+| `InvisibleGrid` | Same geometry, fog/stone neutrals | No pieces |
 | `DisambiguationOverlay` | Black/minimal screen, large targets | Voice match only |
 | `FogOverlay` | Stone grey opacity per square | Uses fog math |
 | `CognitiveHeatmap` | Clarity %, mastery count, legend | Proportional fog |
-| `MascotTip` | Chip with lightbulb + `bodyMd` copy | Training screens |
+| `MascotTip` | Chip with `LightbulbIcon` (SVG) + `bodyMd` copy | Training screens |
 | `MatchClock` | Timer + "CLOCK FROZEN" badge | Freezes on parser failure |
-| `PeekButton` | visibility icon + "Peek" label | Always visible in match |
+| `PeekButton` | `PeekIcon` (SVG) + label — no emoji | Onboarding peek affordance |
+| `OnboardingChrome` | Level label + `ProgressBar` | Onboarding only |
+| `HabitHeader` | Streak + Board Mapped % | HomeDashboard |
+| `InteractiveHeatmap` | Hero 8×8 + `FogOverlay` + tap tooltips | Home + FogReveal |
+| `SquareTooltip` | Micro-tooltip on square tap | HomeDashboard |
+| `DailyMatrixCard` | Primary CTA + closed-loop badge | HomeDashboard |
+| `VoiceMatchCard` | Secondary CTA + Elo chip | HomeDashboard |
+| `HeatmapStats` | CLARITY %, MASTERY count | FogReveal + heatmap |
+| `HeatmapLegend` | Three-state legend chips | FogReveal + heatmap |
 
-File paths: `apps/mobile/components/{ui,chess,match,heatmap,replay}/`
+File paths: `apps/mobile/components/{ui,chess,match,heatmap,replay,home,onboarding}/`
+
+Icon assets: `components/ui/icons/`. Piece SVGs: `components/chess/pieces/`.
 
 ### Reuse & modularization
 
@@ -213,7 +320,7 @@ File paths: `apps/mobile/components/{ui,chess,match,heatmap,replay}/`
 | Layer | Role | Example |
 |-------|------|---------|
 | `components/ui/` | Generic, cross-screen primitives | `PrimaryButton`, `MoveInput`, `Card`, `PromptText` |
-| `components/{chess,match,heatmap,replay}/` | Domain-specific, reusable | `ChessBoard`, `FogOverlay`, `MatchClock` |
+| `components/{chess,match,heatmap,replay,home,onboarding}/` | Domain-specific, reusable | `ChessBoard`, `FogOverlay`, `DailyMatrixCard` |
 | `screens/` | Route-level composition only | Import components; minimal layout logic |
 | `hooks/` | Shared stateful logic | `useFogOpacity`, `useOnboardingStep` |
 
@@ -225,6 +332,8 @@ File paths: `apps/mobile/components/{ui,chess,match,heatmap,replay}/`
 **Do not extract when:** used once, trivial wrapper, or abstraction would obscure readability. Prefer reuse over premature splitting.
 
 **Composition:** screens assemble catalog components. Pass data via props — no fetching inside presentational components.
+
+**Doc maintenance:** when adding components or changing structure, update this catalog and `AGENTS.md` in the same task (see `doc-maintenance` skill).
 
 ---
 

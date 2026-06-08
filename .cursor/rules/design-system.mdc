@@ -30,7 +30,7 @@ import { colors, spacing, typography, touch, radius } from '@/theme';
 
 1. Search `apps/mobile/components/` and `DESIGN.md` catalog before writing new UI
 2. Reuse `PrimaryButton`, `MoveInput`, `Card`, `ProgressBar`, etc. — never duplicate styled markup
-3. Extract to `components/ui/` or domain folder when pattern appears 2+ times or screen JSX exceeds ~150 lines
+3. Extract to `components/ui/`, `components/home/`, or domain folder when pattern appears 2+ times or screen JSX exceeds ~150 lines
 4. `screens/` compose components only; shared logic → `hooks/`
 5. Presentational components: props in, JSX out — no data fetching
 
@@ -38,6 +38,15 @@ import { colors, spacing, typography, touch, radius } from '@/theme';
 
 Infer visuals from the nearest sibling Stitch screen + `@/theme`. Reuse existing components — never invent new colors, fonts, or button styles. Interaction from blueprint. Flag `// TODO(stitch):` on the file. See `DESIGN.md` § Screens without a Stitch frame.
 
+## Icons — SVG Only, No Emoji
+
+- **No emoji** in UI (`💡`, `🎉`, etc.) — not in copy, labels, or decorative elements
+- Use `react-native-svg` or `@expo/vector-icons` (SVG-based) via `components/ui/icons/`
+- Chess pieces: SVG components in `components/chess/pieces/` — never Unicode glyphs or emoji
+- Reuse shared icons (`LightbulbIcon`, `PeekIcon`, `MicIcon`) — do not inline emoji as stand-ins
+
 ## Accessibility
 
 WCAG 2.2 AA. Use `colors.contrastInk` on colored surfaces. Pair color with text/icons.
+
+**Simulator-testable:** every interactive needs `accessibilityLabel` + `accessibilityRole` so `ios-simulator` MCP `ui_find_element` can locate it. Labels must match visible purpose (`"Submit answer"`, not `"button1"`).

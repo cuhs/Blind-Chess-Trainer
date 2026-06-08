@@ -1,0 +1,38 @@
+---
+description: Keep AGENTS.md, rules, skills, and DESIGN.md in sync when code changes
+alwaysApply: true
+---
+
+# Agent Doc Maintenance
+
+When a change makes agent docs **wrong or incomplete**, update them **in the same task** — not a follow-up.
+
+## Triggers — update docs when you…
+
+| Change | Update |
+|--------|--------|
+| Add/rename/remove screen, route, or tab | `AGENTS.md`, `react-native-expo.mdc`, relevant skill |
+| Add/rename/remove component | `DESIGN.md` catalog, relevant skill |
+| Change board/chess rendering | `DESIGN.md` § Chess, `chess-board.mdc`, `chess-ui` skill |
+| Add package, API route, or table | `AGENTS.md` structure, `backend-api.mdc` or domain rule |
+| New convention or constraint | matching `.cursor/rules/*.mdc` + `AGENTS.md` constraints |
+| Stitch re-sync | `DESIGN.md`, `tokens.ts`, `stitch-designs` skill |
+| New skill-worthy workflow | `.cursor/skills/<name>/SKILL.md`; list in `AGENTS.md` |
+| Mobile routes or onboarding flow | `ios-simulator-testing` skill P0 scenarios |
+| New interactives without a11y labels | `design-system.mdc`, `ios-simulator-testing.mdc` |
+| Rule scope no longer matches paths | rule frontmatter `globs` |
+
+## Do not
+
+- Leave docs describing removed files, screens, or APIs
+- Add code that contradicts rules without updating the rule
+- Defer doc fixes to "later"
+
+## How
+
+1. Finish the code change
+2. Grep docs for stale names/paths (`AGENTS.md`, `DESIGN.md`, `.cursor/`)
+3. Patch only affected sections — keep rules under ~50 lines
+4. If `AGENTS.md` rules/skills tables changed, verify both tables match disk
+
+Skill: `.cursor/skills/doc-maintenance/SKILL.md`

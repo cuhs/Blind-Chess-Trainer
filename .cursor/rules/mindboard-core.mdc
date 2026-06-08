@@ -27,3 +27,17 @@ Simplest correct solution for the current phase only.
 ## UI
 
 Reuse `components/` and `DESIGN.md` catalog before new UI. Modularize when a pattern repeats — not before.
+
+## Chess & Icons
+
+- Boards: correct square colors, labels, white-at-bottom — see `chess-board` rule
+- Square names (`e4`), FEN, grid indices, and heatmap cells must correlate — `chess-ui/notation.md`
+- **No emoji** anywhere in UI; icons and pieces are SVG
+
+## Testing
+
+Unit tests for logic; iOS Simulator MCP for mobile UI after screen changes. See `ios-simulator-testing` skill.
+
+## Doc Maintenance
+
+If code changes break `AGENTS.md`, `DESIGN.md`, rules, or skills — update them in the same task. See `doc-maintenance` rule.

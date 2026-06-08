@@ -1,0 +1,12 @@
+{
+  "name": "blind-chess-trainer",
+  "private": true,
+  "workspaces": [
+    "apps/*",
+    "packages/*"
+  ],
+  "scripts": {
+    "mobile": "npm run start --workspace=@mindboard/mobile",
+    "test": "npm run test --workspaces --if-present"
+  }
+}

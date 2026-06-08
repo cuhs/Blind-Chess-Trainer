@@ -24,12 +24,14 @@ Mascot tip: "Look at the long diagonal from a4!"
 ```typescript
 interface MotifResult {
   motif: 'pin' | 'discovered_attack' | 'overloaded_defender';
-  attacker: string;
+  attacker: string;   // SAN piece ref: "Bc4" (piece on a square, not the square name)
   target: string;
   pinned_to?: string;
-  square?: string;
+  square?: string;    // overloaded defender square: "f6"
 }
 ```
+
+Piece refs (`Bc4`) are **SAN notation** — bishop on c4. Square names (`e4`) are **locations**. See `chess-ui/notation.md`.
 
 ## Boundary
 

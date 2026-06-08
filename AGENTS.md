@@ -15,6 +15,8 @@ Blind-Chess-Trainer is the repo for **MindBoard**, a cognitive blindfold chess p
 
 **Before UI work:** read `DESIGN.md` + import from `@/theme`. **Before architecture:** read `Product-Blueprint.md`.
 
+**After structural changes:** keep agent docs accurate — see [Agent Doc Maintenance](#agent-doc-maintenance).
+
 ## Stitch Project
 
 | Field | Value |
@@ -26,7 +28,12 @@ Blind-Chess-Trainer is the repo for **MindBoard**, a cognitive blindfold chess p
 | Color mode | Light |
 | Fonts | Plus Jakarta Sans (headlines), Be Vietnam Pro (body) |
 
-MCP: `.cursor/mcp.json` → `.cursor/stitch-mcp-proxy.mjs` (14 tools enabled).
+MCP (`.cursor/mcp.json`):
+
+| Server | Purpose |
+|--------|---------|
+| `stitch` | Design frames → `tokens.ts`, `DESIGN.md` |
+| `ios-simulator` | UI verification on booted Simulator (tap, type, screenshot, a11y tree) |
 
 ## Core Philosophy
 
@@ -49,9 +56,12 @@ Closed-loop system: text training → voice matches → failures → custom puzz
 
 ```
 apps/mobile/
+  app/                # Expo Router — (onboarding), (main) tabs
   theme/tokens.ts     # Stitch design tokens (synced)
   components/         # See DESIGN.md catalog
   screens/            # Mapped to Stitch frames
+  hooks/              # Shared stateful logic
+  stores/             # Zustand + AsyncStorage (guest session)
 apps/api/             # Express gateway
 packages/chess-core/
 packages/motif-engine/
@@ -61,6 +71,20 @@ packages/shared/
 supabase/migrations/
 ```
 
+## Mobile Routes
+
+| Group | Route | Screen |
+|-------|-------|--------|
+| Gate | `/` | Redirect → onboarding or main |
+| Onboarding | `/(onboarding)/hook` | `HookBoardScreen` |
+| Onboarding | `/(onboarding)/story-check` | `StoryCheckScreen` |
+| Onboarding | `/(onboarding)/reward/[index]` | `RewardPuzzleScreen` |
+| Onboarding | `/(onboarding)/fog-reveal` | `FogRevealScreen` |
+| Onboarding | `/(onboarding)/match-primer` | `MatchPrimerScreen` |
+| Main tabs | `/(main)/index` | `HomeDashboardScreen` |
+| Main tabs | `/(main)/drills` | Phase 2 stub |
+| Main tabs | `/(main)/history` | Phase 4 stub |
+
 ## Stitch → Screen Mapping
 
 | Stitch frame | RN screen | Phase |
@@ -69,42 +93,75 @@ supabase/migrations/
 | Active Recall Training Phase | `StoryPuzzle` | 2 |
 | Interactive Active Recall Training | `DailyDrill` | 2 |
 | Animated Match Engine | `VoiceMatch` | 3 |
-| Animated Cognitive Heatmap Dashboard | `CognitiveHeatmap` | 4 |
+| Animated Cognitive Heatmap Dashboard | `CognitiveHeatmap` / `FogRevealScreen` | 1 / 4 |
 | Populated Game Analysis & Review | `ReplayTimeline` | 4 |
+| *(inferred)* | `HomeDashboard` | 1 exit — extends `61ce6c33` |
 
-Blueprint-only screens (no Stitch frame): `StoryCheck`, `RewardPuzzle`, `MatchPrimer`, `DisambiguationOverlay`. **Infer visuals** from nearest sibling Stitch screen + `@/theme` — never invent new design language. See `DESIGN.md` § Screens without a Stitch frame.
+Blueprint-only screens (no Stitch frame): `StoryCheck`, `RewardPuzzle`, `MatchPrimer`, `HomeDashboard`, `DisambiguationOverlay`. **Infer visuals** from nearest sibling Stitch screen + `@/theme` — never invent new design language. See `DESIGN.md` § Screens without a Stitch frame.
+
+## Closed-Loop Home (`HomeDashboard`)
+
+Post-onboarding `/(main)/index` — not a traditional chess menu. Top-to-bottom:
+
+1. **HabitHeader** — streak counter + Board Mapped %
+2. **InteractiveHeatmap** — hero 8×8 fog grid (tap → tooltip)
+3. **DailyMatrixCard** — primary CTA; loop badge when peek events exist
+4. **VoiceMatchCard** — secondary CTA with Elo chip
+5. **Tab bar** — Home | Drills | History
 
 ## Build Order
 
-1. Onboarding — `HookBoard` (Stitch: Invisible Grid Hook)
+1. Onboarding — `HookBoard` → `MatchPrimer` (Stitch: Invisible Grid Hook)
+1b. Home — `HomeDashboard` closed-loop tabs (infer from `61ce6c33`)
 2. Training — `StoryPuzzle`, `DailyDrill`
 3. Voice match — `VoiceMatch` + `DisambiguationOverlay`
 4. Post-game — `ReplayTimeline`, `CognitiveHeatmap`
 5. Infrastructure — Supabase, Express, motif engine
 
+## Agent Doc Maintenance
+
+**Required:** when a change makes agent docs wrong or incomplete, update them in the **same task** — not later.
+
+| Trigger | Update |
+|---------|--------|
+| New/removed screen, route, tab | `AGENTS.md`, `react-native-expo.mdc`, domain skill |
+| New/removed component | `DESIGN.md` catalog |
+| Chess/board changes | `DESIGN.md` § Chess, `chess-board.mdc`, `chess-ui` skill |
+| New package or API | `AGENTS.md` structure, scoped rule |
+| New convention | matching rule + `AGENTS.md` constraints |
+| Stitch re-sync | `DESIGN.md`, `tokens.ts`, `stitch-designs` skill |
+
+Verify `AGENTS.md` rules/skills tables match files in `.cursor/rules/` and `.cursor/skills/`. Skill: `doc-maintenance`.
+
 ## Skills
 
 | Skill | When |
 |-------|------|
+| `doc-maintenance` | After changes that affect architecture, routes, components, or conventions |
 | `stitch-designs` | Re-sync Stitch → DESIGN.md + tokens.ts |
 | `onboarding-flow` | Phase 1 screens |
 | `motif-engine` | Tactical detection + tests |
 | `voice-match` | STT pipeline, clock freeze |
 | `heatmap-analytics` | Fog, peek, replay, drilling |
+| `chess-ui` | Board rendering, labels, SVG pieces, grid geometry |
+| `ios-simulator-testing` | Verify mobile UI flows via iOS Simulator MCP |
 
 ## Rules
 
 | Rule | Scope |
 |------|-------|
 | `mindboard-core` | Always |
+| `doc-maintenance` | Always |
 | `design-system` | `apps/mobile/**` |
 | `design-stitch` | `apps/mobile/**` |
 | `typescript-standards` | `**/*.{ts,tsx}` |
 | `testing` | `**/*.{test,spec}.{ts,tsx}` |
 | `react-native-expo` | `apps/mobile/**` |
 | `chess-logic` | `packages/chess-core/**` |
+| `chess-board` | `apps/mobile/components/{chess,heatmap}/**` |
 | `motif-engine` | `packages/motif-engine/**` |
 | `voice-pipeline` | `packages/voice-pipeline/**` |
+| `ios-simulator-testing` | `apps/mobile/**` |
 | `backend-api` | `apps/api/**`, `supabase/**` |
 
 ## Non-Negotiable Constraints
@@ -115,17 +172,23 @@ Blueprint-only screens (no Stitch frame): `StoryCheck`, `RewardPuzzle`, `MatchPr
 - **Fog:** `opacity = 1 - (interactions / threshold)` — center 15, edge 10, corner 5.
 - **Design:** Import tokens from `@/theme` — no inline hex. Blueprint wins on interaction; Stitch wins on visuals.
 - **Components:** Search `components/` and `DESIGN.md` catalog before new UI. Reuse primitives; extract shared blocks when they repeat or screens grow large. `screens/` compose only.
-- **Testing:** Motif engine ≥90% branch coverage; table-driven normalizer tests.
+- **Chess UI:** Correct square colors, labels, white-at-bottom, shared `boardUtils`. Square names, FEN, grid indices, and heatmap cells must correlate — see `chess-ui/notation.md`. SVG pieces — no Unicode glyphs.
+- **Icons:** No emoji in UI. Use SVG via `components/ui/icons/` and `components/chess/pieces/`.
+- **Testing:** Unit tests first (Vitest). Mobile UI: verify on iOS Simulator MCP after screen/component changes — `ios-simulator-testing` skill. All interactives need `accessibilityLabel` for MCP.
+- **Docs:** Update `AGENTS.md`, `DESIGN.md`, rules, and skills when code changes invalidate them — same task, not deferred.
 
 ## Commands
 
 ```bash
-cd apps/mobile && npx expo start
+cd apps/mobile && npx expo start --ios   # boot app in simulator
 cd apps/api && npm run dev
 cd packages/motif-engine && npm test
-npx @_davideast/stitch-mcp doctor   # verify Stitch API
+cd packages/chess-core && npm test
+npx @_davideast/stitch-mcp doctor      # verify Stitch API
 supabase start
 ```
+
+**Simulator MCP workflow:** `get_booted_sim_id` → `ui_describe_all` → `ui_find_element` / `ui_tap` / `ui_type` → `screenshot`. Bundle: `com.mindboard.app`.
 
 ## Commits
 
