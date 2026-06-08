@@ -23,6 +23,29 @@ Run unit tests **before** simulator. Simulator does not replace chess-core/motif
 
 ## Setup
 
+### idb prerequisite
+
+ios-simulator MCP shells out to `idb`. Install both parts:
+
+```bash
+# Companion (manual install if brew fails)
+mkdir -p ~/.local/opt/idb-companion
+curl -fsSL -o /tmp/idb-companion.tar.gz \
+  https://github.com/facebook/idb/releases/download/v1.1.8/idb-companion.universal.tar.gz
+tar -xzf /tmp/idb-companion.tar.gz -C /tmp
+cp -R /tmp/idb-companion.universal/{bin,Frameworks} ~/.local/opt/idb-companion/
+ln -sf ~/.local/opt/idb-companion/bin/idb_companion ~/.local/bin/idb_companion
+
+# Client — use Python 3.12 (3.14 breaks fb-idb asyncio)
+brew install pipx
+pipx install fb-idb --python python3.12
+pipx ensurepath
+```
+
+`.cursor/mcp.json` sets `PATH` to include `~/.local/bin` for the `ios-simulator` server. Restart MCP after install.
+
+Verify: `idb list-targets` shows booted simulators.
+
 ```bash
 # Terminal 1 — start app (required)
 cd apps/mobile && npx expo start --ios

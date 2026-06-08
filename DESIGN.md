@@ -299,17 +299,18 @@ Shared icons live in `components/ui/icons/`. Reuse — do not inline emoji as te
 | `DisambiguationOverlay` | Black/minimal screen, large targets | Voice match only |
 | `FogOverlay` | Stone grey opacity per square | Uses fog math |
 | `CognitiveHeatmap` | Clarity %, mastery count, legend | Proportional fog |
-| `MascotTip` | Chip with `LightbulbIcon` (SVG) + `bodyMd` copy | Training screens |
+| `MascotTip` | Chip with `LightbulbIcon` (SVG) + `bodyMd` copy | Optional only; never auto-reveal puzzle answers |
 | `MatchClock` | Timer + "CLOCK FROZEN" badge | Freezes on parser failure |
 | `PeekButton` | `PeekIcon` (SVG) + label — no emoji | Onboarding peek affordance |
 | `OnboardingChrome` | Level label + `ProgressBar` | Onboarding only |
+| `TrainingChrome` | Position label + `ProgressBar` | DailyDrill session |
 | `AppHeader` | Mascot avatar + MindBoard title + settings | Onboarding + home |
 | `BoardFrame` | 3D card wrapper for boards/heatmap | Chess + heatmap |
 | `MascotAvatar` | Standalone Icon (`4709d4e8`) in green circle frame | `AppHeader` |
 | `HabitHeader` | Bolt streak + Board Mapped % | HomeDashboard |
 | `InteractiveHeatmap` | Hero 8×8 + `FogOverlay` + tap tooltips | Home + FogReveal |
 | `SquareTooltip` | Micro-tooltip on square tap | HomeDashboard |
-| `DailyMatrixCard` | Primary CTA + closed-loop badge | Phase 2 (reserved) |
+| `DailyMatrixCard` | Primary CTA + closed-loop badge | TrainingHub |
 | `VoiceMatchCard` | Blindfold match row + mic + Elo chip | HomeDashboard |
 | `BottomTabBar` | 4-tab nav: Home/Training/Match/Settings; active green pill + 4px extrusion | `(main)/_layout` |
 | Tab icons | `HomeTabIcon`, `TrainingTabIcon`, `MatchTabIcon`, `SettingsTabIcon` | Bottom tab bar |
@@ -317,7 +318,9 @@ Shared icons live in `components/ui/icons/`. Reuse — do not inline emoji as te
 | `HeatmapStats` | CLARITY %, MASTERY count | FogReveal + heatmap |
 | `HeatmapLegend` | Three-state legend chips | FogReveal + heatmap |
 
-File paths: `apps/mobile/components/{ui,chess,match,heatmap,replay,home,onboarding}/`
+File paths: `apps/mobile/components/{ui,chess,match,heatmap,replay,home,onboarding,training}/`
+
+Screens: `TrainingHubScreen` (`/(main)/training`), `DailyDrillScreen` (`/(main)/training/drill`).
 
 Icon assets: `components/ui/icons/`. Piece SVGs: `components/chess/pieces/`.
 
@@ -328,7 +331,7 @@ Icon assets: `components/ui/icons/`. Piece SVGs: `components/chess/pieces/`.
 | Layer | Role | Example |
 |-------|------|---------|
 | `components/ui/` | Generic, cross-screen primitives | `PrimaryButton`, `MoveInput`, `Card`, `PromptText` |
-| `components/{chess,match,heatmap,replay,home,onboarding}/` | Domain-specific, reusable | `ChessBoard`, `FogOverlay`, `DailyMatrixCard` |
+| `components/{chess,match,heatmap,replay,home,onboarding,training}/` | Domain-specific, reusable | `ChessBoard`, `FogOverlay`, `DailyMatrixCard`, `TrainingChrome` |
 | `screens/` | Route-level composition only | Import components; minimal layout logic |
 | `hooks/` | Shared stateful logic | `useFogOpacity`, `useOnboardingStep` |
 

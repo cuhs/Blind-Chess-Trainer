@@ -82,7 +82,8 @@ supabase/migrations/
 | Onboarding | `/(onboarding)/fog-reveal` | `FogRevealScreen` |
 | Onboarding | `/(onboarding)/match-primer` | `MatchPrimerScreen` |
 | Main tabs | `/(main)/index` | `HomeDashboardScreen` |
-| Main tabs | `/(main)/training` | Phase 2 stub |
+| Main tabs | `/(main)/training` | `TrainingHubScreen` |
+| Main tabs | `/(main)/training/drill` | `DailyDrillScreen` |
 | Main tabs | `/(main)/match` | Phase 3 stub |
 | Main tabs | `/(main)/settings` | Settings stub |
 
@@ -116,7 +117,7 @@ Post-onboarding `/(main)/index` — Stitch frame `b1eff5fd32e743e2a7f8a4b78a3403
 
 1. Onboarding — `HookBoard` → `MatchPrimer` (Stitch: Invisible Grid Hook)
 1b. Home — `HomeDashboard` from Stitch `b1eff5fd32e743e2a7f8a4b78a340318`
-2. Training — `StoryPuzzle`, `DailyDrill`
+2. Training — `TrainingHub`, `DailyDrill` (static puzzle bank); `StoryPuzzle` + motif engine next
 3. Voice match — `VoiceMatch` + `DisambiguationOverlay`
 4. Post-game — `ReplayTimeline`, `CognitiveHeatmap`
 5. Infrastructure — Supabase, Express, motif engine

@@ -28,8 +28,10 @@ Reanimated for press animations. Stockfish WASM + STT off main thread.
 app/                    → Expo Router entry
   (onboarding)/         → linear flow, gestureEnabled: false
   (main)/               → tabs: Home | Training | Match | Settings
+    training/           → stack: hub (index) + drill session
 screens/onboarding/     → HookBoard, StoryCheck, RewardPuzzle, FogReveal, MatchPrimer
 screens/home/           → HomeDashboard (closed-loop)
+screens/training/       → TrainingHub, DailyDrill
 ```
 
 ## Structure
@@ -37,7 +39,7 @@ screens/home/           → HomeDashboard (closed-loop)
 ```
 screens/       → compose components, route params, thin orchestration
 components/ui/ → reusable primitives (check here first)
-components/*   → domain modules (chess, match, heatmap, replay, home, onboarding)
+components/*   → domain modules (chess, match, heatmap, replay, home, onboarding, training)
 hooks/         → shared stateful logic
 stores/        → Zustand + AsyncStorage (guest session)
 ```

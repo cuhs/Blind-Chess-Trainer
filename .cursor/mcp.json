@@ -6,7 +6,10 @@
     },
     "ios-simulator": {
       "command": "npx",
-      "args": ["-y", "ios-simulator-mcp"]
+      "args": ["-y", "ios-simulator-mcp"],
+      "env": {
+        "PATH": "/Users/alexhu/.local/bin:/usr/local/bin:/usr/bin:/bin:/usr/sbin:/sbin"
+      }
     },
     "xcode-builder": {
       "command": "npx",

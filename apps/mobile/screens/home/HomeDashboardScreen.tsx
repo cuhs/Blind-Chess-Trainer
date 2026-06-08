@@ -14,14 +14,11 @@ import { useGuestStore } from '@/stores/guestStore';
 
 export function HomeDashboardScreen() {
   const { streakDays } = useHabitStreak();
-  const { boardMappedPercent } = useFogClearedPercent();
+  const { clarityPercent } = useFogClearedPercent();
   const matchElo = useGuestStore((s) => s.matchElo);
 
   const handleClearFog = () => {
-    Alert.alert(
-      'Clear the Fog',
-      'Training suite arrives in Phase 2. Your onboarding progress is saved.',
-    );
+    router.push('/(main)/training/drill' as never);
   };
 
   const handleMatch = () => {
@@ -42,7 +39,7 @@ export function HomeDashboardScreen() {
         showsVerticalScrollIndicator={false}
       >
         <HabitHeader
-          boardMappedPercent={boardMappedPercent}
+          boardMappedPercent={clarityPercent}
           streakDays={streakDays}
         />
 

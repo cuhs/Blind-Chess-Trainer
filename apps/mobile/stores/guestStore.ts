@@ -13,8 +13,10 @@ interface GuestState {
   currentOnboardingStep: OnboardingStep;
   heatmapLedger: Partial<Record<Square, number>>;
   onboardingAnswers: OnboardingAnswer[];
+  trainingAnswers: OnboardingAnswer[];
   streakDays: number;
   lastActiveDate: string | null;
+  lastDrillCompletedDate: string | null;
   peekEvents: PeekEvent[];
   matchElo: number;
   _hasHydrated: boolean;
@@ -22,11 +24,13 @@ interface GuestState {
   setOnboardingComplete: (complete: boolean) => void;
   setCurrentStep: (step: OnboardingStep) => void;
   recordAnswer: (answer: OnboardingAnswer) => void;
+  recordTrainingAnswer: (answer: OnboardingAnswer) => void;
   recordSquareInteraction: (square: Square) => void;
   recordSquareInteractions: (squares: Square[]) => void;
   addPeekEvent: (event: PeekEvent) => void;
   setStreakDays: (days: number) => void;
   setLastActiveDate: (date: string) => void;
+  setLastDrillCompletedDate: (date: string) => void;
   setMatchElo: (elo: number) => void;
   setHasHydrated: (hydrated: boolean) => void;
 }
@@ -38,8 +42,10 @@ export const useGuestStore = create<GuestState>()(
       currentOnboardingStep: 'hook',
       heatmapLedger: {},
       onboardingAnswers: [],
+      trainingAnswers: [],
       streakDays: 0,
       lastActiveDate: null,
+      lastDrillCompletedDate: null,
       peekEvents: [],
       matchElo: 1200,
       _hasHydrated: false,
@@ -52,6 +58,11 @@ export const useGuestStore = create<GuestState>()(
       recordAnswer: (answer) =>
         set((state) => ({
           onboardingAnswers: [...state.onboardingAnswers, answer],
+        })),
+
+      recordTrainingAnswer: (answer) =>
+        set((state) => ({
+          trainingAnswers: [...state.trainingAnswers, answer],
         })),
 
       recordSquareInteraction: (square) => {
@@ -75,6 +86,9 @@ export const useGuestStore = create<GuestState>()(
 
       setLastActiveDate: (date) => set({ lastActiveDate: date }),
 
+      setLastDrillCompletedDate: (date) =>
+        set({ lastDrillCompletedDate: date }),
+
       setMatchElo: (elo) => set({ matchElo: elo }),
 
       setHasHydrated: (hydrated) => set({ _hasHydrated: hydrated }),
@@ -90,8 +104,10 @@ export const useGuestStore = create<GuestState>()(
         currentOnboardingStep: state.currentOnboardingStep,
         heatmapLedger: state.heatmapLedger,
         onboardingAnswers: state.onboardingAnswers,
+        trainingAnswers: state.trainingAnswers,
         streakDays: state.streakDays,
         lastActiveDate: state.lastActiveDate,
+        lastDrillCompletedDate: state.lastDrillCompletedDate,
         peekEvents: state.peekEvents,
         matchElo: state.matchElo,
       }),

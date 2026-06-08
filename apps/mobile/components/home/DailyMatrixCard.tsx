@@ -22,7 +22,11 @@ export function DailyMatrixCard({
           <Text style={styles.badgeText}>{loopBadge}</Text>
         </View>
       ) : null}
-      <PrimaryButton label="Start Training" onPress={onPress} />
+      <PrimaryButton
+        accessibilityLabel="Start Training"
+        label="Start Training"
+        onPress={onPress}
+      />
     </Card>
   );
 }

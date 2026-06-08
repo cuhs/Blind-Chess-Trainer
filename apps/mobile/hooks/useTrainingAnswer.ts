@@ -12,8 +12,11 @@ interface TrainingAnswerOptions {
   squaresTouched: Square[];
 }
 
-export function useTrainingAnswer() {
+type AnswerContext = 'onboarding' | 'training';
+
+export function useTrainingAnswer(context: AnswerContext = 'onboarding') {
   const recordAnswer = useGuestStore((s) => s.recordAnswer);
+  const recordTrainingAnswer = useGuestStore((s) => s.recordTrainingAnswer);
   const recordSquareInteractions = useGuestStore((s) => s.recordSquareInteractions);
 
   const submit = async (
@@ -28,12 +31,18 @@ export function useTrainingAnswer() {
       options.moves,
     );
 
-    recordAnswer({
+    const answer = {
       stepId: options.stepId,
       userAnswer: userInput,
       correct,
       squaresTouched: options.squaresTouched,
-    });
+    };
+
+    if (context === 'training') {
+      recordTrainingAnswer(answer);
+    } else {
+      recordAnswer(answer);
+    }
 
     if (correct) {
       recordSquareInteractions(options.squaresTouched);
