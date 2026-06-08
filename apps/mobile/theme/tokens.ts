@@ -28,6 +28,8 @@ export const colors = {
   onSecondary: '#ffffff',
   secondaryContainer: '#fec700',
   onSecondaryContainer: '#6e5400',
+  secondaryFixed: '#ffdf92',
+  onSecondaryFixedVariant: '#594400',
 
   tertiary: '#006590',
   onTertiary: '#ffffff',

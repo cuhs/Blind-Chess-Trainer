@@ -10,7 +10,10 @@ interface OnboardingChromeProps {
 export function OnboardingChrome({ label, percent }: OnboardingChromeProps) {
   return (
     <View style={styles.container}>
-      <Text style={styles.label}>{label}</Text>
+      <View style={styles.labelRow}>
+        <Text style={styles.label}>{label}</Text>
+        <Text style={styles.percent}>{percent}%</Text>
+      </View>
       <ProgressBar percent={percent} />
     </View>
   );
@@ -18,10 +21,21 @@ export function OnboardingChrome({ label, percent }: OnboardingChromeProps) {
 
 const styles = StyleSheet.create({
   container: {
-    gap: spacing.sm,
+    gap: spacing.xs,
     marginBottom: spacing.sectionGap,
   },
+  labelRow: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+  },
   label: {
+    ...typography.labelBold,
+    color: colors.secondary,
+    textTransform: 'uppercase',
+    letterSpacing: 1.2,
+  },
+  percent: {
     ...typography.labelBold,
     color: colors.onSurfaceVariant,
   },

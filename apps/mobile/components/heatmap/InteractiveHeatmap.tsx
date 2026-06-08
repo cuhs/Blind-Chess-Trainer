@@ -15,6 +15,7 @@ import { isLightSquare, squareFromIndex } from '../chess/boardUtils';
 import { getVisibleSquareColor } from '../chess/boardColors';
 import { RankLabels, FileLabels } from '../chess/BoardLabels';
 import { BoardGrid } from '../chess/BoardGrid';
+import { BoardFrame } from '../chess/BoardFrame';
 import { useBoardDimensions } from '../chess/useBoardDimensions';
 
 interface InteractiveHeatmapProps {
@@ -45,36 +46,38 @@ export function InteractiveHeatmap({ interactive = true }: InteractiveHeatmapPro
 
   return (
     <View style={styles.wrapper}>
-      <View style={styles.row}>
-        <RankLabels labelGutter={labelGutter} squareSize={squareSize} />
-        <View>
-          <BoardGrid
-            boardSize={boardSize}
-            squareSize={squareSize}
-            renderSquare={(file, displayRank) => {
-              const square = squareFromIndex(file, displayRank);
-              const opacity = getOpacity(square);
+      <BoardFrame>
+        <View style={styles.row}>
+          <RankLabels labelGutter={labelGutter} squareSize={squareSize} />
+          <View>
+            <BoardGrid
+              boardSize={boardSize}
+              squareSize={squareSize}
+              renderSquare={(file, displayRank) => {
+                const square = squareFromIndex(file, displayRank);
+                const opacity = getOpacity(square);
 
-              return (
-                <Pressable
-                  accessibilityLabel={`Square ${square}`}
-                  disabled={!interactive}
-                  onPress={() => setSelectedSquare(square)}
-                  style={[
-                    styles.square,
-                    {
-                      backgroundColor: getSquareColor(square, file, displayRank),
-                    },
-                  ]}
-                >
-                  <FogOverlay opacity={opacity} />
-                </Pressable>
-              );
-            }}
-          />
-          <FileLabels labelGutter={0} squareSize={squareSize} />
+                return (
+                  <Pressable
+                    accessibilityLabel={`Square ${square}`}
+                    disabled={!interactive}
+                    onPress={() => setSelectedSquare(square)}
+                    style={[
+                      styles.square,
+                      {
+                        backgroundColor: getSquareColor(square, file, displayRank),
+                      },
+                    ]}
+                  >
+                    <FogOverlay opacity={opacity} />
+                  </Pressable>
+                );
+              }}
+            />
+            <FileLabels labelGutter={0} squareSize={squareSize} />
+          </View>
         </View>
-      </View>
+      </BoardFrame>
 
       {selectedSquare && interactive ? (
         <SquareTooltip

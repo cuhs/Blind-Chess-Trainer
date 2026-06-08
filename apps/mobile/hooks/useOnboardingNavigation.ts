@@ -52,11 +52,7 @@ export function useOnboardingNavigation(currentStep: OnboardingStep) {
     router.replace(STEP_ROUTES[next] as never);
   };
 
-  const progressLabel = () => {
-    const label = PROGRESS_LABELS[currentStep] ?? 'Level 1';
-    const percent = PROGRESS_PERCENTS[currentStep] ?? 0;
-    return `${label} ${percent}%`;
-  };
+  const progressLabel = () => PROGRESS_LABELS[currentStep] ?? 'Level 1';
 
   const progressPercent = () => PROGRESS_PERCENTS[currentStep] ?? 0;
 

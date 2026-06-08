@@ -14,7 +14,9 @@ export function ProgressBar({ percent }: ProgressBarProps) {
       accessibilityValue={{ min: 0, max: 100, now: clamped }}
       style={styles.track}
     >
-      <View style={[styles.fill, { width: `${clamped}%` }]} />
+      <View style={[styles.fill, { width: `${clamped}%` }]}>
+        {clamped > 0 ? <View style={styles.shine} /> : null}
+      </View>
     </View>
   );
 }
@@ -22,7 +24,7 @@ export function ProgressBar({ percent }: ProgressBarProps) {
 const styles = StyleSheet.create({
   track: {
     height: touch.progressBarHeight,
-    backgroundColor: colors.recessedBg,
+    backgroundColor: colors.surfaceContainerHigh,
     borderRadius: radius.full,
     overflow: 'hidden',
     borderWidth: touch.strokeWidth,
@@ -31,6 +33,16 @@ const styles = StyleSheet.create({
   fill: {
     height: '100%',
     backgroundColor: colors.primaryContainer,
+    borderRadius: radius.full,
+    overflow: 'hidden',
+  },
+  shine: {
+    position: 'absolute',
+    top: 2,
+    left: '10%',
+    width: '80%',
+    height: 2,
+    backgroundColor: 'rgba(255,255,255,0.4)',
     borderRadius: radius.full,
   },
 });

@@ -3,6 +3,7 @@ import { isLightSquare } from './boardUtils';
 import { getInvisibleSquareColor } from './boardColors';
 import { RankLabels, FileLabels } from './BoardLabels';
 import { BoardGrid } from './BoardGrid';
+import { BoardFrame } from './BoardFrame';
 import { useBoardDimensions } from './useBoardDimensions';
 
 interface InvisibleGridProps {
@@ -36,18 +37,20 @@ export function InvisibleGrid({ showLabels = true }: InvisibleGridProps) {
   }
 
   return (
-    <View style={styles.wrapper}>
-      <View style={styles.row}>
-        <RankLabels
-          faint
-          labelGutter={labelGutter}
-          squareSize={squareSize}
-        />
-        <View>
-          {grid}
-          <FileLabels faint labelGutter={0} squareSize={squareSize} />
+    <View accessibilityLabel="Invisible grid" style={styles.wrapper}>
+      <BoardFrame>
+        <View style={styles.row}>
+          <RankLabels
+            faint
+            labelGutter={labelGutter}
+            squareSize={squareSize}
+          />
+          <View>
+            {grid}
+            <FileLabels faint labelGutter={0} squareSize={squareSize} />
+          </View>
         </View>
-      </View>
+      </BoardFrame>
     </View>
   );
 }

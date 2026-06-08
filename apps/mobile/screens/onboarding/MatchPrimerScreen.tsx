@@ -3,6 +3,7 @@ import { View, Text, StyleSheet, ScrollView } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useRouter } from 'expo-router';
 import { colors, spacing, typography } from '@/theme';
+import { AppHeader } from '@/components/ui/AppHeader';
 import { PrimaryButton } from '@/components/ui/PrimaryButton';
 import { OnboardingChrome } from '@/components/onboarding/OnboardingChrome';
 import { useOnboardingNavigation } from '@/hooks/useOnboardingNavigation';
@@ -25,6 +26,8 @@ export function MatchPrimerScreen() {
   return (
     <SafeAreaView style={styles.safe}>
       <ScrollView contentContainerStyle={styles.content}>
+        <AppHeader showSettings={false} />
+
         <OnboardingChrome
           label={progressLabel()}
           percent={progressPercent()}

@@ -7,6 +7,7 @@ import { PuzzleBoard } from '@/components/chess/PuzzleBoard';
 import { PromptText } from '@/components/ui/PromptText';
 import { MoveInput } from '@/components/ui/MoveInput';
 import { PrimaryButton } from '@/components/ui/PrimaryButton';
+import { AppHeader } from '@/components/ui/AppHeader';
 import { OnboardingChrome } from '@/components/onboarding/OnboardingChrome';
 import { PeekButton } from '@/components/onboarding/PeekButton';
 import { useOnboardingNavigation } from '@/hooks/useOnboardingNavigation';
@@ -53,17 +54,21 @@ export function StoryCheckScreen() {
         contentContainerStyle={styles.content}
         keyboardShouldPersistTaps="handled"
       >
+        <AppHeader showSettings={false} />
+
         <OnboardingChrome
           label={progressLabel()}
           percent={progressPercent()}
         />
 
         <PromptText
+          highlight={isMemorizing ? '5' : undefined}
           subtitle={
             isMemorizing
               ? STORY_CHECK_PUZZLE.subtitle
               : undefined
           }
+          variant={isMemorizing ? 'hero' : 'default'}
         >
           {isMemorizing ? MEMORIZE_PROMPT : STORY_CHECK_PUZZLE.prompt}
         </PromptText>
@@ -78,7 +83,7 @@ export function StoryCheckScreen() {
         </View>
 
         {canAnswer ? (
-          <>
+          <View style={styles.controls}>
             <MoveInput
               onChangeText={setAnswer}
               onSubmitAnswer={handleSubmit}
@@ -86,7 +91,7 @@ export function StoryCheckScreen() {
             />
             <PrimaryButton label="Submit Answer" onPress={handleSubmit} />
             <PeekButton onPress={triggerPeek} />
-          </>
+          </View>
         ) : null}
       </ScrollView>
     </SafeAreaView>
@@ -105,5 +110,8 @@ const styles = StyleSheet.create({
   boardWrap: {
     alignItems: 'center',
     marginBottom: spacing.sectionGap,
+  },
+  controls: {
+    gap: spacing.md,
   },
 });

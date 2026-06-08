@@ -28,9 +28,12 @@ export function PrimaryButton({
     variant === 'primary' ? colors.primaryContainer : colors.tertiaryContainer;
   const borderColor =
     variant === 'primary' ? colors.primary : colors.tertiary;
+  const labelColor =
+    variant === 'primary' ? colors.onPrimaryContainer : colors.onTertiaryContainer;
 
   return (
     <Pressable
+      accessibilityLabel={label}
       accessibilityRole="button"
       disabled={disabled}
       onPressIn={() => setPressed(true)}
@@ -48,7 +51,7 @@ export function PrimaryButton({
       ]}
       {...props}
     >
-      <Text style={styles.label}>{label}</Text>
+      <Text style={[styles.label, { color: labelColor }]}>{label}</Text>
     </Pressable>
   );
 }
@@ -63,10 +66,9 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
   },
   label: {
-    ...typography.labelBold,
-    color: colors.onPrimaryContainer,
+    ...typography.headlineMd,
     textTransform: 'uppercase',
-    letterSpacing: 1,
+    letterSpacing: 0.5,
   },
   disabled: {
     opacity: 0.5,

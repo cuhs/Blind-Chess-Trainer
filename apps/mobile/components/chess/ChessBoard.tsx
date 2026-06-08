@@ -6,6 +6,7 @@ import {
 import { getVisibleSquareColor } from './boardColors';
 import { RankLabels, FileLabels } from './BoardLabels';
 import { BoardGrid } from './BoardGrid';
+import { BoardFrame } from './BoardFrame';
 import { ChessPiece } from './pieces/ChessPiece';
 import { useBoardDimensions } from './useBoardDimensions';
 
@@ -19,34 +20,36 @@ export function ChessBoard({ fen }: ChessBoardProps) {
 
   return (
     <View accessibilityLabel="Chess board" style={styles.wrapper}>
-      <View style={styles.row}>
-        <RankLabels labelGutter={labelGutter} squareSize={squareSize} />
-        <View>
-          <BoardGrid
-            boardSize={boardSize}
-            squareSize={squareSize}
-            renderSquare={(file, displayRank) => {
-              const light = isLightSquare(file, displayRank);
-              const piece = squares[displayRank][file];
-              return (
-                <View
-                  style={[
-                    styles.square,
-                    {
-                      backgroundColor: getVisibleSquareColor(light),
-                    },
-                  ]}
-                >
-                  {piece ? (
-                    <ChessPiece piece={piece} size={squareSize} />
-                  ) : null}
-                </View>
-              );
-            }}
-          />
-          <FileLabels labelGutter={0} squareSize={squareSize} />
+      <BoardFrame>
+        <View style={styles.row}>
+          <RankLabels labelGutter={labelGutter} squareSize={squareSize} />
+          <View>
+            <BoardGrid
+              boardSize={boardSize}
+              squareSize={squareSize}
+              renderSquare={(file, displayRank) => {
+                const light = isLightSquare(file, displayRank);
+                const piece = squares[displayRank][file];
+                return (
+                  <View
+                    style={[
+                      styles.square,
+                      {
+                        backgroundColor: getVisibleSquareColor(light),
+                      },
+                    ]}
+                  >
+                    {piece ? (
+                      <ChessPiece piece={piece} size={squareSize} />
+                    ) : null}
+                  </View>
+                );
+              }}
+            />
+            <FileLabels labelGutter={0} squareSize={squareSize} />
+          </View>
         </View>
-      </View>
+      </BoardFrame>
     </View>
   );
 }

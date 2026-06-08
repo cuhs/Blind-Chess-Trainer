@@ -6,6 +6,7 @@ import { InteractiveHeatmap } from '@/components/heatmap/InteractiveHeatmap';
 import { HeatmapStats } from '@/components/heatmap/HeatmapStats';
 import { HeatmapLegend } from '@/components/heatmap/HeatmapLegend';
 import { PrimaryButton } from '@/components/ui/PrimaryButton';
+import { AppHeader } from '@/components/ui/AppHeader';
 import { OnboardingChrome } from '@/components/onboarding/OnboardingChrome';
 import { useOnboardingNavigation } from '@/hooks/useOnboardingNavigation';
 import { useFogClearedPercent } from '@/hooks/useFogClearedPercent';
@@ -18,6 +19,8 @@ export function FogRevealScreen() {
   return (
     <SafeAreaView style={styles.safe}>
       <ScrollView contentContainerStyle={styles.content}>
+        <AppHeader showSettings={false} />
+
         <OnboardingChrome
           label={progressLabel()}
           percent={progressPercent()}
