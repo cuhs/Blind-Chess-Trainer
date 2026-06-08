@@ -91,6 +91,7 @@ export function RewardPuzzleScreen({ index }: RewardPuzzleScreenProps) {
             <MoveInput
               onChangeText={setAnswer}
               onSubmitAnswer={handleSubmit}
+              placeholder={puzzle.inputPlaceholder}
               value={answer}
             />
             <PrimaryButton label="Submit Answer" onPress={handleSubmit} />

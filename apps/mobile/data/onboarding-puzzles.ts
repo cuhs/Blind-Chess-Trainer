@@ -6,6 +6,7 @@ export interface OnboardingPuzzle {
   fen: string;
   moves?: string[];
   prompt: string;
+  inputPlaceholder?: string;
   subtitle?: string;
   answerType: AnswerType;
   expected: string;
@@ -29,6 +30,7 @@ export const STORY_CHECK_PUZZLE: OnboardingPuzzle = {
   fen: 'rnbqkbnr/pppp1ppp/4p3/8/4P3/8/PPPP1PPP/RNBQKBNR w KQkq - 0 2',
   moves: ['Nf3', 'd5'],
   prompt: 'Is the Black King in check? Type Yes or No.',
+  inputPlaceholder: 'e.g. Yes',
   subtitle: 'White plays Nf3, Black plays d5...',
   answerType: 'yes-no',
   expected: 'no',

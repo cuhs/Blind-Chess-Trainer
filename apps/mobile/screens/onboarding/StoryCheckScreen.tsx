@@ -87,6 +87,7 @@ export function StoryCheckScreen() {
             <MoveInput
               onChangeText={setAnswer}
               onSubmitAnswer={handleSubmit}
+              placeholder={STORY_CHECK_PUZZLE.inputPlaceholder}
               value={answer}
             />
             <PrimaryButton label="Submit Answer" onPress={handleSubmit} />

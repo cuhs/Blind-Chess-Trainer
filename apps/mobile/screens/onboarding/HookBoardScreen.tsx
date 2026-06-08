@@ -81,6 +81,7 @@ export function HookBoardScreen() {
             <MoveInput
               onChangeText={setAnswer}
               onSubmitAnswer={handleSubmit}
+              placeholder={HOOK_PUZZLE.inputPlaceholder}
               value={answer}
             />
             <PrimaryButton label="Submit Answer" onPress={handleSubmit} />

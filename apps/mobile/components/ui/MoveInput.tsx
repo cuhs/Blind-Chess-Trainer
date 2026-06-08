@@ -18,6 +18,7 @@ export function MoveInput({
   onSubmitAnswer,
   value,
   onChangeText,
+  placeholder = 'e.g. c3',
   ...props
 }: MoveInputProps) {
   const [focused, setFocused] = useState(false);
@@ -33,7 +34,7 @@ export function MoveInput({
         onChangeText={onChangeText}
         onFocus={() => setFocused(true)}
         onSubmitEditing={(e) => onSubmitAnswer?.(e.nativeEvent.text)}
-        placeholder="e.g. c3"
+        placeholder={placeholder}
         placeholderTextColor={colors.surfaceDim}
         returnKeyType="done"
         style={[styles.input, focused && styles.inputFocused]}

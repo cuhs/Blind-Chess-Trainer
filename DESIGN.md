@@ -103,7 +103,8 @@ No soft drop shadows. Use **tonal offsets and 3D extrusions**:
 | Animated Cognitive Heatmap Dashboard | `61ce6c33f6fe4350b176eb6cd2ddace6` | Phase 4 / onboarding fog | `CognitiveHeatmap` |
 | Populated Game Analysis & Review | `48bde48ed59748cba0907d6a02705475` | Phase 4 | `ReplayTimeline` |
 | Product Strategy & Screen Plan | `48eea1d4614941f3b6c927d368d8b1f0` | Reference only | — |
-| Mascot logo | `b6e58aa5efdd4cd994cd1d6a03da943a` | Brand asset | — |
+| Mascot logo | `b6e58aa5efdd4cd994cd1d6a03da943a` | Brand asset (legacy) | — |
+| MindBoard Standalone Icon | `4709d4e8656e42bebf74af7b36e3821a` | App / header icon | `MascotAvatar` |
 
 ### Blueprint states not in Stitch (implement anyway)
 
@@ -301,6 +302,9 @@ Shared icons live in `components/ui/icons/`. Reuse — do not inline emoji as te
 | `MatchClock` | Timer + "CLOCK FROZEN" badge | Freezes on parser failure |
 | `PeekButton` | `PeekIcon` (SVG) + label — no emoji | Onboarding peek affordance |
 | `OnboardingChrome` | Level label + `ProgressBar` | Onboarding only |
+| `AppHeader` | Mascot avatar + MindBoard title + settings | Onboarding + home |
+| `BoardFrame` | 3D card wrapper for boards/heatmap | Chess + heatmap |
+| `MascotAvatar` | Standalone Icon (`4709d4e8`) in green circle frame | `AppHeader` |
 | `HabitHeader` | Streak + Board Mapped % | HomeDashboard |
 | `InteractiveHeatmap` | Hero 8×8 + `FogOverlay` + tap tooltips | Home + FogReveal |
 | `SquareTooltip` | Micro-tooltip on square tap | HomeDashboard |
