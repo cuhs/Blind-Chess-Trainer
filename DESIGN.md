@@ -201,7 +201,7 @@ Post-onboarding `/(main)/index`. Habit validation + fog heatmap + closed-loop CT
 | Hero board | `InteractiveHeatmap` (`showLabels={false}`) | Centered compact card with 8×8 fog grid |
 | Primary CTA | `PrimaryButton` | "Clear the Fog" + hint subtitle |
 | Secondary CTA | `VoiceMatchCard` | "Start Blindfold Match" row + Elo + chevron |
-| Navigation | Expo tabs | Home · Drills · History (active tab green pill) |
+| Navigation | Expo tabs | Home · Training · Match · Settings (active tab green 3D pill) |
 
 ---
 
@@ -311,6 +311,8 @@ Shared icons live in `components/ui/icons/`. Reuse — do not inline emoji as te
 | `SquareTooltip` | Micro-tooltip on square tap | HomeDashboard |
 | `DailyMatrixCard` | Primary CTA + closed-loop badge | Phase 2 (reserved) |
 | `VoiceMatchCard` | Blindfold match row + mic + Elo chip | HomeDashboard |
+| `BottomTabBar` | 4-tab nav: Home/Training/Match/Settings; active green pill + 4px extrusion | `(main)/_layout` |
+| Tab icons | `HomeTabIcon`, `TrainingTabIcon`, `MatchTabIcon`, `SettingsTabIcon` | Bottom tab bar |
 | `BoltIcon` | Orange filled bolt for streak | `HabitHeader` |
 | `HeatmapStats` | CLARITY %, MASTERY count | FogReveal + heatmap |
 | `HeatmapLegend` | Three-state legend chips | FogReveal + heatmap |

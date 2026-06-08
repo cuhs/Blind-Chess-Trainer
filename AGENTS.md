@@ -82,8 +82,9 @@ supabase/migrations/
 | Onboarding | `/(onboarding)/fog-reveal` | `FogRevealScreen` |
 | Onboarding | `/(onboarding)/match-primer` | `MatchPrimerScreen` |
 | Main tabs | `/(main)/index` | `HomeDashboardScreen` |
-| Main tabs | `/(main)/drills` | Phase 2 stub |
-| Main tabs | `/(main)/history` | Phase 4 stub |
+| Main tabs | `/(main)/training` | Phase 2 stub |
+| Main tabs | `/(main)/match` | Phase 3 stub |
+| Main tabs | `/(main)/settings` | Settings stub |
 
 ## Stitch → Screen Mapping
 
@@ -109,7 +110,7 @@ Post-onboarding `/(main)/index` — Stitch frame `b1eff5fd32e743e2a7f8a4b78a3403
 4. **InteractiveHeatmap** — centered compact card, label-free fog grid
 5. **Clear the Fog** — primary CTA + puzzle hint
 6. **VoiceMatchCard** — "Start Blindfold Match" secondary row
-7. **Tab bar** — Home | Drills | History (active green pill)
+7. **Tab bar** — Home | Training | Match | Settings (active green 3D pill)
 
 ## Build Order
 

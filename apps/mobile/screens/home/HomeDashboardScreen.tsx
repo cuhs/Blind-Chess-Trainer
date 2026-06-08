@@ -1,4 +1,5 @@
 // Stitch frame: b1eff5fd32e743e2a7f8a4b78a340318 (MindBoard Home Enhanced Loop)
+import { router } from 'expo-router';
 import { Alert, ScrollView, StyleSheet, Text, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { colors, spacing, typography } from '@/theme';
@@ -32,7 +33,10 @@ export function HomeDashboardScreen() {
 
   return (
     <SafeAreaView style={styles.safe} edges={['top']}>
-      <AppHeader bordered />
+      <AppHeader
+        bordered
+        onSettingsPress={() => router.push('/(main)/settings' as never)}
+      />
       <ScrollView
         contentContainerStyle={styles.content}
         showsVerticalScrollIndicator={false}

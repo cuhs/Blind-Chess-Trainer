@@ -89,7 +89,7 @@ Use labels defined in components — grep `accessibilityLabel` before testing:
 - `"Chess board"`, `"Invisible grid"`
 - `"Submit"`, `"Continue"` (match `PrimaryButton` labels)
 - `"Move input"` or prompt text from `PromptText`
-- Tab labels: `"Home"`, `"Drills"`, `"History"`
+- Tab labels: `"Home"`, `"Training"`, `"Match"`, `"Settings"`
 
 If `ui_find_element` fails, fix missing `accessibilityLabel` — do not rely on pixel-only taps.
 

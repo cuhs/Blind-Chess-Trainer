@@ -4,14 +4,16 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import type { BottomTabBarButtonProps } from '@react-navigation/bottom-tabs';
 import { colors, radius, spacing, typography, touch } from '@/theme';
 import {
-  DrillsTabIcon,
-  HistoryTabIcon,
   HomeTabIcon,
+  MatchTabIcon,
+  SettingsTabIcon,
+  TrainingTabIcon,
 } from '@/components/ui/icons/TabIcons';
 
-const TAB_ICON_SIZE = 22;
+const TAB_ICON_SIZE = 24;
 
 function TabBarButton({
+  accessibilityLabel,
   accessibilityState,
   children,
   onPress,
@@ -20,18 +22,28 @@ function TabBarButton({
 
   return (
     <Pressable
+      accessibilityLabel={accessibilityLabel}
       accessibilityRole="button"
+      accessibilityState={accessibilityState}
       onPress={onPress}
-      style={[styles.tabButton, focused && styles.tabButtonActive]}
+      style={({ pressed }) => [
+        styles.tabButton,
+        focused && styles.tabButtonActive,
+        !focused && pressed && styles.tabButtonPressed,
+      ]}
     >
       {children}
     </Pressable>
   );
 }
 
+function tabIconColor(focused: boolean) {
+  return focused ? colors.onPrimaryContainer : colors.outline;
+}
+
 export default function MainLayout() {
   const insets = useSafeAreaInsets();
-  const bottomInset = Math.max(insets.bottom, spacing.sm);
+  const bottomInset = Math.max(insets.bottom, spacing.md);
 
   return (
     <Tabs
@@ -43,11 +55,11 @@ export default function MainLayout() {
           backgroundColor: colors.surface,
           borderTopColor: colors.outlineVariant,
           borderTopWidth: touch.strokeWidth,
-          borderTopLeftRadius: radius.lg,
-          borderTopRightRadius: radius.lg,
+          borderTopLeftRadius: radius.xl,
+          borderTopRightRadius: radius.xl,
           paddingTop: spacing.sm,
           paddingBottom: bottomInset,
-          height: 64 + bottomInset,
+          height: 72 + bottomInset,
         },
         tabBarItemStyle: {
           paddingTop: 0,
@@ -57,6 +69,9 @@ export default function MainLayout() {
         },
         tabBarLabel: ({ color, children, focused }) => (
           <Text
+            adjustsFontSizeToFit
+            minimumFontScale={0.85}
+            numberOfLines={1}
             style={[
               styles.tabLabel,
               { color: focused ? colors.onPrimaryContainer : color },
@@ -72,26 +87,51 @@ export default function MainLayout() {
         name="index"
         options={{
           title: 'Home',
-          tabBarIcon: ({ color, focused }) => (
-            <HomeTabIcon color={color} filled={focused} size={TAB_ICON_SIZE} />
+          tabBarIcon: ({ focused }) => (
+            <HomeTabIcon
+              color={tabIconColor(focused)}
+              filled={focused}
+              size={TAB_ICON_SIZE}
+            />
           ),
         }}
       />
       <Tabs.Screen
-        name="drills"
+        name="training"
         options={{
-          title: 'Drills',
-          tabBarIcon: ({ color, focused }) => (
-            <DrillsTabIcon color={color} filled={focused} size={TAB_ICON_SIZE} />
+          title: 'Training',
+          tabBarIcon: ({ focused }) => (
+            <TrainingTabIcon
+              color={tabIconColor(focused)}
+              filled={focused}
+              size={TAB_ICON_SIZE}
+            />
           ),
         }}
       />
       <Tabs.Screen
-        name="history"
+        name="match"
         options={{
-          title: 'History',
-          tabBarIcon: ({ color, focused }) => (
-            <HistoryTabIcon color={color} filled={focused} size={TAB_ICON_SIZE} />
+          title: 'Match',
+          tabBarIcon: ({ focused }) => (
+            <MatchTabIcon
+              color={tabIconColor(focused)}
+              filled={focused}
+              size={TAB_ICON_SIZE}
+            />
+          ),
+        }}
+      />
+      <Tabs.Screen
+        name="settings"
+        options={{
+          title: 'Settings',
+          tabBarIcon: ({ focused }) => (
+            <SettingsTabIcon
+              color={tabIconColor(focused)}
+              filled={focused}
+              size={TAB_ICON_SIZE}
+            />
           ),
         }}
       />
@@ -104,19 +144,25 @@ const styles = StyleSheet.create({
     flex: 1,
     alignItems: 'center',
     justifyContent: 'center',
-    paddingHorizontal: spacing.md,
+    paddingHorizontal: spacing.xs,
     paddingVertical: spacing.xs,
     borderRadius: radius.lg,
-    marginHorizontal: spacing.xs,
+    marginHorizontal: 2,
   },
   tabButtonActive: {
     backgroundColor: colors.primaryContainer,
+    borderBottomWidth: touch.buttonOffset,
+    borderBottomColor: colors.onPrimaryContainer,
+    transform: [{ translateY: 1 }],
+  },
+  tabButtonPressed: {
     transform: [{ translateY: 1 }],
   },
   tabLabel: {
     ...typography.labelBold,
-    fontSize: 10,
-    lineHeight: 12,
+    letterSpacing: 0,
     marginTop: 2,
+    textAlign: 'center',
+    width: '100%',
   },
 });
