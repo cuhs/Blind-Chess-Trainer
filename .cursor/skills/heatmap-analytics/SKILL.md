@@ -41,13 +41,20 @@ Center 15, edge 10, corner 5. Onboarding reveal: ~99% fog.
 - `useFogClearedPercent` → Board Mapped % in `HabitHeader`
 - `useHeatmapLedger` + `useFogOpacity` hooks
 
+## Data Layer
+
+- `heatmap_ledger` is append-only: `user_id`, `origin_square`, `target_square`, `is_success`, `interaction_type` (`puzzle` | `match_peek`)
+- Successful puzzle events increment the local `guestStore.heatmapLedger` cache immediately; failed events still sync to the ledger with `is_success = false`
+- `useHeatmapLedger` hydrates aggregate square counts from Supabase via `get_heatmap_counts()` and keeps pending inserts in AsyncStorage until flushed
+- `profiles.total_fog_cleared` mirrors `useFogClearedPercent().clarityPercent`
+
 ## Grid Geometry
 
 `InteractiveHeatmap` shares `boardUtils` with `ChessBoard` — `HeatmapCell.square` `'e4'` = board cell `e4` = FEN square `e4`. Use `squareFromIndex` / `forEachDisplaySquare` — see `chess-ui/notation.md`.
 
 ## Closed Loop
 
-Peek → PeekEvent(FEN) → motif engine → daily puzzle → training → fog lifts
+Peek → `heatmap_ledger` `match_peek` event + PeekEvent(FEN) → motif engine → `puzzle_bank` row → training → fog lifts
 
 ## Checklist
 
@@ -60,4 +67,5 @@ Peek → PeekEvent(FEN) → motif engine → daily puzzle → training → fog l
 - [ ] Stats: clarity % and mastery count
 - [ ] HomeDashboard hero heatmap interactive with tooltips
 - [ ] Board Mapped % in HabitHeader via useFogClearedPercent
+- [ ] Pending ledger events persist offline and flush after auth/env setup
 ```

@@ -8,10 +8,23 @@ import type {
   Square,
 } from '@mindboard/shared';
 
+export type HeatmapInteractionType = 'puzzle' | 'match_peek';
+
+export interface PendingHeatmapInteraction {
+  id: string;
+  originSquare: Square | null;
+  targetSquare: Square;
+  isSuccess: boolean;
+  interactionType: HeatmapInteractionType;
+  createdAt: string;
+}
+
 interface GuestState {
   onboardingComplete: boolean;
   currentOnboardingStep: OnboardingStep;
   heatmapLedger: Partial<Record<Square, number>>;
+  heatmapLedgerSyncedAt: string | null;
+  pendingHeatmapInteractions: PendingHeatmapInteraction[];
   onboardingAnswers: OnboardingAnswer[];
   trainingAnswers: OnboardingAnswer[];
   streakDays: number;
@@ -25,8 +38,18 @@ interface GuestState {
   setCurrentStep: (step: OnboardingStep) => void;
   recordAnswer: (answer: OnboardingAnswer) => void;
   recordTrainingAnswer: (answer: OnboardingAnswer) => void;
+  mergeHeatmapLedger: (ledger: Partial<Record<Square, number>>) => void;
+  recordHeatmapInteractions: (
+    squares: Square[],
+    options: {
+      isSuccess: boolean;
+      interactionType?: HeatmapInteractionType;
+      originSquare?: Square | null;
+    },
+  ) => void;
   recordSquareInteraction: (square: Square) => void;
   recordSquareInteractions: (squares: Square[]) => void;
+  removePendingHeatmapInteractions: (ids: string[]) => void;
   addPeekEvent: (event: PeekEvent) => void;
   setStreakDays: (days: number) => void;
   setLastActiveDate: (date: string) => void;
@@ -41,6 +64,8 @@ export const useGuestStore = create<GuestState>()(
       onboardingComplete: false,
       currentOnboardingStep: 'hook',
       heatmapLedger: {},
+      heatmapLedgerSyncedAt: null,
+      pendingHeatmapInteractions: [],
       onboardingAnswers: [],
       trainingAnswers: [],
       streakDays: 0,
@@ -65,19 +90,60 @@ export const useGuestStore = create<GuestState>()(
           trainingAnswers: [...state.trainingAnswers, answer],
         })),
 
-      recordSquareInteraction: (square) => {
+      mergeHeatmapLedger: (remoteLedger) =>
+        set((state) => {
+          const ledger = { ...state.heatmapLedger };
+          for (const [square, interactions] of Object.entries(remoteLedger)) {
+            const typedSquare = square as Square;
+            ledger[typedSquare] = Math.max(
+              ledger[typedSquare] ?? 0,
+              interactions ?? 0,
+            );
+          }
+
+          return {
+            heatmapLedger: ledger,
+            heatmapLedgerSyncedAt: new Date().toISOString(),
+          };
+        }),
+
+      recordHeatmapInteractions: (squares, options) => {
+        const createdAt = new Date().toISOString();
         const ledger = { ...get().heatmapLedger };
-        ledger[square] = (ledger[square] ?? 0) + 1;
-        set({ heatmapLedger: ledger });
+        const pending = [...get().pendingHeatmapInteractions];
+
+        for (const square of squares) {
+          if (options.isSuccess) {
+            ledger[square] = (ledger[square] ?? 0) + 1;
+          }
+
+          pending.push({
+            id: `${createdAt}-${square}-${pending.length}`,
+            originSquare: options.originSquare ?? null,
+            targetSquare: square,
+            isSuccess: options.isSuccess,
+            interactionType: options.interactionType ?? 'puzzle',
+            createdAt,
+          });
+        }
+
+        set({ heatmapLedger: ledger, pendingHeatmapInteractions: pending });
+      },
+
+      recordSquareInteraction: (square) => {
+        get().recordHeatmapInteractions([square], { isSuccess: true });
       },
 
       recordSquareInteractions: (squares) => {
-        const ledger = { ...get().heatmapLedger };
-        for (const square of squares) {
-          ledger[square] = (ledger[square] ?? 0) + 1;
-        }
-        set({ heatmapLedger: ledger });
+        get().recordHeatmapInteractions(squares, { isSuccess: true });
       },
+
+      removePendingHeatmapInteractions: (ids) =>
+        set((state) => ({
+          pendingHeatmapInteractions: state.pendingHeatmapInteractions.filter(
+            (event) => !ids.includes(event.id),
+          ),
+        })),
 
       addPeekEvent: (event) =>
         set((state) => ({ peekEvents: [...state.peekEvents, event] })),
@@ -103,6 +169,8 @@ export const useGuestStore = create<GuestState>()(
         onboardingComplete: state.onboardingComplete,
         currentOnboardingStep: state.currentOnboardingStep,
         heatmapLedger: state.heatmapLedger,
+        heatmapLedgerSyncedAt: state.heatmapLedgerSyncedAt,
+        pendingHeatmapInteractions: state.pendingHeatmapInteractions,
         onboardingAnswers: state.onboardingAnswers,
         trainingAnswers: state.trainingAnswers,
         streakDays: state.streakDays,

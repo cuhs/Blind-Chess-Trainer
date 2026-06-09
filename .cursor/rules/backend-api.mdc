@@ -9,6 +9,7 @@ alwaysApply: false
 ## Supabase
 
 - Migrations only in `supabase/migrations/` — never hand-edit production
+- Seed curated starter data in `supabase/seed.sql`
 - Row Level Security on every user-data table
 - Onboarding works guest-first; auth optional until dashboard
 
@@ -27,8 +28,8 @@ alwaysApply: false
 
 ## Key Tables
 
-`users`, `heatmap_interactions`, `peek_events`, `puzzles`, `matches` — see `heatmap-analytics` skill for schemas.
+`profiles`, `heatmap_ledger`, `puzzle_bank` are implemented. Planned match work may add `peek_events` and `matches`. See `heatmap-analytics` skill for ledger semantics.
 
 ## Peek → Puzzle
 
-Peek event → queue FEN → motif engine → LLM template → `daily_puzzles` row.
+Peek event → queue FEN → motif engine → LLM template → `puzzle_bank` row with `source = 'peek'`.

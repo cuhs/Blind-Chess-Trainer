@@ -18,7 +18,7 @@ export function MoveInput({
   onSubmitAnswer,
   value,
   onChangeText,
-  placeholder = 'e.g. c3',
+  placeholder = 'e.g. a8',
   ...props
 }: MoveInputProps) {
   const [focused, setFocused] = useState(false);

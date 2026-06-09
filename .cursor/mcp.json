@@ -55,6 +55,9 @@
       "env": {
         "COMMENT": "Standard shell proxy container enabling Cursor to run osascript or swift-cli audio tests"
       }
+    },
+    "supabase": {
+      "url": "https://mcp.supabase.com/mcp"
     }
   
   }

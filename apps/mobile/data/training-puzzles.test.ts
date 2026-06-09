@@ -37,8 +37,13 @@ function assertAbsolutePin(puzzle: TrainingPuzzle) {
 }
 
 describe('training-puzzles', () => {
-  it('exports exactly 3 daily drill puzzles', () => {
-    expect(DAILY_DRILL_PUZZLES).toHaveLength(3);
+  it('exports the local fallback drill puzzles mirrored in the initial seed', () => {
+    expect(DAILY_DRILL_PUZZLES.length).toBeGreaterThanOrEqual(3);
+    expect(DAILY_DRILL_PUZZLES.slice(0, 3).map((puzzle) => puzzle.id)).toEqual([
+      'drill-pin-knight',
+      'drill-story-check',
+      'drill-pin-bishop',
+    ]);
   });
 
   it('pinned knight is on d5', () => {

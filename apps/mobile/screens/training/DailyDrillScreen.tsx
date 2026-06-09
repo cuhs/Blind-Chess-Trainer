@@ -13,15 +13,11 @@ import { TrainingChrome } from '@/components/training/TrainingChrome';
 import { PeekButton } from '@/components/onboarding/PeekButton';
 import { useTrainingAnswer } from '@/hooks/useTrainingAnswer';
 import { useMemorizePhase } from '@/hooks/useMemorizePhase';
-import {
-  getDailyDrillCount,
-  getDailyDrillPuzzle,
-} from '@/data/training-puzzles';
+import { usePuzzleBank } from '@/hooks/usePuzzleBank';
 import { getTrainingDisplayFen } from '@/data/puzzleFen';
 import { useGuestStore } from '@/stores/guestStore';
 
 const MEMORIZE_PROMPT = 'Look closely. You have 5 seconds.';
-const DRILL_COUNT = getDailyDrillCount();
 
 function todayKey(): string {
   return new Date().toISOString().slice(0, 10);
@@ -32,7 +28,8 @@ export function DailyDrillScreen() {
   const [puzzleIndex, setPuzzleIndex] = useState(0);
   const [answer, setAnswer] = useState('');
   const [sessionComplete, setSessionComplete] = useState(false);
-  const puzzle = getDailyDrillPuzzle(puzzleIndex);
+  const { puzzles, puzzleCount } = usePuzzleBank();
+  const puzzle = puzzles[puzzleIndex];
   const { phase, peekVisible, isMemorizing, canAnswer, markSuccess, triggerPeek } =
     useMemorizePhase(puzzle?.id ?? `drill-${puzzleIndex}`);
   const { submit } = useTrainingAnswer('training');
@@ -41,13 +38,13 @@ export function DailyDrillScreen() {
   );
   const setLastActiveDate = useGuestStore((s) => s.setLastActiveDate);
 
-  const isLastPuzzle = puzzleIndex >= DRILL_COUNT - 1;
+  const isLastPuzzle = puzzleIndex >= puzzleCount - 1;
   const progressPercent = sessionComplete
     ? 100
-    : Math.round(((puzzleIndex + 1) / DRILL_COUNT) * 100);
+    : Math.round(((puzzleIndex + 1) / Math.max(puzzleCount, 1)) * 100);
   const progressLabel = sessionComplete
     ? 'Drill complete'
-    : `Position ${puzzleIndex + 1} of ${DRILL_COUNT}`;
+    : `Position ${puzzleIndex + 1} of ${puzzleCount}`;
 
   const completeDrill = useCallback(() => {
     const today = todayKey();
@@ -58,6 +55,11 @@ export function DailyDrillScreen() {
     // Nested under training stack — target home tab explicitly.
     router.replace('/(main)/' as never);
   }, [router, setLastActiveDate, setLastDrillCompletedDate]);
+
+  useEffect(() => {
+    if (puzzleCount === 0 || puzzleIndex < puzzleCount) return;
+    setPuzzleIndex(0);
+  }, [puzzleCount, puzzleIndex]);
 
   useEffect(() => {
     if (phase !== 'success') return;

@@ -1,11 +1,10 @@
 import { useGuestStore } from '@/stores/guestStore';
-
-const DEFAULT_PUZZLE_COUNT = 3;
+import { usePuzzleBank } from './usePuzzleBank';
 
 export function useDailyMatrix() {
   const peekEvents = useGuestStore((s) => s.peekEvents);
+  const { puzzleCount } = usePuzzleBank();
 
-  const puzzleCount = DEFAULT_PUZZLE_COUNT;
   const peekGeneratedCount = peekEvents.length;
 
   const loopBadge =

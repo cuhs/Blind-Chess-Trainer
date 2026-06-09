@@ -61,6 +61,7 @@ apps/mobile/
   components/         # See DESIGN.md catalog
   screens/            # Mapped to Stitch frames
   hooks/              # Shared stateful logic
+  lib/                # Supabase client + QueryClient
   stores/             # Zustand + AsyncStorage (guest session)
 apps/api/             # Express gateway
 packages/chess-core/
@@ -69,6 +70,7 @@ packages/voice-pipeline/
 packages/heatmap/
 packages/shared/
 supabase/migrations/
+supabase/seed.sql     # Curated puzzle_bank seed rows
 ```
 
 ## Mobile Routes
@@ -117,10 +119,22 @@ Post-onboarding `/(main)/index` — Stitch frame `b1eff5fd32e743e2a7f8a4b78a3403
 
 1. Onboarding — `HookBoard` → `MatchPrimer` (Stitch: Invisible Grid Hook)
 1b. Home — `HomeDashboard` from Stitch `b1eff5fd32e743e2a7f8a4b78a340318`
-2. Training — `TrainingHub`, `DailyDrill` (static puzzle bank); `StoryPuzzle` + motif engine next
+2. Training — `TrainingHub`, `DailyDrill` backed by `puzzle_bank` with local fallback; `StoryPuzzle` + motif engine next
 3. Voice match — `VoiceMatch` + `DisambiguationOverlay`
 4. Post-game — `ReplayTimeline`, `CognitiveHeatmap`
 5. Infrastructure — Supabase, Express, motif engine
+
+## Data Layer
+
+Supabase schema lives in `supabase/migrations/`; seed rows live in `supabase/seed.sql`.
+
+| Table | Purpose |
+|-------|---------|
+| `profiles` | Global Elo handicap, current streak, total fog cleared |
+| `heatmap_ledger` | Append-only puzzle/match-peek square interactions |
+| `puzzle_bank` | Curated Story of the Position FENs/prompts |
+
+Mobile server state uses `@tanstack/react-query` and `apps/mobile/lib/supabase.ts`. `guestStore` remains the offline-first cache for heatmap aggregates and pending ledger inserts. The initial seed mirrors the 3 local fallback puzzles; 47 more hand-curated rows are pending content.
 
 ## Agent Doc Maintenance
 
@@ -190,6 +204,7 @@ cd packages/motif-engine && npm test
 cd packages/chess-core && npm test
 npx @_davideast/stitch-mcp doctor      # verify Stitch API
 supabase start
+supabase db reset                      # apply migrations + seed puzzle_bank locally
 ```
 
 **Simulator MCP workflow:** `get_booted_sim_id` → `ui_describe_all` → `ui_find_element` / `ui_tap` / `ui_type` → `screenshot`. Bundle: `com.mindboard.app`.

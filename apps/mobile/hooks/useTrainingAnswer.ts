@@ -17,7 +17,9 @@ type AnswerContext = 'onboarding' | 'training';
 export function useTrainingAnswer(context: AnswerContext = 'onboarding') {
   const recordAnswer = useGuestStore((s) => s.recordAnswer);
   const recordTrainingAnswer = useGuestStore((s) => s.recordTrainingAnswer);
-  const recordSquareInteractions = useGuestStore((s) => s.recordSquareInteractions);
+  const recordHeatmapInteractions = useGuestStore(
+    (s) => s.recordHeatmapInteractions,
+  );
 
   const submit = async (
     userInput: string,
@@ -44,8 +46,12 @@ export function useTrainingAnswer(context: AnswerContext = 'onboarding') {
       recordAnswer(answer);
     }
 
+    recordHeatmapInteractions(options.squaresTouched, {
+      isSuccess: correct,
+      interactionType: 'puzzle',
+    });
+
     if (correct) {
-      recordSquareInteractions(options.squaresTouched);
       await Haptics.notificationAsync(
         Haptics.NotificationFeedbackType.Success,
       );
