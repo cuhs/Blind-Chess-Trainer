@@ -33,7 +33,7 @@ values
     'drill-story-check',
     'rnbqkbnr/pppp1ppp/8/8/4P3/8/PPPP1PPP/RNBQKBNR w KQkq - 0 1',
     '{"motif":"story_check","anchor":"Ke8"}'::jsonb,
-    'Is the Black King in check? Type Yes or No.',
+    'Is the Black King in check?',
     'e.g. Yes',
     'White plays Nf3, Black plays Nc6, White plays Bc4, Black plays Nf6...',
     'e8',

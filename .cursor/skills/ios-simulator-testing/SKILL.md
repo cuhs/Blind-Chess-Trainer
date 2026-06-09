@@ -91,9 +91,9 @@ For fresh onboarding: clear guest storage or reinstall — onboarding only shows
 
 | # | Flow | Steps | Assert |
 |---|------|-------|--------|
-| 1 | Hook | Wait 5s board → type `e4` → submit | Advances; haptic/feedback |
-| 2 | Story | Type `no` → submit | Correct advances |
-| 3 | Reward 1 | Type `e1` | Advances |
+| 1 | Hook | Wait 5s board → tap `File E` → `Rank 4` → `Submit Answer` | Advances; green flash + haptic |
+| 2 | Story | Tap (or swipe) `No` half of YesNoZone | Correct advances |
+| 3 | Reward 1 | Tap `File E` → `Rank 1` → `Submit Answer` | Advances |
 | 4 | Fog reveal | View only | Heatmap ~99% fog, legend visible |
 | 5 | Home | After match primer | HabitHeader, heatmap, CTAs |
 
@@ -110,8 +110,8 @@ For fresh onboarding: clear guest storage or reinstall — onboarding only shows
 Use labels defined in components — grep `accessibilityLabel` before testing:
 
 - `"Chess board"`, `"Invisible grid"`
-- `"Submit"`, `"Continue"` (match `PrimaryButton` labels)
-- `"Move input"` or prompt text from `PromptText`
+- `"Submit Answer"`, `"Continue"` (match `PrimaryButton` labels)
+- Keypad keys: `"File A"`–`"File H"`, `"Rank 1"`–`"Rank 8"`; yes-no halves: `"Yes"`, `"No"`
 - Tab labels: `"Home"`, `"Training"`, `"Match"`, `"Settings"`
 
 If `ui_find_element` fails, fix missing `accessibilityLabel` — do not rely on pixel-only taps.
@@ -122,7 +122,7 @@ If `ui_find_element` fails, fix missing `accessibilityLabel` — do not rely on 
 2. **Describe before tap** — `ui_describe_all` prevents wrong-target taps
 3. **Screenshot each milestone** — hook, fog reveal, home; compare to Stitch frames
 4. **One scenario per task** — don't combine unrelated flows without reset
-5. **Verify chess notation** — typed `e4` on hook must match board rook square (see `chess-ui/notation.md`)
+5. **Verify chess notation** — `File E`+`Rank 4` keypad answer on hook must match board rook square (see `chess-ui/notation.md`)
 6. **No emoji in UI** — screenshot confirms SVG icons render
 7. **Report failures** with screenshot + a11y tree snippet
 

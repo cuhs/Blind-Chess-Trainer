@@ -53,13 +53,13 @@ See `chess-ui/notation.md` for index ↔ square correlation.
 
 ## Blueprint Copy (verbatim)
 
-- Square prompt: "Type the square the White Rook is on."
-- Story: "Is the Black King in check? Type Yes or No."
+- Square prompt: "Which square is the White Rook on?"
+- Story: "Is the Black King in check?"
 - Match primer: full paragraph in `Product-Blueprint.md`
 
 ## Visual Spec (Stitch)
 
-- `MoveInput` 56px, `PrimaryButton` 3D-offset green
+- `SquareKeypad` (A–H / 1–8 keys + Submit), `YesNoZone` (swipe / tap halves), `PrimaryButton` 3D-offset green
 - Progress bar: 12px pill, green fill
 - `ChessBoard`: file/rank labels, correct square colors, **SVG mascot pieces** (see `chess-ui` skill)
 - `PeekButton`: `PeekIcon` SVG — no emoji
@@ -71,7 +71,8 @@ After hook/onboarding changes:
 ```
 - [ ] expo start --ios running
 - [ ] launch_app com.mindboard.app (cold start if testing full flow)
-- [ ] Hook: ui_find_element "Chess board" → wait → type e4 → submit
+- [ ] Hook: wait for invisible grid → tap key "File E" → "Rank 4" → "Submit Answer"
+- [ ] StoryCheck: tap (or swipe) "No" half of YesNoZone
 - [ ] screenshot at board-visible and invisible-grid states
 - [ ] Full flow P0 scenarios 1–5 in ios-simulator-testing skill
 ```
@@ -80,8 +81,8 @@ After hook/onboarding changes:
 
 ```
 - [ ] Board visible 5s only, then invisible grid
-- [ ] Text input only — no voice
-- [ ] expo-haptics on correct answers
+- [ ] Tactile input only (SquareKeypad / YesNoZone) — no native keyboard, no voice
+- [ ] expo-haptics: success on correct, soft warning on wrong, selection on key tap
 - [ ] FogReveal ~99% fog using FogOverlay + stone neutrals
-- [ ] accessibilityLabel on Submit, inputs, board (MCP-testable)
+- [ ] accessibilityLabel on keys, Yes/No halves, Submit, board (MCP-testable)
 ```

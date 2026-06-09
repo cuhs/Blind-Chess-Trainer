@@ -128,14 +128,14 @@ When a screen or state has no Stitch frame (new screen, blueprint-only flow, or 
 
 | New / missing screen | Infer from |
 |---------------------|------------|
-| `StoryCheck`, `RewardPuzzle` | `HookBoard` + `StoryPuzzle` (prompt + `MoveInput` + progress bar) |
+| `StoryCheck`, `RewardPuzzle` | `HookBoard` + `StoryPuzzle` (prompt + `SquareKeypad`/`YesNoZone` + progress bar) |
 | `MatchPrimer` | `HookBoard` (headline + `PrimaryButton` + `bodyMd` copy) |
 | `DisambiguationOverlay` | `VoiceMatch` (minimal chrome, large touch targets, `colors.background`) |
 | New training screen | `StoryPuzzle` or `DailyDrill` |
 | New settings / profile | `CognitiveHeatmap` (card layout, legend chips) |
 | New post-game view | `ReplayTimeline` |
 
-3. **Reuse components** — `PrimaryButton`, `MoveInput`, `Card`, `ProgressBar`, `MascotTip` per [Component Catalog](#component-catalog). Same 3D offset, 2pt stroke, 16px radius.
+3. **Reuse components** — `PrimaryButton`, `SquareKeypad`, `YesNoZone`, `Card`, `ProgressBar`, `MascotTip` per [Component Catalog](#component-catalog). Same 3D offset, 2pt stroke, 16px radius.
 4. **Interaction from blueprint** — layout/copy timing from `Product-Blueprint.md`; only visual dressing is inferred.
 5. **Flag for later** — `// TODO(stitch): <ScreenName>` on the file. Ship consistent UI now; replace when a Stitch frame exists.
 
@@ -150,8 +150,8 @@ When a screen or state has no Stitch frame (new screen, blueprint-only flow, or 
 | Context | Copy |
 |---------|------|
 | Hook timer | "Look closely. You have 5 seconds." |
-| Hook prompt | "Type the square the White Rook is on." |
-| Story prompt | "Is the Black King in check? Type Yes or No." |
+| Hook prompt | "Which square is the White Rook on?" |
+| Story prompt | "Is the Black King in check?" |
 | Match primer | "Your first game will feel chaotic. You will lose track of the board. That is the point. Peek freely, let the app catch your mistakes, and your failures will build tomorrow's puzzles." |
 | Disambiguation | "Which rook, a-file or f-file?" |
 | Post-game | "Here is exactly what the board looked like when your mental map broke." |
@@ -181,7 +181,7 @@ These override Stitch visuals where they conflict:
 | Pattern | Spec |
 |---------|------|
 | Invisible Grid | Board vanishes; no pieces after hook timer |
-| Training | Text input only — no voice |
+| Training | Tactile manual input — no voice. `SquareKeypad` (A–H / 1–8) for squares; `YesNoZone` (swipe/tap halves) for yes-no |
 | Voice match | Voice-first; peek always available |
 | Clock freeze | Instant pause on ambiguous/illegal voice input |
 | Disambiguation | Black screen, massive touch targets, voice OR tap |
@@ -292,7 +292,9 @@ Shared icons live in `components/ui/icons/`. Reuse — do not inline emoji as te
 | Component | Stitch spec | Blueprint constraint |
 |-----------|-------------|---------------------|
 | `PrimaryButton` | 3D-offset, Plus Jakarta Bold, 16px radius | — |
-| `MoveInput` | 56px height, 2pt stroke, blue focus | Text only in training |
+| `SquareKeypad` | Selection display + A–H / 1–8 key rows (56px) + Submit | `square` puzzles; replaces native keyboard |
+| `YesNoZone` | Split tap halves (No/red ← \| → Yes/green) + swipe; directional haptic | `yes-no` puzzles; replaces native keyboard |
+| `AnswerFlashOverlay` | Non-interactive green/red color wash | Answer feedback (`useAnswerFlash`) |
 | `ProgressBar` | 12px pill, green fill, white shine | — |
 | `Card` | White, 2pt `#e5e5e5` stroke, 16px radius, 4px offset | — |
 | `HeroCopy` | Title + optional subtitle; `display` (centered) / `section` (left) | Home, TrainingHub, FogReveal headers |
@@ -333,8 +335,8 @@ Icon assets: `components/ui/icons/`. Piece SVGs: `components/chess/pieces/`.
 
 | Layer | Role | Example |
 |-------|------|---------|
-| `components/ui/` | Generic, cross-screen primitives | `PrimaryButton`, `MoveInput`, `Card`, `PromptText`, `HeroCopy`, `ProgressChrome` |
-| `components/{chess,match,heatmap,replay,home,onboarding,training}/` | Domain-specific, reusable | `ChessBoard`, `FogOverlay`, `DailyMatrixCard`, `PuzzleSessionLayout` |
+| `components/ui/` | Generic, cross-screen primitives | `PrimaryButton`, `Card`, `PromptText`, `HeroCopy`, `ProgressChrome`, `AnswerFlashOverlay` |
+| `components/{chess,match,heatmap,replay,home,onboarding,training}/` | Domain-specific, reusable | `ChessBoard`, `FogOverlay`, `DailyMatrixCard`, `PuzzleSessionLayout`, `SquareKeypad`, `YesNoZone` |
 | `screens/` | Route-level composition only | Import components; minimal layout logic |
 | `hooks/` | Shared stateful logic | `useFogOpacity`, `useOnboardingStep` |
 

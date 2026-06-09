@@ -4,13 +4,15 @@ import { View, Text, StyleSheet } from 'react-native';
 import { useRouter } from 'expo-router';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { colors, spacing, typography } from '@/theme';
-import { MoveInput } from '@/components/ui/MoveInput';
+import { SquareKeypad } from '@/components/training/SquareKeypad';
+import { YesNoZone } from '@/components/training/YesNoZone';
 import { PrimaryButton } from '@/components/ui/PrimaryButton';
 import { ProgressChrome } from '@/components/ui/ProgressChrome';
 import { PuzzleSessionLayout } from '@/components/training/PuzzleSessionLayout';
 import { PeekButton } from '@/components/onboarding/PeekButton';
 import { useTrainingAnswer } from '@/hooks/useTrainingAnswer';
 import { useMemorizePhase } from '@/hooks/useMemorizePhase';
+import { useAnswerFlash } from '@/hooks/useAnswerFlash';
 import { usePuzzleBank } from '@/hooks/usePuzzleBank';
 import { getTrainingDisplayFen } from '@/data/puzzleFen';
 import { useGuestStore } from '@/stores/guestStore';
@@ -47,7 +49,6 @@ function DrillState({ title, message, onBack }: DrillStateProps) {
 export function DailyDrillScreen() {
   const router = useRouter();
   const [puzzleIndex, setPuzzleIndex] = useState(0);
-  const [answer, setAnswer] = useState('');
   const [sessionComplete, setSessionComplete] = useState(false);
   const { puzzles, puzzleCount, isLoading, isError, isNotConfigured } =
     usePuzzleBank();
@@ -55,6 +56,7 @@ export function DailyDrillScreen() {
   const { phase, peekVisible, isMemorizing, canAnswer, markSuccess, triggerPeek } =
     useMemorizePhase(puzzle?.id ?? `drill-${puzzleIndex}`);
   const { submit } = useTrainingAnswer('training');
+  const { flash, opacity, kind } = useAnswerFlash();
   const setLastDrillCompletedDate = useGuestStore(
     (s) => s.setLastDrillCompletedDate,
   );
@@ -91,7 +93,6 @@ export function DailyDrillScreen() {
         completeDrill();
       } else {
         setPuzzleIndex((i) => i + 1);
-        setAnswer('');
       }
     }, 600);
 
@@ -124,8 +125,8 @@ export function DailyDrillScreen() {
 
   const displayFen = getTrainingDisplayFen(puzzle);
 
-  const handleSubmit = async () => {
-    const correct = await submit(answer, {
+  const handleSubmit = async (value: string) => {
+    const correct = await submit(value, {
       stepId: puzzle.id,
       answerType: puzzle.answerType,
       expected: puzzle.expected,
@@ -133,6 +134,7 @@ export function DailyDrillScreen() {
       moves: puzzle.moves,
       squaresTouched: puzzle.squaresTouched,
     });
+    flash(correct ? 'success' : 'error');
     if (correct) {
       markSuccess();
     }
@@ -157,17 +159,11 @@ export function DailyDrillScreen() {
   } else if (canAnswer) {
     controls = (
       <>
-        <MoveInput
-          onChangeText={setAnswer}
-          onSubmitAnswer={handleSubmit}
-          placeholder={puzzle.inputPlaceholder}
-          value={answer}
-        />
-        <PrimaryButton
-          accessibilityLabel="Submit Answer"
-          label="Submit Answer"
-          onPress={handleSubmit}
-        />
+        {puzzle.answerType === 'yes-no' ? (
+          <YesNoZone onAnswer={(value) => handleSubmit(value)} />
+        ) : (
+          <SquareKeypad onSubmit={handleSubmit} resetKey={puzzle.id} />
+        )}
         <PeekButton onPress={triggerPeek} />
       </>
     );
@@ -191,6 +187,7 @@ export function DailyDrillScreen() {
         peekVisible,
         showBoard: isMemorizing && !sessionComplete,
       }}
+      flash={{ opacity, kind }}
     >
       {controls}
     </PuzzleSessionLayout>

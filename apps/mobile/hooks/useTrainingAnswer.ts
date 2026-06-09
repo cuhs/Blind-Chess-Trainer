@@ -55,6 +55,11 @@ export function useTrainingAnswer(context: AnswerContext = 'onboarding') {
       await Haptics.notificationAsync(
         Haptics.NotificationFeedbackType.Success,
       );
+    } else {
+      // Gentle nudge, not a failure — peek is a feature.
+      await Haptics.notificationAsync(
+        Haptics.NotificationFeedbackType.Warning,
+      );
     }
 
     return correct;

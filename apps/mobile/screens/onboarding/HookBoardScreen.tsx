@@ -1,20 +1,20 @@
 // Stitch frame: a7e368689dde41bb8f4e006f32f4e854
-import { useState, useEffect } from 'react';
-import { MoveInput } from '@/components/ui/MoveInput';
-import { PrimaryButton } from '@/components/ui/PrimaryButton';
+import { useEffect } from 'react';
+import { SquareKeypad } from '@/components/training/SquareKeypad';
 import { ProgressChrome } from '@/components/ui/ProgressChrome';
 import { PuzzleSessionLayout } from '@/components/training/PuzzleSessionLayout';
 import { PeekButton } from '@/components/onboarding/PeekButton';
 import { useMemorizePhase } from '@/hooks/useMemorizePhase';
 import { useOnboardingNavigation } from '@/hooks/useOnboardingNavigation';
 import { useTrainingAnswer } from '@/hooks/useTrainingAnswer';
+import { useAnswerFlash } from '@/hooks/useAnswerFlash';
 import { HOOK_PUZZLE } from '@/data/onboarding-puzzles';
 
 export function HookBoardScreen() {
-  const [answer, setAnswer] = useState('');
   const { advance, progressLabel, progressPercent } =
     useOnboardingNavigation('hook');
   const { submit } = useTrainingAnswer();
+  const { flash, opacity, kind } = useAnswerFlash();
   const { phase, peekVisible, isMemorizing, canAnswer, markSuccess, triggerPeek } =
     useMemorizePhase(HOOK_PUZZLE.id);
 
@@ -25,13 +25,14 @@ export function HookBoardScreen() {
     }
   }, [phase, advance]);
 
-  const handleSubmit = async () => {
-    const correct = await submit(answer, {
+  const handleSubmit = async (value: string) => {
+    const correct = await submit(value, {
       stepId: HOOK_PUZZLE.id,
       answerType: HOOK_PUZZLE.answerType,
       expected: HOOK_PUZZLE.expected,
       squaresTouched: HOOK_PUZZLE.squaresTouched,
     });
+    flash(correct ? 'success' : 'error');
     if (correct) {
       markSuccess();
     }
@@ -50,16 +51,11 @@ export function HookBoardScreen() {
         fen: HOOK_PUZZLE.fen,
         peekVisible,
       }}
+      flash={{ opacity, kind }}
     >
       {canAnswer ? (
         <>
-          <MoveInput
-            onChangeText={setAnswer}
-            onSubmitAnswer={handleSubmit}
-            placeholder={HOOK_PUZZLE.inputPlaceholder}
-            value={answer}
-          />
-          <PrimaryButton label="Submit Answer" onPress={handleSubmit} />
+          <SquareKeypad onSubmit={handleSubmit} resetKey={HOOK_PUZZLE.id} />
           <PeekButton onPress={triggerPeek} />
         </>
       ) : null}

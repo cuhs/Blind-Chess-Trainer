@@ -15,7 +15,7 @@ Text training → voice matches → failures → custom puzzles → heatmap clea
 
 - Motifs: deterministic TypeScript on chess.js — never LLM-inferred
 - LLM: JSON → English questions only
-- Training: text input. Matches: voice-first
+- Training: tactile input (SquareKeypad for squares, YesNoZone swipe/tap for yes-no — no native keyboard). Matches: voice-first
 - Clock freezes on ambiguous/illegal voice input
 - Disambiguation uses same normalizer + legality filter (no shortcut)
 - Peek is a feature, not a failure

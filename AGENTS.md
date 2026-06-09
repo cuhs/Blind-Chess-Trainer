@@ -186,7 +186,7 @@ Verify `AGENTS.md` rules/skills tables match files in `.cursor/rules/` and `.cur
 
 - **Motifs:** TypeScript on chess.js → JSON. LLM templates questions only.
 - **Voice:** Clock freezes on ambiguous/illegal input. Disambiguation re-enters same pipeline.
-- **Training:** text only. **Matches:** voice-first.
+- **Training:** tactile manual input — `SquareKeypad` (A–H / 1–8) for squares, `YesNoZone` (swipe / tap halves) for yes-no. No native keyboard, no voice. **Matches:** voice-first.
 - **Fog:** `opacity = 1 - (interactions / threshold)` — center 15, edge 10, corner 5.
 - **Design:** Import tokens from `@/theme` — no inline hex. Blueprint wins on interaction; Stitch wins on visuals.
 - **Components:** Search `components/` and `DESIGN.md` catalog before new UI. Reuse primitives; extract shared blocks when they repeat or screens grow large. `screens/` compose only.

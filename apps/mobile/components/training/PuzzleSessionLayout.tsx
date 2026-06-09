@@ -1,10 +1,12 @@
 import type { ReactNode } from 'react';
-import { View, StyleSheet, ScrollView } from 'react-native';
+import { Animated, View, StyleSheet, ScrollView } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { colors, spacing } from '@/theme';
 import { AppHeader } from '@/components/ui/AppHeader';
 import { PromptText } from '@/components/ui/PromptText';
 import { PuzzleBoard } from '@/components/chess/PuzzleBoard';
+import { AnswerFlashOverlay } from '@/components/ui/AnswerFlashOverlay';
+import type { FlashKind } from '@/hooks/useAnswerFlash';
 
 export const MEMORIZE_PROMPT = 'Look closely. You have 5 seconds.';
 
@@ -23,8 +25,10 @@ interface PuzzleSessionLayoutProps {
     /** Defaults to `isMemorizing`; pass explicitly to keep the board hidden (e.g. on completion). */
     showBoard?: boolean;
   };
-  /** Answer controls (MoveInput, buttons). Rendered in a spaced container when present. */
+  /** Answer controls (SquareKeypad, YesNoZone, buttons). Rendered in a spaced container when present. */
   children?: ReactNode;
+  /** Optional answer-feedback color wash driven by `useAnswerFlash`. */
+  flash?: { opacity: Animated.Value; kind: FlashKind };
 }
 
 /**
@@ -39,6 +43,7 @@ export function PuzzleSessionLayout({
   memorizeSubtitle,
   board,
   children,
+  flash,
 }: PuzzleSessionLayoutProps) {
   const showBoard = board.showBoard ?? isMemorizing;
 
@@ -71,6 +76,9 @@ export function PuzzleSessionLayout({
 
         {children ? <View style={styles.controls}>{children}</View> : null}
       </ScrollView>
+      {flash ? (
+        <AnswerFlashOverlay kind={flash.kind} opacity={flash.opacity} />
+      ) : null}
     </SafeAreaView>
   );
 }

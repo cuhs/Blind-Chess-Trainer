@@ -31,7 +31,7 @@ See `.cursor/skills/chess-ui/notation.md` for grid index correlation.
 
 ## Training Input
 
-Text only: coordinates (`e4`), SAN (`Nf3`), yes/no. Normalize before legality check.
+Tactile, not voice. `SquareKeypad` assembles a coordinate (`e4`); `YesNoZone` emits `yes`/`no`. Both feed the same `normalizeSquare`/`normalizeYesNo` + `validateAnswer` path — normalize before legality check.
 
 ## Testing
 

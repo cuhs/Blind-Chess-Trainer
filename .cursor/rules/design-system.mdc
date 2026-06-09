@@ -22,14 +22,14 @@ import { colors, spacing, typography, touch, radius } from '@/theme';
 ## Blueprint Overrides (interaction)
 
 - Invisible Grid: no pieces after vanish
-- Training: text only; matches: voice-first
+- Training: tactile input (`SquareKeypad` / `YesNoZone`, no native keyboard); matches: voice-first
 - Clock freeze on parser failure; disambiguation: massive targets
 - Fog: `1 - (interactions / threshold)`
 
 ## Components — Reuse First
 
 1. Search `apps/mobile/components/` and `DESIGN.md` catalog before writing new UI
-2. Reuse `PrimaryButton`, `MoveInput`, `Card`, `ProgressBar`, etc. — never duplicate styled markup
+2. Reuse `PrimaryButton`, `SquareKeypad`, `YesNoZone`, `Card`, `ProgressBar`, etc. — never duplicate styled markup
 3. Extract to `components/ui/`, `components/home/`, or domain folder when pattern appears 2+ times or screen JSX exceeds ~150 lines
 4. `screens/` compose components only; shared logic → `hooks/`
 5. Presentational components: props in, JSX out — no data fetching
