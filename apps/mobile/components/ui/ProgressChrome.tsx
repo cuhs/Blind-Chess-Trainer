@@ -2,17 +2,24 @@ import { View, Text, StyleSheet } from 'react-native';
 import { colors, spacing, typography } from '@/theme';
 import { ProgressBar } from '@/components/ui/ProgressBar';
 
-interface TrainingChromeProps {
+interface ProgressChromeProps {
   label: string;
   percent: number;
+  /** Optional override for the container's accessibility label. */
+  accessibilityLabel?: string;
 }
 
-export function TrainingChrome({ label, percent }: TrainingChromeProps) {
+/**
+ * Level / position label + percent + ProgressBar.
+ * Shared by the onboarding flow and the DailyDrill session.
+ */
+export function ProgressChrome({
+  label,
+  percent,
+  accessibilityLabel,
+}: ProgressChromeProps) {
   return (
-    <View
-      accessibilityLabel={`Training progress: ${label}`}
-      style={styles.container}
-    >
+    <View accessibilityLabel={accessibilityLabel} style={styles.container}>
       <View style={styles.labelRow}>
         <Text style={styles.label}>{label}</Text>
         <Text style={styles.percent}>{percent}%</Text>

@@ -5,7 +5,7 @@ import { useRouter } from 'expo-router';
 import { colors, spacing, typography } from '@/theme';
 import { AppHeader } from '@/components/ui/AppHeader';
 import { PrimaryButton } from '@/components/ui/PrimaryButton';
-import { OnboardingChrome } from '@/components/onboarding/OnboardingChrome';
+import { ProgressChrome } from '@/components/ui/ProgressChrome';
 import { useOnboardingNavigation } from '@/hooks/useOnboardingNavigation';
 import { useGuestStore } from '@/stores/guestStore';
 
@@ -28,10 +28,7 @@ export function MatchPrimerScreen() {
       <ScrollView contentContainerStyle={styles.content}>
         <AppHeader showSettings={false} />
 
-        <OnboardingChrome
-          label={progressLabel()}
-          percent={progressPercent()}
-        />
+        <ProgressChrome label={progressLabel()} percent={progressPercent()} />
 
         <Text style={styles.headline}>Ready for your first match?</Text>
         <Text style={styles.body}>{MATCH_PRIMER_COPY}</Text>
@@ -61,6 +58,5 @@ const styles = StyleSheet.create({
   body: {
     ...typography.bodyMd,
     color: colors.onSurfaceVariant,
-    lineHeight: 24,
   },
 });

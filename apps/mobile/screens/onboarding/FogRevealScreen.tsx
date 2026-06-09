@@ -1,13 +1,14 @@
 // Stitch frame: 61ce6c33f6fe4350b176eb6cd2ddace6 (read-only variant)
-import { View, Text, StyleSheet, ScrollView } from 'react-native';
+import { View, StyleSheet, ScrollView } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { colors, spacing, typography } from '@/theme';
+import { colors, spacing } from '@/theme';
 import { InteractiveHeatmap } from '@/components/heatmap/InteractiveHeatmap';
 import { HeatmapStats } from '@/components/heatmap/HeatmapStats';
 import { HeatmapLegend } from '@/components/heatmap/HeatmapLegend';
 import { PrimaryButton } from '@/components/ui/PrimaryButton';
 import { AppHeader } from '@/components/ui/AppHeader';
-import { OnboardingChrome } from '@/components/onboarding/OnboardingChrome';
+import { HeroCopy } from '@/components/ui/HeroCopy';
+import { ProgressChrome } from '@/components/ui/ProgressChrome';
 import { useOnboardingNavigation } from '@/hooks/useOnboardingNavigation';
 import { useFogClearedPercent } from '@/hooks/useFogClearedPercent';
 
@@ -21,15 +22,14 @@ export function FogRevealScreen() {
       <ScrollView contentContainerStyle={styles.content}>
         <AppHeader showSettings={false} />
 
-        <OnboardingChrome
-          label={progressLabel()}
-          percent={progressPercent()}
-        />
+        <ProgressChrome label={progressLabel()} percent={progressPercent()} />
 
-        <Text style={styles.title}>Cognitive Heatmap</Text>
-        <Text style={styles.subtitle}>
-          Your mental map of the board. Clear the fog to master the game.
-        </Text>
+        <View style={styles.hero}>
+          <HeroCopy
+            title="Cognitive Heatmap"
+            subtitle="Your mental map of the board. Clear the fog to master the game."
+          />
+        </View>
 
         <HeatmapStats
           clarityPercent={clarityPercent}
@@ -57,14 +57,7 @@ const styles = StyleSheet.create({
     paddingHorizontal: spacing.marginMobile,
     paddingBottom: spacing.xl,
   },
-  title: {
-    ...typography.displayLgMobile,
-    color: colors.onSurface,
-    marginBottom: spacing.sm,
-  },
-  subtitle: {
-    ...typography.bodyMd,
-    color: colors.onSurfaceVariant,
+  hero: {
     marginBottom: spacing.md,
   },
   cta: {

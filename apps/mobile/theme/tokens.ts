@@ -133,6 +133,11 @@ export const motion = {
   pieceHoverOffset: 2,
 } as const;
 
+export const layout = {
+  // Bottom-tab clearance for scrollable main-tab screens (72pt bar + insets + breathing room).
+  tabBarClearance: 128,
+} as const;
+
 export const stitchMeta = {
   projectId: '3837939560019732420',
   projectTitle: 'MindBoard: Blindfold Chess Academy',

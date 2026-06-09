@@ -1,14 +1,9 @@
 // Stitch frame: a7e368689dde41bb8f4e006f32f4e854
 import { useState, useEffect } from 'react';
-import { View, StyleSheet, ScrollView } from 'react-native';
-import { SafeAreaView } from 'react-native-safe-area-context';
-import { colors, spacing } from '@/theme';
-import { PuzzleBoard } from '@/components/chess/PuzzleBoard';
-import { PromptText } from '@/components/ui/PromptText';
 import { MoveInput } from '@/components/ui/MoveInput';
 import { PrimaryButton } from '@/components/ui/PrimaryButton';
-import { AppHeader } from '@/components/ui/AppHeader';
-import { OnboardingChrome } from '@/components/onboarding/OnboardingChrome';
+import { ProgressChrome } from '@/components/ui/ProgressChrome';
+import { PuzzleSessionLayout } from '@/components/training/PuzzleSessionLayout';
 import { PeekButton } from '@/components/onboarding/PeekButton';
 import { useMemorizePhase } from '@/hooks/useMemorizePhase';
 import { useOnboardingNavigation } from '@/hooks/useOnboardingNavigation';
@@ -42,71 +37,32 @@ export function HookBoardScreen() {
     }
   };
 
-  const prompt = isMemorizing
-    ? 'Look closely. You have 5 seconds.'
-    : HOOK_PUZZLE.prompt;
-
   return (
-    <SafeAreaView style={styles.safe}>
-      <ScrollView
-        contentContainerStyle={styles.content}
-        keyboardShouldPersistTaps="handled"
-      >
-        <AppHeader showSettings={false} />
-
-        <OnboardingChrome
-          label={progressLabel()}
-          percent={progressPercent()}
-        />
-
-        <PromptText
-          highlight={isMemorizing ? '5' : undefined}
-          subtitle={isMemorizing ? HOOK_PUZZLE.subtitle : undefined}
-          variant={isMemorizing ? 'hero' : 'default'}
-        >
-          {prompt}
-        </PromptText>
-
-        <View style={styles.boardWrap}>
-          <PuzzleBoard
-            boardKey={HOOK_PUZZLE.id}
-            fen={HOOK_PUZZLE.fen}
-            isMemorizing={isMemorizing}
-            peekVisible={peekVisible}
+    <PuzzleSessionLayout
+      chrome={
+        <ProgressChrome label={progressLabel()} percent={progressPercent()} />
+      }
+      isMemorizing={isMemorizing}
+      prompt={HOOK_PUZZLE.prompt}
+      memorizeSubtitle={HOOK_PUZZLE.subtitle}
+      board={{
+        boardKey: HOOK_PUZZLE.id,
+        fen: HOOK_PUZZLE.fen,
+        peekVisible,
+      }}
+    >
+      {canAnswer ? (
+        <>
+          <MoveInput
+            onChangeText={setAnswer}
+            onSubmitAnswer={handleSubmit}
+            placeholder={HOOK_PUZZLE.inputPlaceholder}
+            value={answer}
           />
-        </View>
-
-        {canAnswer ? (
-          <View style={styles.controls}>
-            <MoveInput
-              onChangeText={setAnswer}
-              onSubmitAnswer={handleSubmit}
-              placeholder={HOOK_PUZZLE.inputPlaceholder}
-              value={answer}
-            />
-            <PrimaryButton label="Submit Answer" onPress={handleSubmit} />
-            <PeekButton onPress={triggerPeek} />
-          </View>
-        ) : null}
-      </ScrollView>
-    </SafeAreaView>
+          <PrimaryButton label="Submit Answer" onPress={handleSubmit} />
+          <PeekButton onPress={triggerPeek} />
+        </>
+      ) : null}
+    </PuzzleSessionLayout>
   );
 }
-
-const styles = StyleSheet.create({
-  safe: {
-    flex: 1,
-    backgroundColor: colors.background,
-  },
-  content: {
-    paddingHorizontal: spacing.marginMobile,
-    paddingBottom: spacing.xl,
-  },
-  boardWrap: {
-    alignItems: 'center',
-    marginBottom: spacing.sectionGap,
-  },
-  controls: {
-    gap: spacing.md,
-  },
-});

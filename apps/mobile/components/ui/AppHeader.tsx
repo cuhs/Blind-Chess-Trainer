@@ -1,5 +1,5 @@
 import { View, Text, Pressable, StyleSheet } from 'react-native';
-import { colors, radius, spacing, touch, typography } from '@/theme';
+import { colors, spacing, touch, typography } from '@/theme';
 import { MascotAvatar } from '@/components/ui/MascotAvatar';
 import { SettingsIcon } from '@/components/ui/icons/SettingsIcon';
 

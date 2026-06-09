@@ -2,9 +2,10 @@
 import { router } from 'expo-router';
 import { Alert, ScrollView, StyleSheet, Text, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { colors, spacing, typography } from '@/theme';
+import { colors, layout, spacing, typography } from '@/theme';
 import { AppHeader } from '@/components/ui/AppHeader';
 import { HabitHeader } from '@/components/home/HabitHeader';
+import { HeroCopy } from '@/components/ui/HeroCopy';
 import { InteractiveHeatmap } from '@/components/heatmap/InteractiveHeatmap';
 import { PrimaryButton } from '@/components/ui/PrimaryButton';
 import { VoiceMatchCard } from '@/components/home/VoiceMatchCard';
@@ -44,10 +45,10 @@ export function HomeDashboardScreen() {
         />
 
         <View style={styles.hero}>
-          <Text style={styles.title}>Cognitive Heatmap</Text>
-          <Text style={styles.subtitle}>
-            Your mental map of the board. Clear the fog to master the game.
-          </Text>
+          <HeroCopy
+            title="Cognitive Heatmap"
+            subtitle="Your mental map of the board. Clear the fog to master the game."
+          />
         </View>
 
         <View style={styles.mapSection}>
@@ -82,23 +83,11 @@ const styles = StyleSheet.create({
   },
   content: {
     paddingHorizontal: spacing.marginMobile,
-    paddingBottom: 128,
+    paddingBottom: layout.tabBarClearance,
     gap: spacing.md,
   },
   hero: {
-    gap: spacing.sm,
-    alignItems: 'center',
-    paddingHorizontal: spacing.sm,
-  },
-  title: {
-    ...typography.displayLgMobile,
-    color: colors.onSurface,
-    textAlign: 'center',
-  },
-  subtitle: {
-    ...typography.bodyLg,
-    color: colors.onSurfaceVariant,
-    textAlign: 'center',
+    marginTop: spacing.xs,
   },
   mapSection: {
     alignSelf: 'stretch',

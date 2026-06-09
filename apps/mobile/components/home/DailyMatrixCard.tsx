@@ -1,5 +1,5 @@
 import { Text, StyleSheet, View } from 'react-native';
-import { colors, spacing, typography } from '@/theme';
+import { colors, radius, spacing, typography } from '@/theme';
 import { Card } from '@/components/ui/Card';
 import { PrimaryButton } from '@/components/ui/PrimaryButton';
 
@@ -42,7 +42,7 @@ const styles = StyleSheet.create({
   },
   badge: {
     backgroundColor: colors.secondaryContainer,
-    borderRadius: 8,
+    borderRadius: radius.md,
     padding: spacing.sm,
     marginBottom: spacing.md,
   },

@@ -76,6 +76,7 @@ Headlines: tight tracking. Body: generous line height for lesson digestibility.
 | `buttonOffset` | 4px | 3D press extrusion |
 | `strokeWidth` | 2pt | Cards, inputs, containers |
 | `progressBarHeight` | 12px | Pill-shaped progress bars |
+| `layout.tabBarClearance` | 128px | Scroll padding-bottom on main-tab screens |
 
 Board: fluid square, full width minus side margins. Squares: 4px rounded corners.
 
@@ -294,6 +295,8 @@ Shared icons live in `components/ui/icons/`. Reuse — do not inline emoji as te
 | `MoveInput` | 56px height, 2pt stroke, blue focus | Text only in training |
 | `ProgressBar` | 12px pill, green fill, white shine | — |
 | `Card` | White, 2pt `#e5e5e5` stroke, 16px radius, 4px offset | — |
+| `HeroCopy` | Title + optional subtitle; `display` (centered) / `section` (left) | Home, TrainingHub, FogReveal headers |
+| `PlaceholderScreen` | Centered mascot/icon + badge + copy | Not-yet-built routes (Match, Settings) |
 | `ChessBoard` | Labels, 4px square radius, SVG mascot pieces | Visible: hook, replay, post-game only |
 | `InvisibleGrid` | Same geometry, fog/stone neutrals | No pieces |
 | `DisambiguationOverlay` | Black/minimal screen, large targets | Voice match only |
@@ -302,8 +305,8 @@ Shared icons live in `components/ui/icons/`. Reuse — do not inline emoji as te
 | `MascotTip` | Chip with `LightbulbIcon` (SVG) + `bodyMd` copy | Optional only; never auto-reveal puzzle answers |
 | `MatchClock` | Timer + "CLOCK FROZEN" badge | Freezes on parser failure |
 | `PeekButton` | `PeekIcon` (SVG) + label — no emoji | Onboarding peek affordance |
-| `OnboardingChrome` | Level label + `ProgressBar` | Onboarding only |
-| `TrainingChrome` | Position label + `ProgressBar` | DailyDrill session |
+| `ProgressChrome` | Level/position label + percent + `ProgressBar` | Onboarding flow + DailyDrill (merged chrome) |
+| `PuzzleSessionLayout` | SafeArea + scroll + header + memorize-prompt + board + controls slot | Shared shell: Hook/Story/Reward + DailyDrill |
 | `AppHeader` | Mascot avatar + MindBoard title + settings | Onboarding + home |
 | `BoardFrame` | 3D card wrapper for boards/heatmap | Chess + heatmap |
 | `MascotAvatar` | Standalone Icon (`4709d4e8`) in green circle frame | `AppHeader` |
@@ -330,8 +333,8 @@ Icon assets: `components/ui/icons/`. Piece SVGs: `components/chess/pieces/`.
 
 | Layer | Role | Example |
 |-------|------|---------|
-| `components/ui/` | Generic, cross-screen primitives | `PrimaryButton`, `MoveInput`, `Card`, `PromptText` |
-| `components/{chess,match,heatmap,replay,home,onboarding,training}/` | Domain-specific, reusable | `ChessBoard`, `FogOverlay`, `DailyMatrixCard`, `TrainingChrome` |
+| `components/ui/` | Generic, cross-screen primitives | `PrimaryButton`, `MoveInput`, `Card`, `PromptText`, `HeroCopy`, `ProgressChrome` |
+| `components/{chess,match,heatmap,replay,home,onboarding,training}/` | Domain-specific, reusable | `ChessBoard`, `FogOverlay`, `DailyMatrixCard`, `PuzzleSessionLayout` |
 | `screens/` | Route-level composition only | Import components; minimal layout logic |
 | `hooks/` | Shared stateful logic | `useFogOpacity`, `useOnboardingStep` |
 

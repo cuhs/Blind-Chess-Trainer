@@ -1,15 +1,13 @@
 // TODO(stitch): DailyDrill — infer from StoryPuzzle + Interactive Active Recall Training
-import { useState, useEffect, useCallback } from 'react';
-import { View, Text, StyleSheet, ScrollView } from 'react-native';
+import { useState, useEffect, useCallback, type ReactNode } from 'react';
+import { View, Text, StyleSheet } from 'react-native';
 import { useRouter } from 'expo-router';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { colors, spacing, typography } from '@/theme';
-import { PuzzleBoard } from '@/components/chess/PuzzleBoard';
-import { PromptText } from '@/components/ui/PromptText';
 import { MoveInput } from '@/components/ui/MoveInput';
 import { PrimaryButton } from '@/components/ui/PrimaryButton';
-import { AppHeader } from '@/components/ui/AppHeader';
-import { TrainingChrome } from '@/components/training/TrainingChrome';
+import { ProgressChrome } from '@/components/ui/ProgressChrome';
+import { PuzzleSessionLayout } from '@/components/training/PuzzleSessionLayout';
 import { PeekButton } from '@/components/onboarding/PeekButton';
 import { useTrainingAnswer } from '@/hooks/useTrainingAnswer';
 import { useMemorizePhase } from '@/hooks/useMemorizePhase';
@@ -17,10 +15,33 @@ import { usePuzzleBank } from '@/hooks/usePuzzleBank';
 import { getTrainingDisplayFen } from '@/data/puzzleFen';
 import { useGuestStore } from '@/stores/guestStore';
 
-const MEMORIZE_PROMPT = 'Look closely. You have 5 seconds.';
-
 function todayKey(): string {
   return new Date().toISOString().slice(0, 10);
+}
+
+interface DrillStateProps {
+  title?: string;
+  message: string;
+  onBack?: () => void;
+}
+
+function DrillState({ title, message, onBack }: DrillStateProps) {
+  return (
+    <SafeAreaView style={styles.safe}>
+      <View style={styles.stateWrap}>
+        {title ? <Text style={styles.stateTitle}>{title}</Text> : null}
+        <Text style={styles.stateText}>{message}</Text>
+        {onBack ? (
+          <PrimaryButton
+            accessibilityLabel="Back to Training"
+            label="Back to Training"
+            onPress={onBack}
+            uppercase={false}
+          />
+        ) : null}
+      </View>
+    </SafeAreaView>
+  );
 }
 
 export function DailyDrillScreen() {
@@ -79,51 +100,25 @@ export function DailyDrillScreen() {
 
   if (isNotConfigured) {
     return (
-      <SafeAreaView style={styles.safe}>
-        <View style={styles.stateWrap}>
-          <Text style={styles.stateTitle}>Supabase not configured</Text>
-          <Text style={styles.stateText}>
-            Add EXPO_PUBLIC_SUPABASE_URL and EXPO_PUBLIC_SUPABASE_ANON_KEY to
-            .env.local (repo root or apps/mobile), then restart Expo.
-          </Text>
-          <PrimaryButton
-            accessibilityLabel="Back to Training"
-            label="Back to Training"
-            onPress={() => router.back()}
-            uppercase={false}
-          />
-        </View>
-      </SafeAreaView>
+      <DrillState
+        title="Supabase not configured"
+        message="Add EXPO_PUBLIC_SUPABASE_URL and EXPO_PUBLIC_SUPABASE_ANON_KEY to .env.local (repo root or apps/mobile), then restart Expo."
+        onBack={() => router.back()}
+      />
     );
   }
 
   if (isLoading) {
-    return (
-      <SafeAreaView style={styles.safe}>
-        <View style={styles.stateWrap}>
-          <Text style={styles.stateText}>Loading today&apos;s puzzles...</Text>
-        </View>
-      </SafeAreaView>
-    );
+    return <DrillState message="Loading today's puzzles..." />;
   }
 
   if (isError || !puzzle) {
     return (
-      <SafeAreaView style={styles.safe}>
-        <View style={styles.stateWrap}>
-          <Text style={styles.stateTitle}>Could not load puzzles</Text>
-          <Text style={styles.stateText}>
-            Check that Supabase is running, anonymous auth is enabled, and
-            puzzle_bank is seeded.
-          </Text>
-          <PrimaryButton
-            accessibilityLabel="Back to Training"
-            label="Back to Training"
-            onPress={() => router.back()}
-            uppercase={false}
-          />
-        </View>
-      </SafeAreaView>
+      <DrillState
+        title="Could not load puzzles"
+        message="Check that Supabase is running, anonymous auth is enabled, and puzzle_bank is seeded."
+        onBack={() => router.back()}
+      />
     );
   }
 
@@ -143,66 +138,62 @@ export function DailyDrillScreen() {
     }
   };
 
+  const resolvedPrompt = sessionComplete
+    ? 'Nice work — your heatmap just got sharper.'
+    : phase === 'success'
+      ? 'Correct!'
+      : puzzle.prompt;
+
+  let controls: ReactNode = null;
+  if (sessionComplete) {
+    controls = (
+      <PrimaryButton
+        accessibilityLabel="Back to Home"
+        label="Back to Home"
+        onPress={completeDrill}
+        uppercase={false}
+      />
+    );
+  } else if (canAnswer) {
+    controls = (
+      <>
+        <MoveInput
+          onChangeText={setAnswer}
+          onSubmitAnswer={handleSubmit}
+          placeholder={puzzle.inputPlaceholder}
+          value={answer}
+        />
+        <PrimaryButton
+          accessibilityLabel="Submit Answer"
+          label="Submit Answer"
+          onPress={handleSubmit}
+        />
+        <PeekButton onPress={triggerPeek} />
+      </>
+    );
+  }
+
   return (
-    <SafeAreaView style={styles.safe}>
-      <ScrollView
-        contentContainerStyle={styles.content}
-        keyboardShouldPersistTaps="handled"
-      >
-        <AppHeader showSettings={false} />
-
-        <TrainingChrome label={progressLabel} percent={progressPercent} />
-
-        <PromptText
-          highlight={isMemorizing ? '5' : undefined}
-          subtitle={isMemorizing ? puzzle.subtitle : undefined}
-          variant={isMemorizing ? 'hero' : 'default'}
-        >
-          {sessionComplete
-            ? 'Nice work — your heatmap just got sharper.'
-            : isMemorizing
-              ? MEMORIZE_PROMPT
-              : phase === 'success'
-                ? 'Correct!'
-                : puzzle.prompt}
-        </PromptText>
-
-        <View style={styles.boardWrap}>
-          <PuzzleBoard
-            boardKey={puzzle.id}
-            fen={displayFen}
-            isMemorizing={isMemorizing && !sessionComplete}
-            peekVisible={peekVisible}
-          />
-        </View>
-
-        {sessionComplete ? (
-          <View style={styles.controls}>
-            <PrimaryButton
-              accessibilityLabel="Back to Home"
-              label="Back to Home"
-              onPress={completeDrill}
-              uppercase={false}
-            />
-          </View>
-        ) : canAnswer ? (
-          <View style={styles.controls}>
-            <MoveInput
-              onChangeText={setAnswer}
-              onSubmitAnswer={handleSubmit}
-              placeholder={puzzle.inputPlaceholder}
-              value={answer}
-            />
-            <PrimaryButton
-              accessibilityLabel="Submit Answer"
-              label="Submit Answer"
-              onPress={handleSubmit}
-            />
-            <PeekButton onPress={triggerPeek} />
-          </View>
-        ) : null}
-      </ScrollView>
-    </SafeAreaView>
+    <PuzzleSessionLayout
+      chrome={
+        <ProgressChrome
+          accessibilityLabel={`Training progress: ${progressLabel}`}
+          label={progressLabel}
+          percent={progressPercent}
+        />
+      }
+      isMemorizing={isMemorizing && !sessionComplete}
+      prompt={resolvedPrompt}
+      memorizeSubtitle={puzzle.subtitle}
+      board={{
+        boardKey: puzzle.id,
+        fen: displayFen,
+        peekVisible,
+        showBoard: isMemorizing && !sessionComplete,
+      }}
+    >
+      {controls}
+    </PuzzleSessionLayout>
   );
 }
 
@@ -210,17 +201,6 @@ const styles = StyleSheet.create({
   safe: {
     flex: 1,
     backgroundColor: colors.background,
-  },
-  content: {
-    paddingHorizontal: spacing.marginMobile,
-    paddingBottom: spacing.xl,
-  },
-  boardWrap: {
-    alignItems: 'center',
-    marginBottom: spacing.sectionGap,
-  },
-  controls: {
-    gap: spacing.md,
   },
   stateWrap: {
     flex: 1,

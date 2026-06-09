@@ -1,9 +1,10 @@
 // TODO(stitch): TrainingHub — infer from StoryPuzzle + DailyDrill
 import { router } from 'expo-router';
-import { ScrollView, StyleSheet, Text, View } from 'react-native';
+import { ScrollView, StyleSheet, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { colors, spacing, typography } from '@/theme';
+import { colors, layout, spacing } from '@/theme';
 import { AppHeader } from '@/components/ui/AppHeader';
+import { HeroCopy } from '@/components/ui/HeroCopy';
 import { DailyMatrixCard } from '@/components/home/DailyMatrixCard';
 import { useDailyMatrix } from '@/hooks/useDailyMatrix';
 
@@ -25,11 +26,11 @@ export function TrainingHubScreen() {
         showsVerticalScrollIndicator={false}
       >
         <View style={styles.hero}>
-          <Text style={styles.title}>Story of the Position</Text>
-          <Text style={styles.subtitle}>
-            Active recall drills to sharpen your mental map. Text input only —
-            no voice.
-          </Text>
+          <HeroCopy
+            title="Story of the Position"
+            subtitle="Active recall drills to sharpen your mental map. Text input only — no voice."
+            variant="section"
+          />
         </View>
 
         <DailyMatrixCard
@@ -49,19 +50,10 @@ const styles = StyleSheet.create({
   },
   content: {
     paddingHorizontal: spacing.marginMobile,
-    paddingBottom: 128,
+    paddingBottom: layout.tabBarClearance,
     gap: spacing.md,
   },
   hero: {
-    gap: spacing.sm,
     paddingVertical: spacing.md,
-  },
-  title: {
-    ...typography.headlineLg,
-    color: colors.onSurface,
-  },
-  subtitle: {
-    ...typography.bodyMd,
-    color: colors.onSurfaceVariant,
   },
 });
