@@ -12,7 +12,23 @@ import {
   BeVietnamPro_700Bold,
 } from '@expo-google-fonts/be-vietnam-pro';
 import { useGuestSession } from '@/hooks/useGuestSession';
+import { useSupabaseUserId } from '@/hooks/useSupabaseUserId';
 import { queryClient } from '@/lib/queryClient';
+
+function AppShell() {
+  useSupabaseUserId();
+
+  return (
+    <>
+      <StatusBar style="dark" />
+      <Stack screenOptions={{ headerShown: false }}>
+        <Stack.Screen name="index" />
+        <Stack.Screen name="(onboarding)" />
+        <Stack.Screen name="(main)" />
+      </Stack>
+    </>
+  );
+}
 
 export default function RootLayout() {
   const { isReady } = useGuestSession();
@@ -31,12 +47,7 @@ export default function RootLayout() {
 
   return (
     <QueryClientProvider client={queryClient}>
-      <StatusBar style="dark" />
-      <Stack screenOptions={{ headerShown: false }}>
-        <Stack.Screen name="index" />
-        <Stack.Screen name="(onboarding)" />
-        <Stack.Screen name="(main)" />
-      </Stack>
+      <AppShell />
     </QueryClientProvider>
   );
 }

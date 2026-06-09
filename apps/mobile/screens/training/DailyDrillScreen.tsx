@@ -1,9 +1,9 @@
 // TODO(stitch): DailyDrill — infer from StoryPuzzle + Interactive Active Recall Training
 import { useState, useEffect, useCallback } from 'react';
-import { View, StyleSheet, ScrollView } from 'react-native';
+import { View, Text, StyleSheet, ScrollView } from 'react-native';
 import { useRouter } from 'expo-router';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { colors, spacing } from '@/theme';
+import { colors, spacing, typography } from '@/theme';
 import { PuzzleBoard } from '@/components/chess/PuzzleBoard';
 import { PromptText } from '@/components/ui/PromptText';
 import { MoveInput } from '@/components/ui/MoveInput';
@@ -28,7 +28,8 @@ export function DailyDrillScreen() {
   const [puzzleIndex, setPuzzleIndex] = useState(0);
   const [answer, setAnswer] = useState('');
   const [sessionComplete, setSessionComplete] = useState(false);
-  const { puzzles, puzzleCount } = usePuzzleBank();
+  const { puzzles, puzzleCount, isLoading, isError, isNotConfigured } =
+    usePuzzleBank();
   const puzzle = puzzles[puzzleIndex];
   const { phase, peekVisible, isMemorizing, canAnswer, markSuccess, triggerPeek } =
     useMemorizePhase(puzzle?.id ?? `drill-${puzzleIndex}`);
@@ -76,7 +77,55 @@ export function DailyDrillScreen() {
     return () => clearTimeout(timer);
   }, [phase, isLastPuzzle, completeDrill]);
 
-  if (!puzzle) return null;
+  if (isNotConfigured) {
+    return (
+      <SafeAreaView style={styles.safe}>
+        <View style={styles.stateWrap}>
+          <Text style={styles.stateTitle}>Supabase not configured</Text>
+          <Text style={styles.stateText}>
+            Add EXPO_PUBLIC_SUPABASE_URL and EXPO_PUBLIC_SUPABASE_ANON_KEY to
+            .env.local (repo root or apps/mobile), then restart Expo.
+          </Text>
+          <PrimaryButton
+            accessibilityLabel="Back to Training"
+            label="Back to Training"
+            onPress={() => router.back()}
+            uppercase={false}
+          />
+        </View>
+      </SafeAreaView>
+    );
+  }
+
+  if (isLoading) {
+    return (
+      <SafeAreaView style={styles.safe}>
+        <View style={styles.stateWrap}>
+          <Text style={styles.stateText}>Loading today&apos;s puzzles...</Text>
+        </View>
+      </SafeAreaView>
+    );
+  }
+
+  if (isError || !puzzle) {
+    return (
+      <SafeAreaView style={styles.safe}>
+        <View style={styles.stateWrap}>
+          <Text style={styles.stateTitle}>Could not load puzzles</Text>
+          <Text style={styles.stateText}>
+            Check that Supabase is running, anonymous auth is enabled, and
+            puzzle_bank is seeded.
+          </Text>
+          <PrimaryButton
+            accessibilityLabel="Back to Training"
+            label="Back to Training"
+            onPress={() => router.back()}
+            uppercase={false}
+          />
+        </View>
+      </SafeAreaView>
+    );
+  }
 
   const displayFen = getTrainingDisplayFen(puzzle);
 
@@ -172,5 +221,21 @@ const styles = StyleSheet.create({
   },
   controls: {
     gap: spacing.md,
+  },
+  stateWrap: {
+    flex: 1,
+    justifyContent: 'center',
+    paddingHorizontal: spacing.marginMobile,
+    gap: spacing.md,
+  },
+  stateTitle: {
+    ...typography.headlineMd,
+    color: colors.onSurface,
+    textAlign: 'center',
+  },
+  stateText: {
+    ...typography.bodyMd,
+    color: colors.onSurfaceVariant,
+    textAlign: 'center',
   },
 });

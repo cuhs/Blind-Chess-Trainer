@@ -1,6 +1,6 @@
 import { useQuery } from '@tanstack/react-query';
-import { DAILY_DRILL_PUZZLES, type TrainingPuzzle } from '@/data/training-puzzles';
-import { supabase } from '@/lib/supabase';
+import type { TrainingPuzzle } from '@/data/training-puzzles';
+import { isSupabaseConfigured, supabase } from '@/lib/supabase';
 import { useSupabaseUserId } from './useSupabaseUserId';
 import { isSquare, type AnswerType, type Square } from '@mindboard/shared';
 
@@ -53,14 +53,22 @@ function toTrainingPuzzle(row: PuzzleBankRow): TrainingPuzzle | null {
   };
 }
 
+const EMPTY_PUZZLES: TrainingPuzzle[] = [];
+
 export function usePuzzleBank() {
-  const { data: userId } = useSupabaseUserId();
+  const authQuery = useSupabaseUserId();
+  const userId = authQuery.data ?? null;
+
+  const authPending =
+    isSupabaseConfigured &&
+    !authQuery.isError &&
+    (authQuery.isFetching || (authQuery.isPending && userId === null));
 
   const puzzleQuery = useQuery({
     queryKey: ['puzzle-bank', userId],
     enabled: Boolean(supabase && userId),
-    queryFn: async () => {
-      if (!supabase) return [];
+    queryFn: async (): Promise<TrainingPuzzle[]> => {
+      if (!supabase) return EMPTY_PUZZLES;
 
       const { data, error } = await supabase
         .from('puzzle_bank')
@@ -83,20 +91,22 @@ export function usePuzzleBank() {
 
       if (error) throw error;
 
-      return ((data ?? []) as unknown as PuzzleBankRow[])
-        .map(toTrainingPuzzle)
+      const rows = (Array.isArray(data) ? data : []) as unknown as PuzzleBankRow[];
+      return rows
+        .map((row) => toTrainingPuzzle(row))
         .filter((puzzle): puzzle is TrainingPuzzle => puzzle !== null);
     },
   });
 
-  const remotePuzzles = puzzleQuery.data ?? [];
-  const puzzles =
-    remotePuzzles.length > 0 ? remotePuzzles : DAILY_DRILL_PUZZLES;
+  const puzzles = Array.isArray(puzzleQuery.data) ? puzzleQuery.data : EMPTY_PUZZLES;
+  const puzzlePending = Boolean(supabase && userId) && puzzleQuery.isFetching;
 
   return {
     puzzles,
     puzzleCount: puzzles.length,
-    isLoading: puzzleQuery.isLoading,
-    isUsingFallback: remotePuzzles.length === 0,
+    isNotConfigured: !isSupabaseConfigured,
+    isLoading: isSupabaseConfigured && (authPending || puzzlePending),
+    isError: Boolean(authQuery.isError || puzzleQuery.isError),
+    error: puzzleQuery.error ?? authQuery.error ?? null,
   };
 }

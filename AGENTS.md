@@ -119,7 +119,7 @@ Post-onboarding `/(main)/index` — Stitch frame `b1eff5fd32e743e2a7f8a4b78a3403
 
 1. Onboarding — `HookBoard` → `MatchPrimer` (Stitch: Invisible Grid Hook)
 1b. Home — `HomeDashboard` from Stitch `b1eff5fd32e743e2a7f8a4b78a340318`
-2. Training — `TrainingHub`, `DailyDrill` backed by `puzzle_bank` with local fallback; `StoryPuzzle` + motif engine next
+2. Training — `TrainingHub`, `DailyDrill` backed by `puzzle_bank`; `StoryPuzzle` + motif engine next
 3. Voice match — `VoiceMatch` + `DisambiguationOverlay`
 4. Post-game — `ReplayTimeline`, `CognitiveHeatmap`
 5. Infrastructure — Supabase, Express, motif engine
@@ -134,7 +134,7 @@ Supabase schema lives in `supabase/migrations/`; seed rows live in `supabase/see
 | `heatmap_ledger` | Append-only puzzle/match-peek square interactions |
 | `puzzle_bank` | Curated Story of the Position FENs/prompts |
 
-Mobile server state uses `@tanstack/react-query` and `apps/mobile/lib/supabase.ts`. `guestStore` remains the offline-first cache for heatmap aggregates and pending ledger inserts. The initial seed mirrors the 3 local fallback puzzles; 47 more hand-curated rows are pending content.
+Mobile server state uses `@tanstack/react-query` and `apps/mobile/lib/supabase.ts`. `guestStore` remains the offline-first cache for heatmap aggregates and pending ledger inserts. Daily drills load only from `puzzle_bank`; seed has 3 starter rows and 47 more hand-curated rows are pending content.
 
 ## Agent Doc Maintenance
 
