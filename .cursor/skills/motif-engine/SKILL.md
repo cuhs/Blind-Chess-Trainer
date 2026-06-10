@@ -75,7 +75,7 @@ Future LLM templating may reuse `MotifResult` in `apps/api/`; chess-core stays d
 - `16b75139d1d14931a1d17f54ce051a0e` — Active Recall Training Phase
 - `f42d4f83e10a44df8c569ed060ad83a4` — Interactive Active Recall Training
 
-DailyDrill implements Story-of-the-Position UX; no separate `StoryPuzzle` route yet.
+DailyDrill implements Story-of-the-Position UX (both Stitch training frames). No separate `StoryPuzzle` route — see `training-flow` skill.
 
 ## Boundary
 

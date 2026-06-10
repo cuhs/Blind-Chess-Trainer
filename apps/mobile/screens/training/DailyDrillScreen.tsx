@@ -1,4 +1,4 @@
-// TODO(stitch): DailyDrill — infer from StoryPuzzle + Interactive Active Recall Training
+// TODO(stitch): Active Recall Training Phase + Interactive Active Recall Training frames
 import { useState, useEffect, useCallback, type ReactNode } from 'react';
 import { View, Text, StyleSheet } from 'react-native';
 import { useRouter } from 'expo-router';

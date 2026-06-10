@@ -93,7 +93,7 @@ supabase/seed.sql     # Curated puzzle_bank seed rows
 | Stitch frame | RN screen | Phase |
 |--------------|-----------|-------|
 | Animated Invisible Grid Hook | `HookBoard` | 1 |
-| Active Recall Training Phase | `StoryPuzzle` | 2 |
+| Active Recall Training Phase | `DailyDrill` | 2 |
 | Interactive Active Recall Training | `DailyDrill` | 2 |
 | Animated Match Engine | `VoiceMatch` | 3 |
 | Animated Cognitive Heatmap Dashboard | `CognitiveHeatmap` / `FogRevealScreen` | 1 / 4 |
@@ -118,7 +118,9 @@ Post-onboarding `/(main)/index` — Stitch frame `b1eff5fd32e743e2a7f8a4b78a3403
 
 1. Onboarding — `HookBoard` → `MatchPrimer` (Stitch: Invisible Grid Hook)
 1b. Home — `HomeDashboard` from Stitch `b1eff5fd32e743e2a7f8a4b78a340318`
-2. Training — `TrainingHub`, `DailyDrill` backed by `puzzle_bank`; motif adapter (`motifToResult`, `buildPuzzleFromMotif`, `resolveTrainingPuzzle`) wired via `useResolvedPuzzle`
+2. Training — `TrainingHub`, `DailyDrill` backed by `puzzle_bank`; motif resolve via `useResolvedPuzzle` (no separate `StoryPuzzle` route — both Stitch training frames map to `DailyDrill`)
+   - Done: engine-backed prompts when top motif matches `expected_answer`
+   - Next: wire `useStoryNarration` for puzzles with `moves`; daily cap at 3 puzzles; expand seed content; Stitch polish on hub/drill
 3. Voice match — `VoiceMatch` + `DisambiguationOverlay`
 4. Post-game — `ReplayTimeline`, `CognitiveHeatmap`
 5. Infrastructure — Supabase, Express API (`apps/api/` — LLM templating when needed)
@@ -135,7 +137,7 @@ Supabase schema lives in `supabase/migrations/`; seed rows live in `supabase/see
 
 Client table grants are minimal: `authenticated` only (no `anon`), select/insert on ledger, select on puzzles. Streak and daily-drill date keys use the device's local calendar day (`apps/mobile/lib/dateKey.ts`).
 
-Mobile server state uses `@tanstack/react-query` and `apps/mobile/lib/supabase.ts`. `guestStore` remains the offline-first cache for heatmap aggregates and pending ledger inserts. Daily drills load from `puzzle_bank` (7 seed rows); `useResolvedPuzzle` overlays engine prompts when `analyzePosition` agrees with `expected_answer`. Validate seeds: `cd packages/chess-core && npm run validate:puzzles`.
+Mobile server state uses `@tanstack/react-query` and `apps/mobile/lib/supabase.ts`. `guestStore` remains the offline-first cache for heatmap aggregates and pending ledger inserts. `usePuzzleBank` loads all active `puzzle_bank` rows (7 seeds today; blueprint daily session is 3 — cap pending). `useResolvedPuzzle` overlays engine prompts when `analyzePosition` agrees with `expected_answer`. Validate seeds: `cd packages/chess-core && npm run validate:puzzles`. Skill: `training-flow`.
 
 ## Agent Doc Maintenance
 
@@ -159,6 +161,7 @@ Verify `AGENTS.md` rules/skills tables match files in `.cursor/rules/` and `.cur
 | `doc-maintenance` | After changes that affect architecture, routes, components, or conventions |
 | `stitch-designs` | Re-sync Stitch → DESIGN.md + tokens.ts |
 | `onboarding-flow` | Phase 1 screens |
+| `training-flow` | TrainingHub, DailyDrill, puzzle_bank, narration phases |
 | `motif-engine` | Tactical detection + tests |
 | `voice-match` | STT pipeline, clock freeze |
 | `heatmap-analytics` | Fog, peek, replay, drilling |

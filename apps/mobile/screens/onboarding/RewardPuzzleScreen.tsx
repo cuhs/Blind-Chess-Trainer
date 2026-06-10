@@ -1,4 +1,4 @@
-// TODO(stitch): RewardPuzzle — infer from StoryPuzzle
+// TODO(stitch): RewardPuzzle — infer from DailyDrill
 import { useEffect } from 'react';
 import { SquareKeypad } from '@/components/training/SquareKeypad';
 import { ProgressChrome } from '@/components/ui/ProgressChrome';

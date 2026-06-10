@@ -26,8 +26,8 @@ Routes: `/(onboarding)/hook` → `story-check` → `reward/1` → `reward/2` →
 | Min | Screen | Stitch? | Input |
 |-----|--------|---------|-------|
 | 0–2 | HookBoard | Yes | Text coord |
-| 2–4 | StoryCheck | Infer from `HookBoard` + `StoryPuzzle` | Yes/No |
-| 4–6 | RewardPuzzle ×2 | Infer from `StoryPuzzle` | Text |
+| 2–4 | StoryCheck | Infer from `HookBoard` + `DailyDrill` | Yes/No |
+| 4–6 | RewardPuzzle ×2 | Infer from `DailyDrill` | Text |
 | 6–8 | FogReveal | Partial (`61ce6c33` heatmap) | View |
 | 8–10 | MatchPrimer | Infer from `HookBoard` | Tap |
 

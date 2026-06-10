@@ -27,6 +27,7 @@ Run **before marking a task done** if the change touched architecture, UI struct
 | You changed… | Update these |
 |--------------|--------------|
 | `app/` routes or `(onboarding)`/`(main)` flow | `AGENTS.md`, `react-native-expo.mdc`, `onboarding-flow` skill |
+| Training screens, hooks, or `puzzle_bank` flow | `AGENTS.md`, `training-flow` skill, `motif-engine` skill, `ios-simulator-testing` P1 scenarios |
 | New `screens/` or `components/` | `DESIGN.md` catalog + file paths; domain skill if workflow-specific |
 | `theme/tokens.ts` or Stitch frames | `DESIGN.md`, `stitch-designs` skill |
 | `components/chess/*` (board, pieces, labels) | `DESIGN.md` § Chess, `chess-board.mdc`, `chess-ui` skill + `notation.md` |

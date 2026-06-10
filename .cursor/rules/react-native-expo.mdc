@@ -51,6 +51,19 @@ Reuse before creating. Extract when a block repeats across screens/states or a s
 
 chess.js owns position. UI state in Zustand. Server state via TanStack Query.
 
+## Training hooks
+
+| Hook | Role |
+|------|------|
+| `usePuzzleBank` | Load `puzzle_bank` rows (all active today; daily cap of 3 pending) |
+| `useResolvedPuzzle` | `resolveTrainingPuzzle` — engine prompt when motif matches `expected` |
+| `useMemorizePhase` | 5s board → answering → success |
+| `useStoryNarration` | Move TTS via `expo-speech` — **exists, not wired to DailyDrill yet** |
+| `useTrainingAnswer` | Validate + heatmap ledger |
+| `useDailyMatrix` | Hub/home puzzle count + peek loop badge |
+
+Skill: `training-flow`. No separate `StoryPuzzle` screen.
+
 ## Blueprint
 
 No board pieces during blindfold (except hook/replay/post-game). No voice in training.

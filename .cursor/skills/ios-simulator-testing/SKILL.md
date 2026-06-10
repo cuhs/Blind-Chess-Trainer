@@ -104,6 +104,8 @@ For fresh onboarding: clear guest storage or reinstall — onboarding only shows
 | 6 | Hook board | File a–h, rank 8–1 labels; SVG pieces |
 | 7 | Home heatmap | Tap square → tooltip; tab bar works |
 | 8 | Invisible grid | No pieces after hook timer |
+| 9 | Training hub | Tab Training → `DailyMatrixCard` visible; Start navigates to drill |
+| 10 | Daily drill | 5s board → invisible grid → keypad answer; progress chrome updates |
 
 ### Search strings (accessibility)
 
@@ -135,4 +137,4 @@ If `ui_find_element` fails, fix missing `accessibilityLabel` — do not rely on 
 
 ## After UI Changes
 
-Update `onboarding-flow` or domain skill if test steps changed. Add new `accessibilityLabel`s when adding interactives.
+Update `onboarding-flow`, `training-flow`, or domain skill if test steps changed. Add new `accessibilityLabel`s when adding interactives.

@@ -55,7 +55,15 @@ Center 15, edge 10, corner 5. Onboarding reveal: ~99% fog.
 
 ## Closed Loop
 
-Peek → `heatmap_ledger` `match_peek` event + PeekEvent(FEN) → motif engine → `puzzle_bank` row → training → fog lifts
+Target pipeline (not fully wired):
+
+```
+Voice match peek → heatmap_ledger (match_peek) + guestStore.peekEvents
+  → motif engine → puzzle_bank row (source: peek)
+  → DailyDrill → fog lifts
+```
+
+**Today:** puzzle training records `heatmap_ledger` on answer/peek via `useTrainingAnswer`. `guestStore.peekEvents` and home `loopBadge` exist; peek FEN → `puzzle_bank` generation is **not built** (Phase 3/4).
 
 ## Checklist
 

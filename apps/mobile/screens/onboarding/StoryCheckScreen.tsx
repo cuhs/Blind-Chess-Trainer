@@ -1,4 +1,4 @@
-// TODO(stitch): StoryCheck — infer from HookBoard + StoryPuzzle
+// TODO(stitch): StoryCheck — infer from HookBoard + DailyDrill
 import { useEffect } from 'react';
 import { YesNoZone } from '@/components/training/YesNoZone';
 import { ProgressChrome } from '@/components/ui/ProgressChrome';

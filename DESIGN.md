@@ -98,8 +98,8 @@ No soft drop shadows. Use **tonal offsets and 3D extrusions**:
 | Stitch frame | Screen ID | Blueprint phase | RN screen |
 |--------------|-----------|-----------------|-----------|
 | Animated Invisible Grid Hook | `a7e368689dde41bb8f4e006f32f4e854` | Phase 1 (0–2 min) | `HookBoard` |
-| Active Recall Training Phase | `16b75139d1d14931a1d17f54ce051a0e` | Phase 2 | `StoryPuzzle` |
-| Interactive Active Recall Training | `f42d4f83e10a44df8c569ed060ad83a4` | Phase 2 | `DailyDrill` |
+| Active Recall Training Phase | `16b75139d1d14931a1d17f54ce051a0e` | Phase 2 | `DailyDrill` (session layout) |
+| Interactive Active Recall Training | `f42d4f83e10a44df8c569ed060ad83a4` | Phase 2 | `DailyDrill` (progress chrome) |
 | Animated Match Engine | `2cbaa7be4acd4190a3f95dae66d1b0bc` | Phase 3 | `VoiceMatch` |
 | Animated Cognitive Heatmap Dashboard | `61ce6c33f6fe4350b176eb6cd2ddace6` | Phase 4 / onboarding fog | `CognitiveHeatmap` / `FogRevealScreen` |
 | MindBoard Home (Enhanced Loop) | `b1eff5fd32e743e2a7f8a4b78a340318` | Phase 1 exit | `HomeDashboard` |
@@ -128,10 +128,10 @@ When a screen or state has no Stitch frame (new screen, blueprint-only flow, or 
 
 | New / missing screen | Infer from |
 |---------------------|------------|
-| `StoryCheck`, `RewardPuzzle` | `HookBoard` + `StoryPuzzle` (prompt + `SquareKeypad`/`YesNoZone` + progress bar) |
+| `StoryCheck`, `RewardPuzzle` | `HookBoard` + `DailyDrill` (`PuzzleSessionLayout`, `SquareKeypad`/`YesNoZone`, progress chrome) |
 | `MatchPrimer` | `HookBoard` (headline + `PrimaryButton` + `bodyMd` copy) |
 | `DisambiguationOverlay` | `VoiceMatch` (minimal chrome, large touch targets, `colors.background`) |
-| New training screen | `StoryPuzzle` or `DailyDrill` |
+| New training screen | `DailyDrill` + `TrainingHub` |
 | New settings / profile | `CognitiveHeatmap` (card layout, legend chips) |
 | New post-game view | `ReplayTimeline` |
 

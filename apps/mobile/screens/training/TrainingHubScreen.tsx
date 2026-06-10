@@ -1,4 +1,4 @@
-// TODO(stitch): TrainingHub — infer from StoryPuzzle + DailyDrill
+// TODO(stitch): infer from DailyDrill + HomeDashboard card patterns
 import { router } from 'expo-router';
 import { ScrollView, StyleSheet, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';

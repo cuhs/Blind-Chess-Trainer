@@ -31,8 +31,8 @@ disable-model-invocation: false
 | RN screen | Stitch ID | Stitch title |
 |-----------|-----------|--------------|
 | HookBoard | `a7e368689dde41bb8f4e006f32f4e854` | Animated Invisible Grid Hook |
-| StoryPuzzle | `16b75139d1d14931a1d17f54ce051a0e` | Active Recall Training Phase |
-| DailyDrill | `f42d4f83e10a44df8c569ed060ad83a4` | Interactive Active Recall Training |
+| DailyDrill | `16b75139d1d14931a1d17f54ce051a0e` | Active Recall Training Phase (session layout) |
+| DailyDrill | `f42d4f83e10a44df8c569ed060ad83a4` | Interactive Active Recall Training (drill chrome) |
 | VoiceMatch | `2cbaa7be4acd4190a3f95dae66d1b0bc` | Animated Match Engine |
 | CognitiveHeatmap | `61ce6c33f6fe4350b176eb6cd2ddace6` | Animated Cognitive Heatmap Dashboard |
 | HomeDashboard | `b1eff5fd32e743e2a7f8a4b78a340318` | MindBoard Home (Enhanced Loop) |
