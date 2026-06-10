@@ -64,8 +64,7 @@ apps/mobile/
   lib/                # Supabase client + QueryClient
   stores/             # Zustand + AsyncStorage (guest session)
 apps/api/             # Express gateway
-packages/chess-core/
-packages/motif-engine/
+packages/chess-core/        # includes src/motifs/ (deterministic motif engine)
 packages/voice-pipeline/
 packages/heatmap/
 packages/shared/
@@ -177,7 +176,7 @@ Verify `AGENTS.md` rules/skills tables match files in `.cursor/rules/` and `.cur
 | `react-native-expo` | `apps/mobile/**` |
 | `chess-logic` | `packages/chess-core/**` |
 | `chess-board` | `apps/mobile/components/{chess,heatmap}/**` |
-| `motif-engine` | `packages/motif-engine/**` |
+| `motif-engine` | `packages/chess-core/src/motifs/**` |
 | `voice-pipeline` | `packages/voice-pipeline/**` |
 | `ios-simulator-testing` | `apps/mobile/**` |
 | `backend-api` | `apps/api/**`, `supabase/**` |
@@ -200,7 +199,6 @@ Verify `AGENTS.md` rules/skills tables match files in `.cursor/rules/` and `.cur
 ```bash
 cd apps/mobile && npx expo start --ios   # boot app in simulator
 cd apps/api && npm run dev
-cd packages/motif-engine && npm test
 cd packages/chess-core && npm test
 npx @_davideast/stitch-mcp doctor      # verify Stitch API
 supabase start

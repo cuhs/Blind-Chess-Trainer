@@ -1,6 +1,6 @@
 ---
 description: Deterministic motif detection — pure functions, JSON output, test coverage
-globs: "packages/motif-engine/**"
+globs: "packages/chess-core/src/motifs/**"
 alwaysApply: false
 ---
 
@@ -11,7 +11,8 @@ See `.cursor/skills/motif-engine/SKILL.md` for algorithms and checklist.
 ## Constraints
 
 - Pure functions only — no LLM, no side effects
-- Output `MotifResult[]` — empty array when no motifs
+- Output `Motif | null` via `analyzePosition(fen, previousFen?)` — `PieceMap` fields on `BaseMotif` subtypes
+- LLM templating may adapt to `MotifResult` SAN refs in `apps/api/` — not in chess-core
 - ≥90% branch coverage; ≥5 positive + ≥3 negative FENs per motif
 - Shared types from `packages/shared/`
 

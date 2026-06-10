@@ -9,37 +9,65 @@ disable-model-invocation: false
 
 # Motif Engine
 
-Pure TypeScript. No LLM calls. Powers Stitch training screens' **questions** — not their visuals.
+Pure TypeScript in `packages/chess-core/src/motifs/`. No LLM calls. Powers Stitch training screens' **questions** — not their visuals.
+
+## Public API
+
+```typescript
+import { analyzePosition } from '@mindboard/chess-core';
+
+const motif = analyzePosition(fen, previousFen?); // Motif | null
+```
+
+Orchestrator: influence map → linear / divergent / discovered detectors → `rankMotifs` (single winner).
+
+## Engine output (`BaseMotif` + `PieceMap`)
+
+```typescript
+interface PieceMap {
+  square: Square;
+  type: PieceSymbol;
+  color: Color;
+}
+
+// Example: PinMotif
+{
+  type: 'pin',
+  fen: string,
+  forcingWeight: 90,
+  pinKind: 'absolute' | 'relative',
+  attacker: PieceMap,
+  pinnedPiece: PieceMap,
+  kingBehind: PieceMap,
+}
+```
+
+## LLM templating (`MotifResult` — adapter in `apps/api/`)
+
+```typescript
+interface MotifResult {
+  motif: 'pin' | 'discovered_attack' | 'overloaded_defender';
+  attacker: string;   // SAN piece ref: "Bc4"
+  target: string;
+  pinned_to?: string;
+  square?: string;
+}
+```
+
+Piece refs (`Bc4`) are **SAN notation**. Engine uses `PieceMap` — convert at the API boundary only.
 
 ## Stitch Training Frames
 
 - `16b75139d1d14931a1d17f54ce051a0e` — Active Recall Training Phase
 - `f42d4f83e10a44df8c569ed060ad83a4` — Interactive Active Recall Training
 
-Example Stitch question: "What piece is now pinned to the Black King?"
-Mascot tip: "Look at the long diagonal from a4!"
-
-## Schema
-
-```typescript
-interface MotifResult {
-  motif: 'pin' | 'discovered_attack' | 'overloaded_defender';
-  attacker: string;   // SAN piece ref: "Bc4" (piece on a square, not the square name)
-  target: string;
-  pinned_to?: string;
-  square?: string;    // overloaded defender square: "f6"
-}
-```
-
-Piece refs (`Bc4`) are **SAN notation** — bishop on c4. Square names (`e4`) are **locations**. See `chess-ui/notation.md`.
-
 ## Boundary
 
 ```
-FEN → detectMotifs() → MotifResult[] → LLM templating → question text
+FEN → analyzePosition() → Motif | null → LLM templating → question text
 ```
 
-LLM never analyzes position. Empty motifs → skip question.
+LLM never analyzes position. `null` → skip question.
 
 ## Checklist
 

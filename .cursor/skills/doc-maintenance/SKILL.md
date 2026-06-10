@@ -36,7 +36,7 @@ Run **before marking a task done** if the change touched architecture, UI struct
 | `components/ui/icons/*` | `DESIGN.md` § Icons, `design-system.mdc` |
 | New `packages/*` | `AGENTS.md` structure, scoped rule, `AGENTS.md` commands |
 | `apps/api/` or `supabase/` | `backend-api.mdc`, `heatmap-analytics` if schema |
-| `packages/motif-engine/` | `motif-engine.mdc`, `motif-engine` skill |
+| `packages/chess-core/src/motifs/` | `motif-engine.mdc`, `motif-engine` skill, `chess-logic.mdc` |
 | `packages/voice-pipeline/` | `voice-pipeline.mdc`, `voice-match` skill |
 | New always-on constraint | `mindboard-core.mdc` + `AGENTS.md` constraints |
 | Removed feature | Delete stale rows from all tables; don't leave dead references |

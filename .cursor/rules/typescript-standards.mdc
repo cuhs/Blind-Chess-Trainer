@@ -41,5 +41,4 @@ type Result<T, E> = { ok: true; value: T } | { ok: false; error: E };
 
 ## Imports
 
-- Package-scoped aliases (`@mindboard/motif-engine`) — no deep relative paths across packages
-- No circular deps between `chess-core` and `motif-engine`
+- Package-scoped aliases (`@mindboard/chess-core`) — no deep relative paths across packages
