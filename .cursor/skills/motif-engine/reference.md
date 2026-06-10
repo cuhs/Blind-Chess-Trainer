@@ -43,9 +43,10 @@ The LLM receives MotifResult JSON and a template prompt. Example inputs:
 ```
 
 The LLM must ask about **structural geometry**, not "find the best move":
-- "What piece is now pinned to the Black King?"
-- "Which piece was unmasked by the pawn push?"
-- "Which defender is overloaded?"
+- "What square is the pinned knight on?"
+- "What square does the White bishop attack from?" (discovered attack)
+- "The White King is in check — what square is it on?" (not "hanging king")
+- "What square is the knight fork on?"
 
 ## Performance
 

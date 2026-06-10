@@ -12,7 +12,8 @@ See `.cursor/skills/motif-engine/SKILL.md` for algorithms and checklist.
 
 - Pure functions only — no LLM, no side effects
 - Output `Motif | null` via `analyzePosition(fen, previousFen?)` — `PieceMap` fields on `BaseMotif` subtypes
-- LLM templating may adapt to `MotifResult` SAN refs in `apps/api/` — not in chess-core
+- Deterministic templating: `motifToResult`, `buildPuzzleFromMotif`, `resolveTrainingPuzzle` in chess-core
+- Future LLM templating may adapt `MotifResult` in `apps/api/` — never in detection hot path
 - ≥90% branch coverage; ≥5 positive + ≥3 negative FENs per motif
 - Shared types from `packages/shared/`
 

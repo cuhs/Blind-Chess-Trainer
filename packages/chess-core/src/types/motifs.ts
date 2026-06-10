@@ -77,3 +77,23 @@ export type Motif =
   | HangingPieceMotif
   | OverloadedDefenderMotif
   | DiscoveredAttackMotif;
+
+/** JSON shape for LLM templating or deterministic question builders. */
+export interface MotifResult {
+  motif: MotifType;
+  attacker: string;
+  target: string;
+  pinned_to?: string;
+  square?: string;
+}
+
+/** Training puzzle fields derived from a detected motif. */
+export interface PuzzleDraft {
+  motifResult: MotifResult;
+  prompt: string;
+  inputPlaceholder: string;
+  answerType: 'square';
+  expected: string;
+  answerSquare: string;
+  squaresTouched: Square[];
+}

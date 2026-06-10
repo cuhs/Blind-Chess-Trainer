@@ -118,10 +118,10 @@ Post-onboarding `/(main)/index` — Stitch frame `b1eff5fd32e743e2a7f8a4b78a3403
 
 1. Onboarding — `HookBoard` → `MatchPrimer` (Stitch: Invisible Grid Hook)
 1b. Home — `HomeDashboard` from Stitch `b1eff5fd32e743e2a7f8a4b78a340318`
-2. Training — `TrainingHub`, `DailyDrill` backed by `puzzle_bank`; `StoryPuzzle` + motif engine next
+2. Training — `TrainingHub`, `DailyDrill` backed by `puzzle_bank`; motif adapter (`motifToResult`, `buildPuzzleFromMotif`, `resolveTrainingPuzzle`) wired via `useResolvedPuzzle`
 3. Voice match — `VoiceMatch` + `DisambiguationOverlay`
 4. Post-game — `ReplayTimeline`, `CognitiveHeatmap`
-5. Infrastructure — Supabase, Express, motif engine
+5. Infrastructure — Supabase, Express API (`apps/api/` — LLM templating when needed)
 
 ## Data Layer
 
@@ -135,7 +135,7 @@ Supabase schema lives in `supabase/migrations/`; seed rows live in `supabase/see
 
 Client table grants are minimal: `authenticated` only (no `anon`), select/insert on ledger, select on puzzles. Streak and daily-drill date keys use the device's local calendar day (`apps/mobile/lib/dateKey.ts`).
 
-Mobile server state uses `@tanstack/react-query` and `apps/mobile/lib/supabase.ts`. `guestStore` remains the offline-first cache for heatmap aggregates and pending ledger inserts. Daily drills load only from `puzzle_bank`; seed has 3 starter rows and 47 more hand-curated rows are pending content.
+Mobile server state uses `@tanstack/react-query` and `apps/mobile/lib/supabase.ts`. `guestStore` remains the offline-first cache for heatmap aggregates and pending ledger inserts. Daily drills load from `puzzle_bank` (7 seed rows); `useResolvedPuzzle` overlays engine prompts when `analyzePosition` agrees with `expected_answer`. Validate seeds: `cd packages/chess-core && npm run validate:puzzles`.
 
 ## Agent Doc Maintenance
 

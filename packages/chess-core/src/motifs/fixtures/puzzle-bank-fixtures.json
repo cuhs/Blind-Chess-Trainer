@@ -1,0 +1,91 @@
+[
+  {
+    "slug": "drill-pin-knight",
+    "fen": "8/8/4k3/3n4/2B5/8/8/4K3 w - - 0 1",
+    "moves": [],
+    "motifJson": {
+      "motif": "pin",
+      "attacker": "Bc4",
+      "target": "Nd5",
+      "pinned_to": "Ke6"
+    },
+    "nlpPrompt": "What square is the pinned knight on?",
+    "expectedAnswer": "d5",
+    "skipEngine": false
+  },
+  {
+    "slug": "drill-pin-bishop",
+    "fen": "8/8/4k3/3n4/2B5/8/8/4K3 w - - 0 1",
+    "moves": [],
+    "motifJson": {
+      "motif": "pin",
+      "attacker": "Bc4",
+      "target": "Nd5",
+      "pinned_to": "Ke6"
+    },
+    "nlpPrompt": "What square is the pinning bishop on?",
+    "expectedAnswer": "c4",
+    "skipEngine": false,
+    "alternatePrompt": true
+  },
+  {
+    "slug": "drill-story-check",
+    "fen": "rnbqkbnr/pppp1ppp/8/8/4P3/8/PPPP1PPP/RNBQKBNR w KQkq - 0 1",
+    "moves": ["Nf3", "Nc6", "Bc4", "Nf6"],
+    "motifJson": {
+      "motif": "story_check"
+    },
+    "nlpPrompt": "Is the Black King in check?",
+    "expectedAnswer": "no",
+    "skipEngine": true
+  },
+  {
+    "slug": "drill-fork-knight",
+    "fen": "k7/8/8/8/3N4/8/2q1r3/K7 w - - 0 1",
+    "moves": [],
+    "motifJson": {
+      "motif": "fork",
+      "attacker": "Nd4"
+    },
+    "nlpPrompt": "What square is the knight fork on?",
+    "expectedAnswer": "d4",
+    "skipEngine": false
+  },
+  {
+    "slug": "drill-skewer-rook",
+    "fen": "4k3/8/3r4/8/8/3K4/3B4/8 w - - 0 1",
+    "moves": [],
+    "motifJson": {
+      "motif": "skewer",
+      "attacker": "Rd6",
+      "target": "Kd3"
+    },
+    "expectedAnswer": "d3",
+    "skipEngine": false
+  },
+  {
+    "slug": "drill-discovered-bishop",
+    "fen": "4k3/6q1/8/8/3P4/8/1B6/4K3 w - - 0 1",
+    "moves": ["d5"],
+    "motifJson": {
+      "motif": "discovered_attack",
+      "attacker": "Bb2",
+      "target": "Qg7"
+    },
+    "nlpPrompt": "What square does the White Bishop attack from?",
+    "expectedAnswer": "b2",
+    "skipEngine": false
+  },
+  {
+    "slug": "drill-hanging-king",
+    "fen": "4k3/8/8/8/8/8/4r3/4K3 w - - 0 1",
+    "moves": [],
+    "motifJson": {
+      "motif": "hanging_piece",
+      "target": "Ke1"
+    },
+    "nlpPrompt": "The White King is in check — what square is it on?",
+    "expectedAnswer": "e1",
+    "skipEngine": false
+  }
+]

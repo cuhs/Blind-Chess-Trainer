@@ -15,7 +15,7 @@ alwaysApply: false
 ## Motif Boundary
 
 ```
-Position → analyzePosition() in chess-core/motifs → Motif | null → LLM (templating only)
+Position → analyzePosition() → Motif | null → buildPuzzleFromMotif() (deterministic; LLM optional in apps/api/)
 ```
 
 `null` motif → skip question. Never ask LLM to analyze the position.

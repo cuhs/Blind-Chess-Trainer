@@ -14,7 +14,7 @@ import { useTrainingAnswer } from '@/hooks/useTrainingAnswer';
 import { useMemorizePhase } from '@/hooks/useMemorizePhase';
 import { useAnswerFlash } from '@/hooks/useAnswerFlash';
 import { usePuzzleBank } from '@/hooks/usePuzzleBank';
-import { getTrainingDisplayFen } from '@/data/puzzleFen';
+import { useResolvedPuzzle } from '@/hooks/useResolvedPuzzle';
 import { useGuestStore } from '@/stores/guestStore';
 import { todayKey } from '@/lib/dateKey';
 
@@ -50,6 +50,7 @@ export function DailyDrillScreen() {
   const { puzzles, puzzleCount, isLoading, isError, isNotConfigured } =
     usePuzzleBank();
   const puzzle = puzzles[puzzleIndex];
+  const resolvedPuzzle = useResolvedPuzzle(puzzle);
   const { phase, peekVisible, isMemorizing, canAnswer, markSuccess, triggerPeek } =
     useMemorizePhase(puzzle?.id ?? `drill-${puzzleIndex}`);
   const { submit } = useTrainingAnswer('training');
@@ -110,7 +111,7 @@ export function DailyDrillScreen() {
     return <DrillState message="Loading today's puzzles..." />;
   }
 
-  if (isError || !puzzle) {
+  if (isError || !puzzle || !resolvedPuzzle) {
     return (
       <DrillState
         title="Could not load puzzles"
@@ -120,16 +121,14 @@ export function DailyDrillScreen() {
     );
   }
 
-  const displayFen = getTrainingDisplayFen(puzzle);
-
   const handleSubmit = async (value: string) => {
     const correct = await submit(value, {
-      stepId: puzzle.id,
-      answerType: puzzle.answerType,
-      expected: puzzle.expected,
-      fen: puzzle.fen,
-      moves: puzzle.moves,
-      squaresTouched: puzzle.squaresTouched,
+      stepId: resolvedPuzzle.id,
+      answerType: resolvedPuzzle.answerType,
+      expected: resolvedPuzzle.expected,
+      fen: resolvedPuzzle.fen,
+      moves: resolvedPuzzle.moves,
+      squaresTouched: resolvedPuzzle.squaresTouched,
     });
     flash(correct ? 'success' : 'error');
     if (correct) {
@@ -141,7 +140,7 @@ export function DailyDrillScreen() {
     ? 'Nice work — your heatmap just got sharper.'
     : phase === 'success'
       ? 'Correct!'
-      : puzzle.prompt;
+      : resolvedPuzzle.prompt;
 
   let controls: ReactNode = null;
   if (sessionComplete) {
@@ -156,10 +155,10 @@ export function DailyDrillScreen() {
   } else if (canAnswer) {
     controls = (
       <>
-        {puzzle.answerType === 'yes-no' ? (
+        {resolvedPuzzle.answerType === 'yes-no' ? (
           <YesNoZone onAnswer={(value) => handleSubmit(value)} />
         ) : (
-          <SquareKeypad onSubmit={handleSubmit} resetKey={puzzle.id} />
+          <SquareKeypad onSubmit={handleSubmit} resetKey={resolvedPuzzle.id} />
         )}
         <PeekButton onPress={triggerPeek} />
       </>
@@ -179,8 +178,8 @@ export function DailyDrillScreen() {
       prompt={resolvedPrompt}
       memorizeSubtitle={puzzle.subtitle}
       board={{
-        boardKey: puzzle.id,
-        fen: displayFen,
+        boardKey: resolvedPuzzle.id,
+        fen: resolvedPuzzle.displayFen,
         peekVisible,
         showBoard: isMemorizing && !sessionComplete,
       }}

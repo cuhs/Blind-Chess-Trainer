@@ -6,7 +6,8 @@
   "types": "src/index.ts",
   "scripts": {
     "test": "vitest run",
-    "test:coverage": "vitest run --coverage"
+    "test:coverage": "vitest run --coverage",
+    "validate:puzzles": "vitest run src/motifs/validate-puzzle-bank.test.ts"
   },
   "dependencies": {
     "@mindboard/shared": "*",

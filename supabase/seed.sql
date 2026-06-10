@@ -58,6 +58,66 @@ values
     '["c4","d5","e6"]'::jsonb,
     'daily',
     true
+  ),
+  (
+    'drill-fork-knight',
+    'k7/8/8/8/3N4/8/2q1r3/K7 w - - 0 1',
+    '{"motif":"fork","attacker":"Nd4","target":"Qc2","square":"d4"}'::jsonb,
+    'What square is the knight fork on?',
+    'e.g. a8',
+    null,
+    'd4',
+    'square',
+    'd4',
+    '[]'::jsonb,
+    '["d4","c2","e2"]'::jsonb,
+    'daily',
+    true
+  ),
+  (
+    'drill-skewer-rook',
+    '4k3/8/3r4/8/8/3K4/3B4/8 w - - 0 1',
+    '{"motif":"skewer","attacker":"Rd6","target":"Kd3","square":"d2"}'::jsonb,
+    'What square is the White King on?',
+    'e.g. a8',
+    null,
+    'd3',
+    'square',
+    'd3',
+    '[]'::jsonb,
+    '["d6","d3","d2"]'::jsonb,
+    'daily',
+    true
+  ),
+  (
+    'drill-discovered-bishop',
+    '4k3/6q1/8/8/3P4/8/1B6/4K3 w - - 0 1',
+    '{"motif":"discovered_attack","attacker":"Bb2","target":"Qg7","square":"d5"}'::jsonb,
+    'What square does the White Bishop attack from?',
+    'e.g. a8',
+    'White pushes the d-pawn to d5...',
+    'b2',
+    'square',
+    'b2',
+    '["d5"]'::jsonb,
+    '["b2","g7","d5"]'::jsonb,
+    'daily',
+    true
+  ),
+  (
+    'drill-hanging-king',
+    '4k3/8/8/8/8/8/4r3/4K3 w - - 0 1',
+    '{"motif":"hanging_piece","attacker":"Re2","target":"Ke1","square":"e1"}'::jsonb,
+    'The White King is in check — what square is it on?',
+    'e.g. a8',
+    null,
+    'e1',
+    'square',
+    'e1',
+    '[]'::jsonb,
+    '["e1","e2"]'::jsonb,
+    'daily',
+    true
   )
 on conflict (slug) do update
 set
