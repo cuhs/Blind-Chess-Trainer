@@ -47,16 +47,39 @@ Validate seeds: `cd packages/chess-core && npm run validate:puzzles`.
 | `usePuzzleBank` | Done | Loads active `puzzle_bank` rows via React Query |
 | `useResolvedPuzzle` | Done | Memoized `resolveTrainingPuzzle` per puzzle |
 | `useMemorizePhase` | Done | 5s board memorize → answering → success |
-| `useStoryNarration` | **Not wired** | `expo-speech` move sequence for puzzles with `moves` |
+| `usePuzzleSessionPhase` | Done | Board memorize or `useStoryNarration` when `moves[]` present |
+| `useStoryNarration` | Done | `expo-speech` move sequence (via session phase) |
 | `useTrainingAnswer` | Done | Validate answer + `recordHeatmapInteractions` |
 | `useDailyMatrix` | Done | Puzzle count + peek loop badge for hub/home cards |
 
 ## Session model
 
-1. **Memorize** — board visible 5s (`useMemorizePhase`), or move narration when wired
-2. **Answer** — blank screen + prompt; `SquareKeypad` or `YesNoZone`
-3. **Peek** — 2s board flash; records heatmap interaction
-4. **Advance** — next puzzle or complete session → home tab
+`usePuzzleSessionPhase(resetKey, { fen, moves })` sequences the prepare phases:
+
+| Puzzle shape | Flow |
+|--------------|------|
+| No `moves[]` | memorize board 5s → answer |
+| `moves[]` + standard-start FEN | narrate (blank screen) → answer |
+| `moves[]` + custom FEN | memorize board 5s → narrate (blank) → answer |
+
+Then: **Answer** (`SquareKeypad` / `YesNoZone`) → **Peek** (2s flash of the **base** FEN, never post-move) → advance or complete → home tab.
+
+## Authoring audio (story) puzzles
+
+Rows with non-empty `moves[]` in `puzzle_bank`:
+
+1. **Pattern A — narration only:** `fen` = standard start, `moves` = legal SAN sequence (3–5 moves). No board shown; everyone knows the start.
+2. **Pattern B — memorize then narrate:** `fen` = custom base position, `moves` = short continuation (1–2 plies). Board shown 5s first, or the narration has no context.
+
+Rules:
+
+- `moves[]` must be legal from `fen` — validator rejects illegal sequences
+- `subtitle` must not mention the moves (it displays during memorize)
+- `expected_answer` is about the position **after** `moves`
+- Mirror the row in `packages/chess-core/src/motifs/fixtures/puzzle-bank-fixtures.json`; story_check rows set `"checkColor"` and the validator confirms the yes/no answer against the real position
+- Run `cd packages/chess-core && npm run validate:puzzles`
+
+Full recipe comment at the bottom of `supabase/seed.sql`.
 
 Blueprint: **3 puzzles per daily session**. Current code loads all active rows (7 seeds) — cap not implemented yet.
 
@@ -66,7 +89,7 @@ Blueprint: **3 puzzles per daily session**. Current code loads all active rows (
 - [x] TrainingHub + DailyDrill routes
 - [x] puzzle_bank loading + heatmap on answer/peek
 - [x] useResolvedPuzzle / motif-backed prompts
-- [ ] Wire useStoryNarration for puzzles with moves[]
+- [x] Wire useStoryNarration for puzzles with moves[] (`usePuzzleSessionPhase`)
 - [ ] Daily session cap at 3 puzzles (rotate or slice by todayKey)
 - [ ] Expand puzzle_bank (~50 curated rows; 7 seeds today)
 - [ ] Stitch visual polish (TODO(stitch) on hub + drill screens)

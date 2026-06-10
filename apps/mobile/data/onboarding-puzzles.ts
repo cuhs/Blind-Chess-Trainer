@@ -27,13 +27,13 @@ export const HOOK_PUZZLE: OnboardingPuzzle = {
 export const STORY_CHECK_PUZZLE: OnboardingPuzzle = {
   id: 'story-check',
   step: 'story-check',
-  fen: 'rnbqkbnr/pppp1ppp/4p3/8/4P3/8/PPPP1PPP/RNBQKBNR w KQkq - 0 2',
-  moves: ['Nf3', 'd5'],
+  // Standard start → narration alone defines the position (no memorize step).
+  fen: 'rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1',
+  moves: ['e4', 'd5'],
   prompt: 'Is the Black King in check?',
-  subtitle: 'White plays Nf3, Black plays d5...',
   answerType: 'yes-no',
   expected: 'no',
-  squaresTouched: ['e8', 'f3', 'd5'],
+  squaresTouched: ['e8', 'e4', 'd5'],
 };
 
 export const REWARD_PUZZLES: OnboardingPuzzle[] = [

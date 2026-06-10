@@ -11,7 +11,7 @@ import { ProgressChrome } from '@/components/ui/ProgressChrome';
 import { PuzzleSessionLayout } from '@/components/training/PuzzleSessionLayout';
 import { PeekButton } from '@/components/onboarding/PeekButton';
 import { useTrainingAnswer } from '@/hooks/useTrainingAnswer';
-import { useMemorizePhase } from '@/hooks/useMemorizePhase';
+import { usePuzzleSessionPhase } from '@/hooks/usePuzzleSessionPhase';
 import { useAnswerFlash } from '@/hooks/useAnswerFlash';
 import { usePuzzleBank } from '@/hooks/usePuzzleBank';
 import { useResolvedPuzzle } from '@/hooks/useResolvedPuzzle';
@@ -51,8 +51,19 @@ export function DailyDrillScreen() {
     usePuzzleBank();
   const puzzle = puzzles[puzzleIndex];
   const resolvedPuzzle = useResolvedPuzzle(puzzle);
-  const { phase, peekVisible, isMemorizing, canAnswer, markSuccess, triggerPeek } =
-    useMemorizePhase(puzzle?.id ?? `drill-${puzzleIndex}`);
+  const puzzleKey = puzzle?.id ?? `drill-${puzzleIndex}`;
+  const {
+    phase,
+    peekVisible,
+    isMemorizing,
+    isListening,
+    canAnswer,
+    markSuccess,
+    triggerPeek,
+  } = usePuzzleSessionPhase(puzzleKey, {
+    fen: puzzle?.fen ?? '',
+    moves: puzzle?.moves ?? [],
+  });
   const { submit } = useTrainingAnswer('training');
   const { flash, opacity, kind } = useAnswerFlash();
   const setLastDrillCompletedDate = useGuestStore(
@@ -174,14 +185,17 @@ export function DailyDrillScreen() {
           percent={progressPercent}
         />
       }
+      isListening={isListening && !sessionComplete}
       isMemorizing={isMemorizing && !sessionComplete}
       prompt={resolvedPrompt}
       memorizeSubtitle={puzzle.subtitle}
       board={{
         boardKey: resolvedPuzzle.id,
-        fen: resolvedPuzzle.displayFen,
+        // Base position, not displayFen — for story puzzles the user must
+        // apply the narrated moves mentally, even on peek.
+        fen: resolvedPuzzle.fen,
         peekVisible,
-        showBoard: isMemorizing && !sessionComplete,
+        showBoard: (isMemorizing || peekVisible) && !sessionComplete,
       }}
       flash={{ opacity, kind }}
     >

@@ -21,7 +21,7 @@
       },
       "package": "com.mindboard.app"
     },
-    "plugins": ["expo-router", "expo-font"],
+    "plugins": ["expo-router", "expo-font", "expo-audio"],
     "experiments": {
       "typedRoutes": true,
       "autolinkingModuleResolution": true

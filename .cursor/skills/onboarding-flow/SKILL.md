@@ -45,7 +45,7 @@ Each puzzle: `fen`, `expected`, `squaresTouched` must describe the **same** squa
 | Puzzle | Key square | Verify |
 |--------|------------|--------|
 | Hook | Rook **e4** | FEN rank 4 has `R` on e-file; `expected: 'e4'` |
-| Story | King **e8**, moves touch **f3**, **d5** | `applyMoves` then `inCheck()` |
+| Story | Standard start, moves **e4**, **d5** | `applyMoves` then `inCheck()` |
 | Reward 1 | King **e1** | FEN rank 1 |
 | Reward 2 | Rook **e4** | FEN rank 4 |
 

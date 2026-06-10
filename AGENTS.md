@@ -120,7 +120,7 @@ Post-onboarding `/(main)/index` — Stitch frame `b1eff5fd32e743e2a7f8a4b78a3403
 1b. Home — `HomeDashboard` from Stitch `b1eff5fd32e743e2a7f8a4b78a340318`
 2. Training — `TrainingHub`, `DailyDrill` backed by `puzzle_bank`; motif resolve via `useResolvedPuzzle` (no separate `StoryPuzzle` route — both Stitch training frames map to `DailyDrill`)
    - Done: engine-backed prompts when top motif matches `expected_answer`
-   - Next: wire `useStoryNarration` for puzzles with `moves`; daily cap at 3 puzzles; expand seed content; Stitch polish on hub/drill
+   - Next: daily cap at 3 puzzles; expand seed content; Stitch polish on hub/drill
 3. Voice match — `VoiceMatch` + `DisambiguationOverlay`
 4. Post-game — `ReplayTimeline`, `CognitiveHeatmap`
 5. Infrastructure — Supabase, Express API (`apps/api/` — LLM templating when needed)

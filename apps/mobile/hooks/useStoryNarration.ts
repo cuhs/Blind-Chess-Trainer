@@ -1,43 +1,51 @@
-import { useEffect, useState } from 'react';
-import * as Speech from 'expo-speech';
+import { useCallback, useEffect, useRef, useState } from 'react';
+import { buildMoveNarrationScript } from './storyNarrationScript';
+import { speakNarration, stopNarration } from '@/lib/speech';
 
-export type NarrationPhase = 'narrating' | 'prompting' | 'success';
+export type NarrationPhase = 'pending' | 'narrating' | 'prompting' | 'success';
 
-function formatMoveForSpeech(san: string): string {
-  return san
-    .replace(/N/g, 'Knight ')
-    .replace(/B/g, 'Bishop ')
-    .replace(/R/g, 'Rook ')
-    .replace(/Q/g, 'Queen ')
-    .replace(/K/g, 'King ')
-    .replace(/x/g, ' takes ')
-    .replace(/\+/g, ', check')
-    .replace(/#/g, ', checkmate');
-}
+export { buildMoveNarrationScript } from './storyNarrationScript';
 
-export function useStoryNarration(moves: string[]) {
-  const [phase, setPhase] = useState<NarrationPhase>('narrating');
+export function useStoryNarration(
+  moves: string[],
+  enabled = true,
+  resetKey = 'default',
+) {
+  const active = enabled && moves.length > 0;
+  const [phase, setPhase] = useState<NarrationPhase>(
+    active ? 'narrating' : 'pending',
+  );
+  const generationRef = useRef(0);
+
+  const spoken = active ? buildMoveNarrationScript(moves) : '';
 
   useEffect(() => {
-    const spoken = moves
-      .map((move, i) => {
-        const color = i % 2 === 0 ? 'White plays' : 'Black plays';
-        return `${color} ${formatMoveForSpeech(move)}`;
-      })
-      .join('. ');
+    if (!active) {
+      setPhase('pending');
+      return;
+    }
 
-    Speech.speak(spoken, {
-      onDone: () => setPhase('prompting'),
-      onStopped: () => setPhase('prompting'),
-      onError: () => setPhase('prompting'),
+    const generation = ++generationRef.current;
+    setPhase('narrating');
+
+    void speakNarration(spoken, {
+      onDone: () => {
+        if (generation !== generationRef.current) return;
+        setPhase('prompting');
+      },
+      onError: () => {
+        if (generation !== generationRef.current) return;
+        setPhase('prompting');
+      },
     });
 
     return () => {
-      void Speech.stop();
+      generationRef.current += 1;
+      void stopNarration();
     };
-  }, [moves]);
+  }, [active, resetKey, spoken]);
 
-  const markSuccess = () => setPhase('success');
+  const markSuccess = useCallback(() => setPhase('success'), []);
 
   return { phase, markSuccess };
 }

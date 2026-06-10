@@ -57,8 +57,9 @@ chess.js owns position. UI state in Zustand. Server state via TanStack Query.
 |------|------|
 | `usePuzzleBank` | Load `puzzle_bank` rows (all active today; daily cap of 3 pending) |
 | `useResolvedPuzzle` | `resolveTrainingPuzzle` — engine prompt when motif matches `expected` |
-| `useMemorizePhase` | 5s board → answering → success |
-| `useStoryNarration` | Move TTS via `expo-speech` — **exists, not wired to DailyDrill yet** |
+| `usePuzzleSessionPhase` | memorize → narrate → answer; skips memorize only for standard-start FENs; board/peek always show base FEN |
+| `useMemorizePhase` | 5s board memorize step |
+| `useStoryNarration` | Move TTS via `expo-speech` (puzzles with `moves[]`) |
 | `useTrainingAnswer` | Validate + heatmap ledger |
 | `useDailyMatrix` | Hub/home puzzle count + peek loop badge |
 

@@ -9,14 +9,17 @@ import { AnswerFlashOverlay } from '@/components/ui/AnswerFlashOverlay';
 import type { FlashKind } from '@/hooks/useAnswerFlash';
 
 export const MEMORIZE_PROMPT = 'Look closely. You have 5 seconds.';
+export const LISTENING_PROMPT = 'Listen closely. Moves are read aloud.';
 
 interface PuzzleSessionLayoutProps {
   /** Progress chrome element (e.g. <ProgressChrome />). */
   chrome: ReactNode;
   isMemorizing: boolean;
+  /** Move narration in progress — blank screen, no board. */
+  isListening?: boolean;
   /** Prompt shown once the board is hidden (puzzle question / result copy). */
   prompt: string;
-  /** Subtitle shown during the memorize phase. */
+  /** Subtitle shown during board memorize only — never during move narration. */
   memorizeSubtitle?: string;
   board: {
     fen: string;
@@ -39,12 +42,19 @@ interface PuzzleSessionLayoutProps {
 export function PuzzleSessionLayout({
   chrome,
   isMemorizing,
+  isListening = false,
   prompt,
   memorizeSubtitle,
   board,
   children,
   flash,
 }: PuzzleSessionLayoutProps) {
+  const isPreparing = isMemorizing || isListening;
+  const preparingPrompt = isListening
+    ? LISTENING_PROMPT
+    : isMemorizing
+      ? MEMORIZE_PROMPT
+      : prompt;
   const showBoard = board.showBoard ?? isMemorizing;
 
   return (
@@ -60,9 +70,9 @@ export function PuzzleSessionLayout({
         <PromptText
           highlight={isMemorizing ? '5' : undefined}
           subtitle={isMemorizing ? memorizeSubtitle : undefined}
-          variant={isMemorizing ? 'hero' : 'default'}
+          variant={isPreparing ? 'hero' : 'default'}
         >
-          {isMemorizing ? MEMORIZE_PROMPT : prompt}
+          {isPreparing ? preparingPrompt : prompt}
         </PromptText>
 
         <View style={styles.boardWrap}>

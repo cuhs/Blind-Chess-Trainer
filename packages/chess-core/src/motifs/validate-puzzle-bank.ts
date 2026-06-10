@@ -1,3 +1,5 @@
+import { Chess } from 'chess.js';
+import type { Color } from 'chess.js';
 import { applyMoves } from '../validate';
 import { analyzePosition } from './index';
 import { motifToResult } from './adapters';
@@ -13,6 +15,8 @@ export interface PuzzleBankFixture {
   expectedAnswer: string;
   skipEngine: boolean;
   alternatePrompt?: boolean;
+  /** For story_check rows: which color the check question asks about. */
+  checkColor?: 'w' | 'b';
 }
 
 export interface PuzzleValidationIssue {
@@ -32,15 +36,44 @@ function previousFenFor(fixture: PuzzleBankFixture): string | undefined {
   return applyMoves(fixture.fen, fixture.moves.slice(0, -1));
 }
 
+/** A side not on move can never legally be in check. */
+function isColorInCheck(fen: string, color: Color): boolean {
+  const chess = new Chess(fen);
+  return chess.turn() === color && chess.inCheck();
+}
+
 export function validatePuzzleBankFixtures(
   rows: PuzzleBankFixture[] = fixtures as PuzzleBankFixture[],
 ): PuzzleValidationIssue[] {
   const issues: PuzzleValidationIssue[] = [];
 
   for (const fixture of rows) {
+    let displayFen: string;
+    try {
+      displayFen = displayFenFor(fixture);
+    } catch (error) {
+      issues.push({
+        slug: fixture.slug,
+        message: `Illegal move sequence from fen: ${
+          error instanceof Error ? error.message : String(error)
+        }`,
+      });
+      continue;
+    }
+
+    if (fixture.motifJson.motif === 'story_check') {
+      const color = fixture.checkColor ?? 'b';
+      const expected = isColorInCheck(displayFen, color) ? 'yes' : 'no';
+      if (expected !== fixture.expectedAnswer) {
+        issues.push({
+          slug: fixture.slug,
+          message: `story_check answer mismatch: position says "${expected}", seed says "${fixture.expectedAnswer}"`,
+        });
+      }
+    }
+
     if (fixture.skipEngine) continue;
 
-    const displayFen = displayFenFor(fixture);
     const previousFen = previousFenFor(fixture);
     const motif = analyzePosition(displayFen, previousFen);
 

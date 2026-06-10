@@ -5,11 +5,17 @@ export type MemorizePhase = 'memorize' | 'answering' | 'success';
 const DEFAULT_MEMORIZE_MS = 5000;
 const PEEK_MS = 2000;
 
-export function useMemorizePhase(resetKey = 'default', memorizeMs = DEFAULT_MEMORIZE_MS) {
-  const [phase, setPhase] = useState<MemorizePhase>('memorize');
+export function useMemorizePhase(
+  resetKey = 'default',
+  memorizeMs = DEFAULT_MEMORIZE_MS,
+  enabled = true,
+) {
+  const [phase, setPhase] = useState<MemorizePhase>(enabled ? 'memorize' : 'answering');
   const [peekVisible, setPeekVisible] = useState(false);
 
   useEffect(() => {
+    if (!enabled) return;
+
     setPhase('memorize');
     setPeekVisible(false);
 
@@ -18,7 +24,7 @@ export function useMemorizePhase(resetKey = 'default', memorizeMs = DEFAULT_MEMO
     }, memorizeMs);
 
     return () => clearTimeout(timeout);
-  }, [memorizeMs, resetKey]);
+  }, [enabled, memorizeMs, resetKey]);
 
   const markSuccess = useCallback(() => setPhase('success'), []);
 

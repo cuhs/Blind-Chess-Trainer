@@ -31,16 +31,16 @@ values
   ),
   (
     'drill-story-check',
-    'rnbqkbnr/pppp1ppp/8/8/4P3/8/PPPP1PPP/RNBQKBNR w KQkq - 0 1',
+    'rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1',
     '{"motif":"story_check","anchor":"Ke8"}'::jsonb,
     'Is the Black King in check?',
     'e.g. Yes',
-    'White plays Nf3, Black plays Nc6, White plays Bc4, Black plays Nf6...',
+    null,
     'e8',
     'yes-no',
     'no',
-    '["Nf3","Nc6","Bc4","Nf6"]'::jsonb,
-    '["e8","c4","f6","f3"]'::jsonb,
+    '["e4","e5","Nf3","Nc6","Bc4","Nf6"]'::jsonb,
+    '["e8","e4","e5","f3","c6","c4","f6"]'::jsonb,
     'daily',
     true
   ),
@@ -95,7 +95,7 @@ values
     '{"motif":"discovered_attack","attacker":"Bb2","target":"Qg7","square":"d5"}'::jsonb,
     'What square does the White Bishop attack from?',
     'e.g. a8',
-    'White pushes the d-pawn to d5...',
+    null,
     'b2',
     'square',
     'b2',
@@ -137,3 +137,25 @@ set
 
 -- TODO(content): Import the remaining 47 hand-curated Story of the Position
 -- rows here once the curated FEN/prompt/answer set is provided.
+
+-- Authoring audio (story) puzzles — rows with a non-empty moves[] array:
+--
+--   Pattern A — narration only (blank screen):
+--     fen   = standard start position
+--     moves = legal SAN sequence from the start (3–5 moves reads well)
+--     The app skips the board and reads the moves aloud. Works because
+--     every player knows the starting position.
+--
+--   Pattern B — memorize, then narrate:
+--     fen   = any custom position (the BASE position, before moves)
+--     moves = short legal SAN continuation (1–2 plies)
+--     The app shows the base board for 5s, hides it, reads the moves,
+--     then asks the question about the resulting position.
+--
+--   Rules:
+--   - moves[] must be legal from fen (validated by chess-core fixtures).
+--   - subtitle must NOT mention the moves — it shows during memorize.
+--   - expected_answer refers to the position AFTER moves are applied.
+--   - Peek shows the BASE position, never the post-move position.
+--   - Mirror each row in packages/chess-core/src/motifs/fixtures/
+--     puzzle-bank-fixtures.json and run `npm run validate:puzzles`.

@@ -6,19 +6,27 @@ import { PuzzleSessionLayout } from '@/components/training/PuzzleSessionLayout';
 import { PeekButton } from '@/components/onboarding/PeekButton';
 import { useOnboardingNavigation } from '@/hooks/useOnboardingNavigation';
 import { useTrainingAnswer } from '@/hooks/useTrainingAnswer';
-import { useMemorizePhase } from '@/hooks/useMemorizePhase';
+import { usePuzzleSessionPhase } from '@/hooks/usePuzzleSessionPhase';
 import { useAnswerFlash } from '@/hooks/useAnswerFlash';
 import { STORY_CHECK_PUZZLE } from '@/data/onboarding-puzzles';
-import { getPuzzleDisplayFen } from '@/data/puzzleFen';
 
 export function StoryCheckScreen() {
   const { advance, progressLabel, progressPercent } =
     useOnboardingNavigation('story-check');
   const { submit } = useTrainingAnswer();
   const { flash, opacity, kind } = useAnswerFlash();
-  const { phase, peekVisible, isMemorizing, canAnswer, markSuccess, triggerPeek } =
-    useMemorizePhase(STORY_CHECK_PUZZLE.id);
-  const displayFen = getPuzzleDisplayFen(STORY_CHECK_PUZZLE);
+  const {
+    phase,
+    peekVisible,
+    isMemorizing,
+    isListening,
+    canAnswer,
+    markSuccess,
+    triggerPeek,
+  } = usePuzzleSessionPhase(STORY_CHECK_PUZZLE.id, {
+    fen: STORY_CHECK_PUZZLE.fen,
+    moves: STORY_CHECK_PUZZLE.moves ?? [],
+  });
 
   useEffect(() => {
     if (phase === 'success') {
@@ -47,13 +55,15 @@ export function StoryCheckScreen() {
       chrome={
         <ProgressChrome label={progressLabel()} percent={progressPercent()} />
       }
+      isListening={isListening}
       isMemorizing={isMemorizing}
       prompt={STORY_CHECK_PUZZLE.prompt}
       memorizeSubtitle={STORY_CHECK_PUZZLE.subtitle}
       board={{
         boardKey: STORY_CHECK_PUZZLE.id,
-        fen: displayFen,
+        fen: STORY_CHECK_PUZZLE.fen,
         peekVisible,
+        showBoard: isMemorizing || peekVisible,
       }}
       flash={{ opacity, kind }}
     >

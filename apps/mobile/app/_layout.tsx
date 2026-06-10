@@ -14,9 +14,15 @@ import {
 import { useGuestSession } from '@/hooks/useGuestSession';
 import { useSupabaseUserId } from '@/hooks/useSupabaseUserId';
 import { queryClient } from '@/lib/queryClient';
+import { ensureSpeechAudioMode } from '@/lib/speech';
+import { useEffect } from 'react';
 
 function AppShell() {
   useSupabaseUserId();
+
+  useEffect(() => {
+    void ensureSpeechAudioMode();
+  }, []);
 
   return (
     <>
