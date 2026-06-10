@@ -50,6 +50,19 @@ describe('rankMotifs', () => {
     expect(rankMotifs([pinOnPawn, pinOnKnight])?.pinnedPiece.type).toBe('n');
   });
 
+  it('should break ties for fork motifs by total target value', () => {
+    const minorFork = fork(75, [
+      { square: 'e2', type: 'n', color: 'b' },
+      { square: 'c2', type: 'b', color: 'b' },
+    ]);
+    const majorFork = fork(75, [
+      { square: 'e6', type: 'r', color: 'b' },
+      { square: 'c6', type: 'q', color: 'b' },
+    ]);
+
+    expect(rankMotifs([minorFork, majorFork])?.targets[0].type).toBe('r');
+  });
+
   it('should prefer a royal fork over a relative pin', () => {
     const royal = fork(80, [
       { square: 'e2', type: 'k', color: 'b' },

@@ -20,7 +20,7 @@ describe('normalizeSquare', () => {
 });
 
 describe('normalizeYesNo', () => {
-  const cases: [string, boolean, 'yes' | 'no'?][] = [
+  const cases: [string, boolean, ('yes' | 'no')?][] = [
     ['yes', true, 'yes'],
     ['Yes', true, 'yes'],
     ['y', true, 'yes'],

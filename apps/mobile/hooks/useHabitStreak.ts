@@ -2,22 +2,13 @@ import { useEffect } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { useGuestStore } from '@/stores/guestStore';
 import { supabase } from '@/lib/supabase';
+import { todayKey, yesterdayKey } from '@/lib/dateKey';
 import { useSupabaseUserId } from './useSupabaseUserId';
 
 interface ProfileRow {
   current_streak: number;
   global_elo_handicap: number;
   last_active_date: string | null;
-}
-
-function todayKey(): string {
-  return new Date().toISOString().slice(0, 10);
-}
-
-function yesterdayKey(): string {
-  const d = new Date();
-  d.setDate(d.getDate() - 1);
-  return d.toISOString().slice(0, 10);
 }
 
 export function useHabitStreak() {
@@ -46,50 +37,77 @@ export function useHabitStreak() {
     },
   });
 
+  // Reconcile with the server profile (multi-device) without clobbering a
+  // fresher local streak — the query result may predate today's local bump.
   useEffect(() => {
     if (!profileQuery.data) return;
+    const profile = profileQuery.data;
 
-    setStreakDays(profileQuery.data.current_streak);
-    setMatchElo(profileQuery.data.global_elo_handicap);
-    if (profileQuery.data.last_active_date) {
-      setLastActiveDate(profileQuery.data.last_active_date);
+    setMatchElo(profile.global_elo_handicap);
+
+    const serverDate = profile.last_active_date;
+    if (!serverDate) return;
+
+    if (!lastActiveDate || serverDate > lastActiveDate) {
+      setStreakDays(profile.current_streak);
+      setLastActiveDate(serverDate);
+    } else if (serverDate === lastActiveDate && profile.current_streak > streakDays) {
+      setStreakDays(profile.current_streak);
     }
-  }, [profileQuery.data, setLastActiveDate, setMatchElo, setStreakDays]);
+  }, [
+    profileQuery.data,
+    lastActiveDate,
+    streakDays,
+    setLastActiveDate,
+    setMatchElo,
+    setStreakDays,
+  ]);
 
+  // Daily bump: first activity of a local calendar day extends or restarts the streak.
   useEffect(() => {
     if (!onboardingComplete) return;
 
     const today = todayKey();
-    if (lastActiveDate === today) return;
+    if (lastActiveDate === today) {
+      // Invariant: active today means a streak of at least 1.
+      if (streakDays === 0) setStreakDays(1);
+      return;
+    }
 
-    const nextStreak =
-      lastActiveDate === yesterdayKey()
-        ? streakDays + 1
-        : !lastActiveDate
-          ? 1
-          : 1;
-
+    const nextStreak = lastActiveDate === yesterdayKey() ? streakDays + 1 : 1;
     setStreakDays(nextStreak);
     setLastActiveDate(today);
+  }, [onboardingComplete, lastActiveDate, streakDays, setStreakDays, setLastActiveDate]);
 
-    if (supabase && userId) {
-      void supabase.from('profiles').upsert(
+  // Push local progress to the server once the profile is known and local is ahead.
+  // Runs whenever streak/date change, so it also covers a userId that arrives late.
+  useEffect(() => {
+    if (!supabase || !userId || !lastActiveDate || !profileQuery.isSuccess) return;
+
+    const profile = profileQuery.data;
+    const serverDate = profile?.last_active_date ?? null;
+    const localIsAhead =
+      !serverDate ||
+      lastActiveDate > serverDate ||
+      (lastActiveDate === serverDate && streakDays > (profile?.current_streak ?? 0));
+    if (!localIsAhead) return;
+
+    void supabase
+      .from('profiles')
+      .upsert(
         {
           id: userId,
-          current_streak: nextStreak,
-          last_active_date: today,
+          current_streak: streakDays,
+          last_active_date: lastActiveDate,
         },
         { onConflict: 'id' },
-      );
-    }
-  }, [
-    onboardingComplete,
-    lastActiveDate,
-    streakDays,
-    userId,
-    setStreakDays,
-    setLastActiveDate,
-  ]);
+      )
+      .then(({ error }) => {
+        if (error && __DEV__) {
+          console.warn('[streak] profile sync failed; will retry on next change', error);
+        }
+      });
+  }, [userId, lastActiveDate, streakDays, profileQuery.isSuccess, profileQuery.data]);
 
   return { streakDays };
 }

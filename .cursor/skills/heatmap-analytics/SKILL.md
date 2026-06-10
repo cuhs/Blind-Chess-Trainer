@@ -43,9 +43,10 @@ Center 15, edge 10, corner 5. Onboarding reveal: ~99% fog.
 
 ## Data Layer
 
-- `heatmap_ledger` is append-only: `user_id`, `origin_square`, `target_square`, `is_success`, `interaction_type` (`puzzle` | `match_peek`)
+- `heatmap_ledger` is append-only: `user_id`, `origin_square`, `target_square`, `is_success`, `interaction_type` (`puzzle` | `match_peek`), `client_event_id` (idempotency key)
 - Successful puzzle events increment the local `guestStore.heatmapLedger` cache immediately; failed events still sync to the ledger with `is_success = false`
 - `useHeatmapLedger` hydrates aggregate square counts from Supabase via `get_heatmap_counts()` and keeps pending inserts in AsyncStorage until flushed
+- Flush is idempotent: upsert on `(user_id, client_event_id)` with `ignoreDuplicates`, guarded by a module-level in-flight flag (the hook mounts in several components at once); failed batches stay queued and log a dev warning
 - `profiles.total_fog_cleared` mirrors `useFogClearedPercent().clarityPercent`
 
 ## Grid Geometry

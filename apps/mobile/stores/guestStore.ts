@@ -118,7 +118,10 @@ export const useGuestStore = create<GuestState>()(
           }
 
           pending.push({
-            id: `${createdAt}-${square}-${pending.length}`,
+            // Random suffix guarantees uniqueness across batches created in
+            // the same millisecond — this id doubles as the server-side
+            // idempotency key (heatmap_ledger.client_event_id).
+            id: `${createdAt}-${square}-${Math.random().toString(36).slice(2, 10)}`,
             originSquare: options.originSquare ?? null,
             targetSquare: square,
             isSuccess: options.isSuccess,

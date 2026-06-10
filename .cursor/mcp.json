@@ -5,8 +5,11 @@
       "args": [".cursor/stitch-mcp-proxy.mjs"]
     },
     "ios-simulator": {
-      "command": "npx",
-      "args": ["-y", "ios-simulator-mcp"]
+      "command": "/opt/homebrew/bin/npx",
+      "args": ["-y", "ios-simulator-mcp"],
+      "env": {
+        "PATH": "/Users/alexhu/.local/bin:/opt/homebrew/bin:/usr/local/bin:/usr/bin:/bin"
+      }
     },
     "xcode-builder": {
       "command": "npx",
@@ -17,22 +20,24 @@
       "env": {}
     },
     "sequential-thinking": {
-      "command": "npx",
+      "command": "/opt/homebrew/bin/npx",
       "args": [
         "-y",
         "@modelcontextprotocol/server-sequential-thinking"
       ],
-      "env": {}
+      "env": {
+        "PATH": "/opt/homebrew/bin:/usr/local/bin:/usr/bin:/bin"
+      }
     },
     "supabase-postgres": {
-      "command": "npx",
+      "command": "/opt/homebrew/bin/npx",
       "args": [
         "-y",
         "@modelcontextprotocol/server-postgres",
         "postgresql://postgres:postgres@localhost:54322/postgres"
       ],
       "env": {
-        "COMMENT": "Points to your local Dockerized Supabase instance for schema and analytics checking"
+        "PATH": "/opt/homebrew/bin:/usr/local/bin:/usr/bin:/bin"
       }
     },
     "web-fetcher": {

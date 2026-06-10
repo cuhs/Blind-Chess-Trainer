@@ -16,10 +16,7 @@ import { useAnswerFlash } from '@/hooks/useAnswerFlash';
 import { usePuzzleBank } from '@/hooks/usePuzzleBank';
 import { getTrainingDisplayFen } from '@/data/puzzleFen';
 import { useGuestStore } from '@/stores/guestStore';
-
-function todayKey(): string {
-  return new Date().toISOString().slice(0, 10);
-}
+import { todayKey } from '@/lib/dateKey';
 
 interface DrillStateProps {
   title?: string;

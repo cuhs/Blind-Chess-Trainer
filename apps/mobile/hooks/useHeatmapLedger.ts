@@ -10,6 +10,13 @@ interface HeatmapCountRow {
   interactions: number | string | null;
 }
 
+/**
+ * Module-level guard: the hook is mounted by several components at once
+ * (heatmap, fog hooks), and each instance runs the flush effect. Without this
+ * a single pending batch could be inserted multiple times concurrently.
+ */
+let flushInFlight = false;
+
 export function useHeatmapLedger() {
   const ledger = useGuestStore((s) => s.heatmapLedger);
   const pendingHeatmapInteractions = useGuestStore(
@@ -48,38 +55,48 @@ export function useHeatmapLedger() {
 
   useEffect(() => {
     if (!supabase || !userId || pendingHeatmapInteractions.length === 0) return;
+    if (flushInFlight) return;
 
     const client = supabase;
-    let cancelled = false;
     const batch = pendingHeatmapInteractions;
     const flushedIds = batch.map((event) => event.id);
 
     const flush = async () => {
-      await client
-        .from('profiles')
-        .upsert({ id: userId }, { onConflict: 'id', ignoreDuplicates: true });
+      flushInFlight = true;
+      try {
+        const { error: profileError } = await client
+          .from('profiles')
+          .upsert({ id: userId }, { onConflict: 'id', ignoreDuplicates: true });
+        if (profileError) throw profileError;
 
-      const { error } = await client.from('heatmap_ledger').insert(
-        batch.map((event) => ({
-          user_id: userId,
-          origin_square: event.originSquare,
-          target_square: event.targetSquare,
-          is_success: event.isSuccess,
-          interaction_type: event.interactionType,
-          created_at: event.createdAt,
-        })),
-      );
+        // Idempotent upsert keyed on client_event_id: a retried batch after a
+        // partial network failure never double-counts ledger rows.
+        const { error } = await client.from('heatmap_ledger').upsert(
+          batch.map((event) => ({
+            user_id: userId,
+            client_event_id: event.id,
+            origin_square: event.originSquare,
+            target_square: event.targetSquare,
+            is_success: event.isSuccess,
+            interaction_type: event.interactionType,
+            created_at: event.createdAt,
+          })),
+          { onConflict: 'user_id,client_event_id', ignoreDuplicates: true },
+        );
+        if (error) throw error;
 
-      if (!error && !cancelled) {
+        // Store action is safe after unmount; events stay queued on failure.
         removePendingHeatmapInteractions(flushedIds);
+      } catch (error) {
+        if (__DEV__) {
+          console.warn('[heatmap] ledger flush failed; events remain queued', error);
+        }
+      } finally {
+        flushInFlight = false;
       }
     };
 
     void flush();
-
-    return () => {
-      cancelled = true;
-    };
   }, [pendingHeatmapInteractions, removePendingHeatmapInteractions, userId]);
 
   const getInteractions = (square: Square): number => ledger[square] ?? 0;

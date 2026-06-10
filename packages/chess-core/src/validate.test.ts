@@ -14,6 +14,17 @@ describe('validateAnswer', () => {
     expect(validateAnswer('yes-no', 'no', 'no', fen, moves)).toBe(true);
     expect(validateAnswer('yes-no', 'yes', 'no', fen, moves)).toBe(false);
   });
+
+  it('validates yes/no against the expected answer when no moves are given', () => {
+    expect(validateAnswer('yes-no', 'YES', 'yes')).toBe(true);
+    expect(validateAnswer('yes-no', 'n', 'no')).toBe(true);
+    expect(validateAnswer('yes-no', 'yes', 'no')).toBe(false);
+  });
+
+  it('rejects unparseable input for both answer types', () => {
+    expect(validateAnswer('square', 'z9', 'e4')).toBe(false);
+    expect(validateAnswer('yes-no', 'maybe', 'yes')).toBe(false);
+  });
 });
 
 describe('isInCheck', () => {

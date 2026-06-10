@@ -28,7 +28,7 @@ function motifPieceValueSum(motif: Motif): number {
   return pieces.reduce((sum, piece) => sum + PIECE_VALUES[piece.type], 0);
 }
 
-export function rankMotifs(motifs: Motif[]): Motif | null {
+export function rankMotifs<T extends Motif>(motifs: T[]): T | null {
   if (motifs.length === 0) return null;
 
   return motifs.reduce((best, current) => {

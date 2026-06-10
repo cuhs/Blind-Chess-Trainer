@@ -62,7 +62,7 @@ export function HomeDashboardScreen() {
         <View style={styles.action}>
           <View style={styles.primaryAction}>
             <PrimaryButton
-              label="Puzzles"
+              label="Clear the Fog"
               onPress={handleClearFog}
               style={styles.primaryButton}
               uppercase={false}

@@ -130,8 +130,10 @@ Supabase schema lives in `supabase/migrations/`; seed rows live in `supabase/see
 | Table | Purpose |
 |-------|---------|
 | `profiles` | Global Elo handicap, current streak, total fog cleared |
-| `heatmap_ledger` | Append-only puzzle/match-peek square interactions |
+| `heatmap_ledger` | Append-only puzzle/match-peek square interactions; `client_event_id` idempotency key dedupes retried flushes |
 | `puzzle_bank` | Curated Story of the Position FENs/prompts |
+
+Client table grants are minimal: `authenticated` only (no `anon`), select/insert on ledger, select on puzzles. Streak and daily-drill date keys use the device's local calendar day (`apps/mobile/lib/dateKey.ts`).
 
 Mobile server state uses `@tanstack/react-query` and `apps/mobile/lib/supabase.ts`. `guestStore` remains the offline-first cache for heatmap aggregates and pending ledger inserts. Daily drills load only from `puzzle_bank`; seed has 3 starter rows and 47 more hand-curated rows are pending content.
 
