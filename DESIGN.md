@@ -292,7 +292,7 @@ Shared icons live in `components/ui/icons/`. Reuse — do not inline emoji as te
 | Component | Stitch spec | Blueprint constraint |
 |-----------|-------------|---------------------|
 | `PrimaryButton` | 3D-offset, Plus Jakarta Bold, 16px radius | — |
-| `ScrollAnswerCue` | Card-style bridge (matches `SquareKeypad` display) + green chevron badge | `PuzzleSessionLayout` when answer controls are below the fold |
+| `ScrollAnswerCue` | Tappable card row (white, 2pt stroke) + green chevron badge; press scrolls controls into view | Rendered by `PuzzleSessionLayout` only when answer controls overflow the viewport |
 | `SquareKeypad` | Selection display + A–H / 1–8 key rows (56px) + Submit | `square` puzzles; replaces native keyboard |
 | `YesNoZone` | Split tap halves (No/red ← \| → Yes/green) + swipe; directional haptic | `yes-no` puzzles; replaces native keyboard |
 | `AnswerFlashOverlay` | Non-interactive green/red color wash | Answer feedback (`useAnswerFlash`) |
@@ -307,9 +307,9 @@ Shared icons live in `components/ui/icons/`. Reuse — do not inline emoji as te
 | `CognitiveHeatmap` | Clarity %, mastery count, legend | Proportional fog |
 | `MascotTip` | Chip with `LightbulbIcon` (SVG) + `bodyMd` copy | Optional only; never auto-reveal puzzle answers |
 | `MatchClock` | Timer + "CLOCK FROZEN" badge | Freezes on parser failure |
-| `PeekButton` | `PeekIcon` (SVG) + label — no emoji | Onboarding peek affordance |
+| `PeekButton` | Yellow chip, `LightbulbIcon` (SVG) + label — no emoji | Rendered by `PuzzleSessionLayout` under the board (answer phase); reveal lands where the user taps |
 | `ProgressChrome` | Level/position label + percent + `ProgressBar` | Onboarding flow + DailyDrill (merged chrome) |
-| `PuzzleSessionLayout` | SafeArea + scroll + header + memorize-prompt + board + controls slot | Shared shell: Hook/Story/Reward + DailyDrill |
+| `PuzzleSessionLayout` | SafeArea + scroll + header + memorize-prompt + board + controls slot; owns `ScrollAnswerCue` + `PeekButton` placement (`onPeek` prop) | Shared shell: Hook/Story/Reward + DailyDrill |
 | `AppHeader` | Mascot avatar + MindBoard title + settings | Onboarding + home |
 | `BoardFrame` | 3D card wrapper for boards/heatmap | Chess + heatmap |
 | `MascotAvatar` | Standalone Icon (`4709d4e8`) in green circle frame | `AppHeader` |

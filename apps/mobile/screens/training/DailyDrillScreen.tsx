@@ -9,7 +9,6 @@ import { YesNoZone } from '@/components/training/YesNoZone';
 import { PrimaryButton } from '@/components/ui/PrimaryButton';
 import { ProgressChrome } from '@/components/ui/ProgressChrome';
 import { PuzzleSessionLayout } from '@/components/training/PuzzleSessionLayout';
-import { PeekButton } from '@/components/onboarding/PeekButton';
 import { useTrainingAnswer } from '@/hooks/useTrainingAnswer';
 import { usePuzzleSessionPhase } from '@/hooks/usePuzzleSessionPhase';
 import { useAnswerFlash } from '@/hooks/useAnswerFlash';
@@ -164,16 +163,12 @@ export function DailyDrillScreen() {
       />
     );
   } else if (canAnswer) {
-    controls = (
-      <>
-        {resolvedPuzzle.answerType === 'yes-no' ? (
-          <YesNoZone onAnswer={(value) => handleSubmit(value)} />
-        ) : (
-          <SquareKeypad onSubmit={handleSubmit} resetKey={resolvedPuzzle.id} />
-        )}
-        <PeekButton onPress={triggerPeek} />
-      </>
-    );
+    controls =
+      resolvedPuzzle.answerType === 'yes-no' ? (
+        <YesNoZone onAnswer={(value) => handleSubmit(value)} />
+      ) : (
+        <SquareKeypad onSubmit={handleSubmit} resetKey={resolvedPuzzle.id} />
+      );
   }
 
   return (
@@ -197,6 +192,7 @@ export function DailyDrillScreen() {
         peekVisible,
         showBoard: (isMemorizing || peekVisible) && !sessionComplete,
       }}
+      onPeek={canAnswer && !sessionComplete ? triggerPeek : undefined}
       flash={{ opacity, kind }}
     >
       {controls}

@@ -25,7 +25,6 @@ export function PeekButton({ onPress }: PeekButtonProps) {
 const styles = StyleSheet.create({
   button: {
     alignItems: 'center',
-    paddingTop: spacing.lg,
   },
   chip: {
     flexDirection: 'row',

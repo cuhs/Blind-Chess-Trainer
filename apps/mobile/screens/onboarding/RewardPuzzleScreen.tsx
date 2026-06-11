@@ -3,7 +3,6 @@ import { useEffect } from 'react';
 import { SquareKeypad } from '@/components/training/SquareKeypad';
 import { ProgressChrome } from '@/components/ui/ProgressChrome';
 import { PuzzleSessionLayout } from '@/components/training/PuzzleSessionLayout';
-import { PeekButton } from '@/components/onboarding/PeekButton';
 import { useOnboardingNavigation } from '@/hooks/useOnboardingNavigation';
 import { useTrainingAnswer } from '@/hooks/useTrainingAnswer';
 import { useMemorizePhase } from '@/hooks/useMemorizePhase';
@@ -63,13 +62,11 @@ export function RewardPuzzleScreen({ index }: RewardPuzzleScreenProps) {
         fen: displayFen,
         peekVisible,
       }}
+      onPeek={canAnswer ? triggerPeek : undefined}
       flash={{ opacity, kind }}
     >
       {canAnswer ? (
-        <>
-          <SquareKeypad onSubmit={handleSubmit} resetKey={puzzle.id} />
-          <PeekButton onPress={triggerPeek} />
-        </>
+        <SquareKeypad onSubmit={handleSubmit} resetKey={puzzle.id} />
       ) : null}
     </PuzzleSessionLayout>
   );

@@ -1,60 +1,67 @@
-import { Text, View, StyleSheet } from 'react-native';
+import { useState } from 'react';
+import { Pressable, Text, View, StyleSheet } from 'react-native';
 import { colors, radius, spacing, touch, typography } from '@/theme';
 import { ChevronDownIcon } from '@/components/ui/icons/ChevronDownIcon';
 
+interface ScrollAnswerCueProps {
+  /** Scrolls the answer controls into view. */
+  onPress: () => void;
+}
+
 /**
- * Bridge between the puzzle prompt and answer controls when the keypad
- * sits below the fold. Mirrors the SquareKeypad selection display so the
- * flow feels continuous.
+ * Card-row hint shown between the prompt and the board when the answer
+ * controls sit below the fold. Tapping it scrolls the controls into view.
+ * Styled to match the SquareKeypad display card (white, 2pt stroke).
  */
-export function ScrollAnswerCue() {
+export function ScrollAnswerCue({ onPress }: ScrollAnswerCueProps) {
+  const [pressed, setPressed] = useState(false);
+
   return (
-    <View
+    <Pressable
       accessibilityLabel="Scroll down to enter your answer"
-      accessibilityRole="text"
-      style={styles.cue}
+      accessibilityRole="button"
+      onPress={onPress}
+      onPressIn={() => setPressed(true)}
+      onPressOut={() => setPressed(false)}
+      style={[
+        styles.cue,
+        {
+          transform: [{ translateY: pressed ? touch.buttonOffset / 2 : 0 }],
+        },
+      ]}
     >
-      <Text style={styles.eyebrow}>Your answer</Text>
-      <Text style={styles.message}>Scroll down to enter your answer</Text>
       <View style={styles.iconBadge}>
-        <ChevronDownIcon color={colors.primary} size={20} />
+        <ChevronDownIcon color={colors.primary} size={18} />
       </View>
-    </View>
+      <Text style={styles.label}>Scroll down to enter your answer</Text>
+    </Pressable>
   );
 }
 
 const styles = StyleSheet.create({
   cue: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    gap: spacing.sm,
     backgroundColor: colors.surfaceContainerLowest,
     borderRadius: radius.lg,
     borderWidth: touch.strokeWidth,
     borderColor: colors.surfaceContainerHighest,
-    paddingVertical: spacing.md,
+    paddingVertical: spacing.sm,
     paddingHorizontal: spacing.md,
-    alignItems: 'center',
-    gap: spacing.xs,
     marginBottom: spacing.md,
   },
-  eyebrow: {
-    ...typography.labelBold,
-    color: colors.onSurfaceVariant,
-    textTransform: 'uppercase',
-    letterSpacing: 1,
-  },
-  message: {
-    ...typography.bodyMd,
-    color: colors.onSurface,
-    textAlign: 'center',
-  },
   iconBadge: {
-    width: 36,
-    height: 36,
+    width: 28,
+    height: 28,
     borderRadius: radius.full,
     backgroundColor: colors.primaryContainer,
-    borderWidth: touch.strokeWidth,
-    borderColor: colors.primary,
     alignItems: 'center',
     justifyContent: 'center',
-    marginTop: spacing.xs,
+  },
+  label: {
+    ...typography.bodyMd,
+    color: colors.onSurface,
   },
 });

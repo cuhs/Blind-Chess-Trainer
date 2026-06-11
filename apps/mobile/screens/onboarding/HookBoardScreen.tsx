@@ -3,7 +3,6 @@ import { useEffect } from 'react';
 import { SquareKeypad } from '@/components/training/SquareKeypad';
 import { ProgressChrome } from '@/components/ui/ProgressChrome';
 import { PuzzleSessionLayout } from '@/components/training/PuzzleSessionLayout';
-import { PeekButton } from '@/components/onboarding/PeekButton';
 import { useMemorizePhase } from '@/hooks/useMemorizePhase';
 import { useOnboardingNavigation } from '@/hooks/useOnboardingNavigation';
 import { useTrainingAnswer } from '@/hooks/useTrainingAnswer';
@@ -51,13 +50,11 @@ export function HookBoardScreen() {
         fen: HOOK_PUZZLE.fen,
         peekVisible,
       }}
+      onPeek={canAnswer ? triggerPeek : undefined}
       flash={{ opacity, kind }}
     >
       {canAnswer ? (
-        <>
-          <SquareKeypad onSubmit={handleSubmit} resetKey={HOOK_PUZZLE.id} />
-          <PeekButton onPress={triggerPeek} />
-        </>
+        <SquareKeypad onSubmit={handleSubmit} resetKey={HOOK_PUZZLE.id} />
       ) : null}
     </PuzzleSessionLayout>
   );

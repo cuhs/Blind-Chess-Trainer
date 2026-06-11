@@ -62,7 +62,7 @@ See `chess-ui/notation.md` for index ↔ square correlation.
 - `SquareKeypad` (A–H / 1–8 keys + Submit), `YesNoZone` (swipe / tap halves), `PrimaryButton` 3D-offset green
 - Progress bar: 12px pill, green fill
 - `ChessBoard`: file/rank labels, correct square colors, **SVG mascot pieces** (see `chess-ui` skill)
-- `PeekButton`: `PeekIcon` SVG — no emoji
+- `PeekButton`: `LightbulbIcon` SVG, yellow chip — no emoji; placed by `PuzzleSessionLayout` under the board (not in the controls slot)
 
 ## Simulator verification (`ios-simulator-testing`)
 

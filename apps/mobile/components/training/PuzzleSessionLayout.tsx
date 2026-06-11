@@ -1,4 +1,4 @@
-import { useEffect, useRef, type ReactNode } from 'react';
+import { useEffect, useRef, useState, type ReactNode } from 'react';
 import { Animated, View, StyleSheet, ScrollView } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { colors, spacing } from '@/theme';
@@ -7,6 +7,7 @@ import { PromptText } from '@/components/ui/PromptText';
 import { PuzzleBoard } from '@/components/chess/PuzzleBoard';
 import { AnswerFlashOverlay } from '@/components/ui/AnswerFlashOverlay';
 import { ScrollAnswerCue } from '@/components/training/ScrollAnswerCue';
+import { PeekButton } from '@/components/onboarding/PeekButton';
 import type { FlashKind } from '@/hooks/useAnswerFlash';
 
 export const MEMORIZE_PROMPT = 'Look closely. You have 5 seconds.';
@@ -29,6 +30,11 @@ interface PuzzleSessionLayoutProps {
     /** Defaults to `isMemorizing`; pass explicitly to keep the board hidden (e.g. on completion). */
     showBoard?: boolean;
   };
+  /**
+   * Pass the screen's `triggerPeek` while the user may answer. Renders the
+   * peek chip directly under the board so the reveal happens where they tap.
+   */
+  onPeek?: () => void;
   /** Answer controls (SquareKeypad, YesNoZone, buttons). Rendered in a spaced container when present. */
   children?: ReactNode;
   /** Optional answer-feedback color wash driven by `useAnswerFlash`. */
@@ -37,8 +43,9 @@ interface PuzzleSessionLayoutProps {
 
 /**
  * Shared shell for active-recall puzzle drills (onboarding hook/story/reward +
- * DailyDrill). Owns the SafeArea + scroll + header + memorize-prompt logic so
- * each screen only supplies its chrome, copy, board data, and controls.
+ * DailyDrill). Owns the SafeArea + scroll + header + memorize-prompt logic,
+ * plus the scroll-to-answer cue and peek affordance, so each screen only
+ * supplies its chrome, copy, board data, and controls.
  */
 export function PuzzleSessionLayout({
   chrome,
@@ -47,10 +54,14 @@ export function PuzzleSessionLayout({
   prompt,
   memorizeSubtitle,
   board,
+  onPeek,
   children,
   flash,
 }: PuzzleSessionLayoutProps) {
   const scrollRef = useRef<ScrollView>(null);
+  const boardYRef = useRef(0);
+  const [viewportHeight, setViewportHeight] = useState(0);
+  const [contentHeight, setContentHeight] = useState(0);
 
   const isPreparing = isMemorizing || isListening;
   const preparingPrompt = isListening
@@ -60,12 +71,30 @@ export function PuzzleSessionLayout({
       : prompt;
   const showBoard = board.showBoard ?? isMemorizing;
   const hasControls = children != null;
-  const showAnswerCue = hasControls && !isPreparing;
+  const isAnswering = hasControls && !isPreparing;
+  const contentOverflows =
+    viewportHeight > 0 && contentHeight > viewportHeight + 1;
+  // Only hint at scrolling when the controls are actually below the fold.
+  const showAnswerCue = isAnswering && contentOverflows;
+  const showPeek = onPeek != null && !isPreparing;
 
   useEffect(() => {
-    if (!showAnswerCue) return;
+    if (!isAnswering) return;
     scrollRef.current?.scrollTo({ y: 0, animated: false });
-  }, [showAnswerCue, board.boardKey]);
+  }, [isAnswering, board.boardKey]);
+
+  const handlePeek = () => {
+    onPeek?.();
+    // Bring the revealed board fully into view so the peek lands on-screen.
+    scrollRef.current?.scrollTo({
+      y: Math.max(boardYRef.current - spacing.sm, 0),
+      animated: true,
+    });
+  };
+
+  const handleCuePress = () => {
+    scrollRef.current?.scrollToEnd({ animated: true });
+  };
 
   return (
     <SafeAreaView style={styles.safe}>
@@ -73,6 +102,8 @@ export function PuzzleSessionLayout({
         ref={scrollRef}
         contentContainerStyle={styles.content}
         keyboardShouldPersistTaps="handled"
+        onContentSizeChange={(_width, height) => setContentHeight(height)}
+        onLayout={(event) => setViewportHeight(event.nativeEvent.layout.height)}
         showsVerticalScrollIndicator
       >
         <AppHeader showSettings={false} />
@@ -87,15 +118,21 @@ export function PuzzleSessionLayout({
           {isPreparing ? preparingPrompt : prompt}
         </PromptText>
 
-        {showAnswerCue ? <ScrollAnswerCue /> : null}
+        {showAnswerCue ? <ScrollAnswerCue onPress={handleCuePress} /> : null}
 
-        <View style={styles.boardWrap}>
+        <View
+          style={styles.boardWrap}
+          onLayout={(event) => {
+            boardYRef.current = event.nativeEvent.layout.y;
+          }}
+        >
           <PuzzleBoard
             boardKey={board.boardKey}
             fen={board.fen}
             isMemorizing={showBoard}
             peekVisible={board.peekVisible}
           />
+          {showPeek ? <PeekButton onPress={handlePeek} /> : null}
         </View>
 
         {children ? <View style={styles.controls}>{children}</View> : null}
@@ -119,6 +156,7 @@ const styles = StyleSheet.create({
   },
   boardWrap: {
     alignItems: 'center',
+    gap: spacing.md,
     marginBottom: spacing.sectionGap,
   },
   controls: {

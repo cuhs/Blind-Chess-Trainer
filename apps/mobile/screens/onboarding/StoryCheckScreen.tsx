@@ -3,7 +3,6 @@ import { useEffect } from 'react';
 import { YesNoZone } from '@/components/training/YesNoZone';
 import { ProgressChrome } from '@/components/ui/ProgressChrome';
 import { PuzzleSessionLayout } from '@/components/training/PuzzleSessionLayout';
-import { PeekButton } from '@/components/onboarding/PeekButton';
 import { useOnboardingNavigation } from '@/hooks/useOnboardingNavigation';
 import { useTrainingAnswer } from '@/hooks/useTrainingAnswer';
 import { usePuzzleSessionPhase } from '@/hooks/usePuzzleSessionPhase';
@@ -65,14 +64,10 @@ export function StoryCheckScreen() {
         peekVisible,
         showBoard: isMemorizing || peekVisible,
       }}
+      onPeek={canAnswer ? triggerPeek : undefined}
       flash={{ opacity, kind }}
     >
-      {canAnswer ? (
-        <>
-          <YesNoZone onAnswer={handleAnswer} />
-          <PeekButton onPress={triggerPeek} />
-        </>
-      ) : null}
+      {canAnswer ? <YesNoZone onAnswer={handleAnswer} /> : null}
     </PuzzleSessionLayout>
   );
 }
