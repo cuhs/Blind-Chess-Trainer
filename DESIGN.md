@@ -292,6 +292,7 @@ Shared icons live in `components/ui/icons/`. Reuse — do not inline emoji as te
 | Component | Stitch spec | Blueprint constraint |
 |-----------|-------------|---------------------|
 | `PrimaryButton` | 3D-offset, Plus Jakarta Bold, 16px radius | — |
+| `ScrollAnswerCue` | Card-style bridge (matches `SquareKeypad` display) + green chevron badge | `PuzzleSessionLayout` when answer controls are below the fold |
 | `SquareKeypad` | Selection display + A–H / 1–8 key rows (56px) + Submit | `square` puzzles; replaces native keyboard |
 | `YesNoZone` | Split tap halves (No/red ← \| → Yes/green) + swipe; directional haptic | `yes-no` puzzles; replaces native keyboard |
 | `AnswerFlashOverlay` | Non-interactive green/red color wash | Answer feedback (`useAnswerFlash`) |

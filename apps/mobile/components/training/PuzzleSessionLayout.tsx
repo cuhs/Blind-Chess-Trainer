@@ -1,4 +1,4 @@
-import type { ReactNode } from 'react';
+import { useEffect, useRef, type ReactNode } from 'react';
 import { Animated, View, StyleSheet, ScrollView } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { colors, spacing } from '@/theme';
@@ -6,6 +6,7 @@ import { AppHeader } from '@/components/ui/AppHeader';
 import { PromptText } from '@/components/ui/PromptText';
 import { PuzzleBoard } from '@/components/chess/PuzzleBoard';
 import { AnswerFlashOverlay } from '@/components/ui/AnswerFlashOverlay';
+import { ScrollAnswerCue } from '@/components/training/ScrollAnswerCue';
 import type { FlashKind } from '@/hooks/useAnswerFlash';
 
 export const MEMORIZE_PROMPT = 'Look closely. You have 5 seconds.';
@@ -49,6 +50,8 @@ export function PuzzleSessionLayout({
   children,
   flash,
 }: PuzzleSessionLayoutProps) {
+  const scrollRef = useRef<ScrollView>(null);
+
   const isPreparing = isMemorizing || isListening;
   const preparingPrompt = isListening
     ? LISTENING_PROMPT
@@ -56,12 +59,21 @@ export function PuzzleSessionLayout({
       ? MEMORIZE_PROMPT
       : prompt;
   const showBoard = board.showBoard ?? isMemorizing;
+  const hasControls = children != null;
+  const showAnswerCue = hasControls && !isPreparing;
+
+  useEffect(() => {
+    if (!showAnswerCue) return;
+    scrollRef.current?.scrollTo({ y: 0, animated: false });
+  }, [showAnswerCue, board.boardKey]);
 
   return (
     <SafeAreaView style={styles.safe}>
       <ScrollView
+        ref={scrollRef}
         contentContainerStyle={styles.content}
         keyboardShouldPersistTaps="handled"
+        showsVerticalScrollIndicator
       >
         <AppHeader showSettings={false} />
 
@@ -75,6 +87,8 @@ export function PuzzleSessionLayout({
           {isPreparing ? preparingPrompt : prompt}
         </PromptText>
 
+        {showAnswerCue ? <ScrollAnswerCue /> : null}
+
         <View style={styles.boardWrap}>
           <PuzzleBoard
             boardKey={board.boardKey}
@@ -86,6 +100,7 @@ export function PuzzleSessionLayout({
 
         {children ? <View style={styles.controls}>{children}</View> : null}
       </ScrollView>
+
       {flash ? (
         <AnswerFlashOverlay kind={flash.kind} opacity={flash.opacity} />
       ) : null}
