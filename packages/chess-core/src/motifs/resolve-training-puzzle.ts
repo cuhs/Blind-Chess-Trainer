@@ -1,6 +1,6 @@
 import type { AnswerType, Square } from '@mindboard/shared';
 import { applyMoves } from '../validate';
-import { analyzePosition } from './index';
+import { analyzePosition } from './analyze-position';
 import { buildPuzzleFromMotif } from './questions';
 
 export interface TrainingPuzzleInput {

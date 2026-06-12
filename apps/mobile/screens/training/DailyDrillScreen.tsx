@@ -12,7 +12,7 @@ import { PuzzleSessionLayout } from '@/components/training/PuzzleSessionLayout';
 import { useTrainingAnswer } from '@/hooks/useTrainingAnswer';
 import { usePuzzleSessionPhase } from '@/hooks/usePuzzleSessionPhase';
 import { useAnswerFlash } from '@/hooks/useAnswerFlash';
-import { usePuzzleBank } from '@/hooks/usePuzzleBank';
+import { useDailySession } from '@/hooks/useDailySession';
 import { useResolvedPuzzle } from '@/hooks/useResolvedPuzzle';
 import { useGuestStore } from '@/stores/guestStore';
 import { todayKey } from '@/lib/dateKey';
@@ -46,8 +46,14 @@ export function DailyDrillScreen() {
   const router = useRouter();
   const [puzzleIndex, setPuzzleIndex] = useState(0);
   const [sessionComplete, setSessionComplete] = useState(false);
-  const { puzzles, puzzleCount, isLoading, isError, isNotConfigured } =
-    usePuzzleBank();
+  const {
+    puzzles,
+    puzzleCount,
+    isCompletedToday,
+    isLoading,
+    isError,
+    isNotConfigured,
+  } = useDailySession();
   const puzzle = puzzles[puzzleIndex];
   const resolvedPuzzle = useResolvedPuzzle(puzzle);
   const puzzleKey = puzzle?.id ?? `drill-${puzzleIndex}`;
@@ -112,6 +118,16 @@ export function DailyDrillScreen() {
       <DrillState
         title="Supabase not configured"
         message="Add EXPO_PUBLIC_SUPABASE_URL and EXPO_PUBLIC_SUPABASE_ANON_KEY to .env.local (repo root or apps/mobile), then restart Expo."
+        onBack={() => router.back()}
+      />
+    );
+  }
+
+  if (isCompletedToday) {
+    return (
+      <DrillState
+        title="Matrix cleared"
+        message="You finished today's puzzles. Come back tomorrow."
         onBack={() => router.back()}
       />
     );

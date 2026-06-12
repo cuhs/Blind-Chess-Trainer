@@ -6,14 +6,18 @@ import { PrimaryButton } from '@/components/ui/PrimaryButton';
 interface DailyMatrixCardProps {
   puzzleCount: number;
   loopBadge: string | null;
+  completedToday?: boolean;
   onPress: () => void;
 }
 
 export function DailyMatrixCard({
   puzzleCount,
   loopBadge,
+  completedToday = false,
   onPress,
 }: DailyMatrixCardProps) {
+  const buttonLabel = completedToday ? 'Completed Today' : 'Start Training';
+
   return (
     <Card style={styles.card}>
       <Text style={styles.title}>Today&apos;s Matrix: {puzzleCount} Positions</Text>
@@ -23,9 +27,11 @@ export function DailyMatrixCard({
         </View>
       ) : null}
       <PrimaryButton
-        accessibilityLabel="Start Training"
-        label="Start Training"
+        accessibilityLabel={buttonLabel}
+        disabled={completedToday}
+        label={buttonLabel}
         onPress={onPress}
+        uppercase={false}
       />
     </Card>
   );

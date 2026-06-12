@@ -1,7 +1,7 @@
 import { Chess } from 'chess.js';
 import type { Color } from 'chess.js';
 import { applyMoves } from '../validate';
-import { analyzePosition } from './index';
+import { analyzePosition } from './analyze-position';
 import { motifToResult } from './adapters';
 import { buildPuzzleFromMotif } from './questions';
 import fixtures from './fixtures/puzzle-bank-fixtures.json';

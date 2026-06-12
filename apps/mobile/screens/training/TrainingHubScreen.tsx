@@ -9,9 +9,10 @@ import { DailyMatrixCard } from '@/components/home/DailyMatrixCard';
 import { useDailyMatrix } from '@/hooks/useDailyMatrix';
 
 export function TrainingHubScreen() {
-  const { puzzleCount, loopBadge } = useDailyMatrix();
+  const { puzzleCount, loopBadge, isCompletedToday } = useDailyMatrix();
 
   const handleStartTraining = () => {
+    if (isCompletedToday) return;
     router.push('/(main)/training/drill' as never);
   };
 
@@ -28,12 +29,13 @@ export function TrainingHubScreen() {
         <View style={styles.hero}>
           <HeroCopy
             title="Story of the Position"
-            subtitle="Active recall drills to sharpen your mental map. Text input only — no voice."
+            subtitle="Active recall drills to sharpen your mental map."
             variant="section"
           />
         </View>
 
         <DailyMatrixCard
+          completedToday={isCompletedToday}
           loopBadge={loopBadge}
           onPress={handleStartTraining}
           puzzleCount={puzzleCount}

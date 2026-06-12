@@ -31,7 +31,8 @@ Blueprint-only onboarding puzzles (`StoryCheck`, `RewardPuzzle`) infer visuals f
 
 ```
 puzzle_bank (Supabase)
-  → usePuzzleBank
+  → usePuzzleBank (full bank)
+  → useDailySession (selectDailyPuzzles — 3 per todayKey)
   → useResolvedPuzzle (resolveTrainingPuzzle)
   → DailyDrillScreen
 ```
@@ -44,13 +45,14 @@ Validate seeds: `cd packages/chess-core && npm run validate:puzzles`.
 
 | Hook | Status | Role |
 |------|--------|------|
-| `usePuzzleBank` | Done | Loads active `puzzle_bank` rows via React Query |
+| `usePuzzleBank` | Done | Loads all active `puzzle_bank` rows via React Query |
+| `useDailySession` | Done | Slices bank to 3 puzzles per `todayKey()`; `isCompletedToday` from `lastDrillCompletedDate` |
 | `useResolvedPuzzle` | Done | Memoized `resolveTrainingPuzzle` per puzzle |
 | `useMemorizePhase` | Done | 5s board memorize → answering → success |
 | `usePuzzleSessionPhase` | Done | Board memorize or `useStoryNarration` when `moves[]` present |
 | `useStoryNarration` | Done | `expo-speech` move sequence (via session phase) |
 | `useTrainingAnswer` | Done | Validate answer + `recordHeatmapInteractions` |
-| `useDailyMatrix` | Done | Puzzle count + peek loop badge for hub/home cards |
+| `useDailyMatrix` | Done | Session puzzle count + peek loop badge + `isCompletedToday` for hub/home cards |
 
 ## Session model
 
@@ -81,7 +83,7 @@ Rules:
 
 Full recipe comment at the bottom of `supabase/seed.sql`.
 
-Blueprint: **3 puzzles per daily session**. Current code loads all active rows (7 seeds) — cap not implemented yet.
+Blueprint: **3 puzzles per daily session** — `lib/dailySession.selectDailyPuzzles` (peek-first, deterministic rotation by `todayKey()`). Completion gated via `guestStore.lastDrillCompletedDate`.
 
 ## Phase 2 remaining
 
@@ -90,7 +92,8 @@ Blueprint: **3 puzzles per daily session**. Current code loads all active rows (
 - [x] puzzle_bank loading + heatmap on answer/peek
 - [x] useResolvedPuzzle / motif-backed prompts
 - [x] Wire useStoryNarration for puzzles with moves[] (`usePuzzleSessionPhase`)
-- [ ] Daily session cap at 3 puzzles (rotate or slice by todayKey)
+- [x] Daily session cap at 3 puzzles + completion gate (`useDailySession`)
+- [x] Home + hub `DailyMatrixCard` with completed-today state
 - [ ] Expand puzzle_bank (~50 curated rows; 7 seeds today)
 - [ ] Stitch visual polish (TODO(stitch) on hub + drill screens)
 ```

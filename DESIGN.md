@@ -200,7 +200,7 @@ Post-onboarding `/(main)/index`. Habit validation + fog heatmap + closed-loop CT
 | Stats | `HabitHeader` | Bolt streak + Board Mapped % (primary) |
 | Hero | Title + subtitle | "Cognitive Heatmap" + body copy |
 | Hero board | `InteractiveHeatmap` (`showLabels={false}`) | Centered compact card with 8×8 fog grid |
-| Primary CTA | `PrimaryButton` | "Clear the Fog" + hint subtitle |
+| Primary CTA | `DailyMatrixCard` | "Today's Matrix: N Positions" + peek loop badge; "Completed Today" when drill done |
 | Secondary CTA | `VoiceMatchCard` | "Start Blindfold Match" row + Elo + chevron |
 | Navigation | Expo tabs | Home · Training · Match · Settings (active tab green 3D pill) |
 
@@ -316,7 +316,7 @@ Shared icons live in `components/ui/icons/`. Reuse — do not inline emoji as te
 | `HabitHeader` | Bolt streak + Board Mapped % | HomeDashboard |
 | `InteractiveHeatmap` | Hero 8×8 + `FogOverlay` + tap tooltips | Home + FogReveal |
 | `SquareTooltip` | Micro-tooltip on square tap | HomeDashboard |
-| `DailyMatrixCard` | Primary CTA + closed-loop badge | TrainingHub |
+| `DailyMatrixCard` | Primary CTA + closed-loop badge; `completedToday` disables button | HomeDashboard + TrainingHub |
 | `VoiceMatchCard` | Blindfold match row + mic + Elo chip | HomeDashboard |
 | `BottomTabBar` | 4-tab nav: Home/Training/Match/Settings; active green pill + 4px extrusion | `(main)/_layout` |
 | Tab icons | `HomeTabIcon`, `TrainingTabIcon`, `MatchTabIcon`, `SettingsTabIcon` | Bottom tab bar |
