@@ -46,6 +46,8 @@ pipx ensurepath
 
 Verify: `idb list-targets` shows booted simulators.
 
+**Local Supabase:** keep `EXPO_PUBLIC_SUPABASE_URL=http://127.0.0.1:54321` in `.env.local`. `lib/resolveSupabaseUrl` uses `Constants.isDevice` — simulator keeps loopback; physical Expo Go rewrites to LAN. Run `supabase start` on the Mac before training flows.
+
 ```bash
 # Terminal 1 — start app (required)
 cd apps/mobile && npx expo start --ios
