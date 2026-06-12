@@ -8,10 +8,17 @@ import { useBoardDimensions } from './useBoardDimensions';
 
 interface InvisibleGridProps {
   showLabels?: boolean;
+  /** Extra horizontal inset when the board must fit beside other chrome. */
+  horizontalInset?: number;
 }
 
-export function InvisibleGrid({ showLabels = true }: InvisibleGridProps) {
-  const { squareSize, boardSize, labelGutter } = useBoardDimensions();
+export function InvisibleGrid({
+  showLabels = true,
+  horizontalInset,
+}: InvisibleGridProps) {
+  const { squareSize, boardSize, labelGutter } = useBoardDimensions(
+    horizontalInset !== undefined ? { horizontalInset } : {},
+  );
 
   const grid = (
     <BoardGrid

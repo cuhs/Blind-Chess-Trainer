@@ -18,7 +18,7 @@ disable-model-invocation: false
 - Timer display (e.g. `04:42`)
 - "CLOCK FROZEN" badge with freeze icon
 - "Your Move:" voice prompt area
-- Mic button, Peek button (`visibility`), Pause button
+- Mic button, Peek button (`visibility`), Cover board button (slashed eye — hides grid + coordinates)
 - Minimal/chrome-free match surface
 
 ## Pipeline (unchanged)
@@ -44,8 +44,8 @@ No Stitch frame — **infer from `VoiceMatch`** (`2cbaa7be…`):
 ## Checklist
 
 ```
-- [ ] Clock freeze UI matches Stitch "CLOCK FROZEN" badge
-- [ ] Peek + Pause always visible during match
+- [x] Peek + Cover always visible during match
+- [ ] Clock freeze UI matches Stitch "CLOCK FROZEN" badge (voice ambiguous/illegal input only — not dev SAN errors)
 - [ ] Disambiguation re-enters same pipeline
-- [ ] Stockfish WASM off main thread
+- [ ] Stockfish WASM off main thread (fallback minimax in `stockfishWorker.ts` for now)
 ```

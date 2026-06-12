@@ -299,14 +299,18 @@ Shared icons live in `components/ui/icons/`. Reuse — do not inline emoji as te
 | `ProgressBar` | 12px pill, green fill, white shine | — |
 | `Card` | White, 2pt `#e5e5e5` stroke, 16px radius, 4px offset | — |
 | `HeroCopy` | Title + optional subtitle; `display` (centered) / `section` (left) | Home, TrainingHub, FogReveal headers |
-| `PlaceholderScreen` | Centered mascot/icon + badge + copy | Not-yet-built routes (Match, Settings) |
+| `PlaceholderScreen` | Centered mascot/icon + badge + copy | Settings stub |
 | `ChessBoard` | Labels, 4px square radius, SVG mascot pieces | Visible: hook, replay, post-game only |
 | `InvisibleGrid` | Same geometry, fog/stone neutrals | No pieces |
 | `DisambiguationOverlay` | Black/minimal screen, large targets | Voice match only |
 | `FogOverlay` | Stone grey opacity per square | Uses fog math |
 | `CognitiveHeatmap` | Clarity %, mastery count, legend | Proportional fog |
 | `MascotTip` | Chip with `LightbulbIcon` (SVG) + `bodyMd` copy | Optional only; never auto-reveal puzzle answers |
-| `MatchClock` | Timer + "CLOCK FROZEN" badge | Freezes on parser failure |
+| `MatchStatusBar` | Card: VS ENGINE + Elo, one-line status (your move / thinking / illegal move / result) | `VoiceMatchScreen`; status tone: neutral/action/alert/success |
+| `MatchControlBar` | Mic + Peek + Cover (slashed-eye) circular controls | `VoiceMatchScreen` |
+| `BoardCover` | Solid panel hiding grid and coordinate labels | `BlindfoldBoard` when fully covered |
+| `MatchSecondaryActions` | Resign + New game text actions | `VoiceMatchScreen` (untimed match) |
+| `DevMoveInput` | Recessed card: SAN field + Play button (dev/testing) | `VoiceMatchScreen` until STT lands |
 | `PeekButton` | Yellow chip, `LightbulbIcon` (SVG) + label — no emoji | Rendered by `PuzzleSessionLayout` under the board (answer phase); reveal lands where the user taps |
 | `ProgressChrome` | Level/position label + percent + `ProgressBar` | Onboarding flow + DailyDrill (merged chrome) |
 | `PuzzleSessionLayout` | SafeArea + scroll + header + memorize-prompt + board + controls slot; owns `ScrollAnswerCue` + `PeekButton` placement (`onPeek` prop) | Shared shell: Hook/Story/Reward + DailyDrill |
@@ -326,7 +330,7 @@ Shared icons live in `components/ui/icons/`. Reuse — do not inline emoji as te
 
 File paths: `apps/mobile/components/{ui,chess,match,heatmap,replay,home,onboarding,training}/`
 
-Screens: `TrainingHubScreen` (`/(main)/training`), `DailyDrillScreen` (`/(main)/training/drill`).
+Screens: `TrainingHubScreen` (`/(main)/training`), `DailyDrillScreen` (`/(main)/training/drill`), `VoiceMatchScreen` (`/(main)/match`).
 
 Icon assets: `components/ui/icons/`. Piece SVGs: `components/chess/pieces/`.
 

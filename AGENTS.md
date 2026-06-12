@@ -85,7 +85,7 @@ supabase/seed.sql     # Curated puzzle_bank seed rows
 | Main tabs | `/(main)/index` | `HomeDashboardScreen` |
 | Main tabs | `/(main)/training` | `TrainingHubScreen` |
 | Main tabs | `/(main)/training/drill` | `DailyDrillScreen` |
-| Main tabs | `/(main)/match` | Phase 3 stub |
+| Main tabs | `/(main)/match` | `VoiceMatchScreen` |
 | Main tabs | `/(main)/settings` | Settings stub |
 
 ## Stitch → Screen Mapping
@@ -121,7 +121,7 @@ Post-onboarding `/(main)/index` — Stitch frame `b1eff5fd32e743e2a7f8a4b78a3403
 2. Training — `TrainingHub`, `DailyDrill` backed by `puzzle_bank`; motif resolve via `useResolvedPuzzle` (no separate `StoryPuzzle` route — both Stitch training frames map to `DailyDrill`)
    - Done: engine-backed prompts when top motif matches `expected_answer`; daily cap at 3 puzzles (`selectDailyPuzzles` + `useDailySession`); completion gate via `lastDrillCompletedDate`; home + hub `DailyMatrixCard`
    - Next: expand seed content; Stitch polish on hub/drill
-3. Voice match — `VoiceMatch` + `DisambiguationOverlay`
+3. Voice match — `VoiceMatchScreen` (dev move input + fallback engine; STT + `DisambiguationOverlay` next)
 4. Post-game — `ReplayTimeline`, `CognitiveHeatmap`
 5. Infrastructure — Supabase, Express API (`apps/api/` — LLM templating when needed)
 

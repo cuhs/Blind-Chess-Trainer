@@ -33,6 +33,7 @@ app/                    → Expo Router entry
 screens/onboarding/     → HookBoard, StoryCheck, RewardPuzzle, FogReveal, MatchPrimer
 screens/home/           → HomeDashboard (closed-loop)
 screens/training/       → TrainingHub, DailyDrill
+screens/match/          → VoiceMatch
 ```
 
 ## Structure
@@ -65,6 +66,16 @@ chess.js owns position. UI state in Zustand. Server state via TanStack Query.
 | `useDailyMatrix` | Hub/home session puzzle count + peek loop badge + `isCompletedToday` |
 
 Skill: `training-flow`. No separate `StoryPuzzle` screen.
+
+## Match hooks
+
+| Hook | Role |
+|------|------|
+| `useMatchSession` | chess.js game state, player side, clock freeze, engine reply |
+| `useMatchClock` | Countdown while player to move |
+| `useMatchPeek` | 2s board flash + `addPeekEvent` + `match_peek` ledger |
+
+Engine: `lib/engine/stockfishWorker.ts` (fallback minimax until Stockfish WASM). Skill: `voice-match`.
 
 ## Blueprint
 

@@ -108,6 +108,7 @@ For fresh onboarding: clear guest storage or reinstall — onboarding only shows
 | 8 | Invisible grid | No pieces after hook timer |
 | 9 | Training hub | Tab Training → `DailyMatrixCard` visible; Start navigates to drill |
 | 10 | Daily drill | 5s board → invisible grid → keypad answer; progress chrome updates |
+| 11 | Match | Tab Match → status bar + invisible grid; `Cover board completely` hides grid; `Peek at board` flashes pieces 2s |
 
 ### Search strings (accessibility)
 
@@ -116,6 +117,7 @@ Use labels defined in components — grep `accessibilityLabel` before testing:
 - `"Chess board"`, `"Invisible grid"`
 - `"Submit Answer"`, `"Continue"` (match `PrimaryButton` labels)
 - Keypad keys: `"File A"`–`"File H"`, `"Rank 1"`–`"Rank 8"`; yes-no halves: `"Yes"`, `"No"`
+- Match: `"Peek at board"`, `"Pause match"`, `"Submit move"`, `"Enter move in SAN"`
 - Tab labels: `"Home"`, `"Training"`, `"Match"`, `"Settings"`
 
 If `ui_find_element` fails, fix missing `accessibilityLabel` — do not rely on pixel-only taps.

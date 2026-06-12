@@ -22,6 +22,7 @@ Never map tap/index → square without `squareFromIndex` or chess.js.
 - White at bottom; labels: files a–h bottom, ranks 8–1 left
 - Colors via `boardColors.ts`; pieces via `ChessPiece` SVG
 - Heatmap/peek `square` strings must match board squares exactly
+- Sizing via `useBoardDimensions`; screens needing a smaller board pass `horizontalInset` (supported by `ChessBoard`, `InvisibleGrid`, `BlindfoldBoard` — forwarded so peek toggling never resizes)
 
 ## Data alignment
 

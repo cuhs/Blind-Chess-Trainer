@@ -1,6 +1,6 @@
 // Stitch frame: b1eff5fd32e743e2a7f8a4b78a340318 (MindBoard Home Enhanced Loop)
 import { router } from 'expo-router';
-import { Alert, ScrollView, StyleSheet, View } from 'react-native';
+import { ScrollView, StyleSheet, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { colors, layout, spacing } from '@/theme';
 import { AppHeader } from '@/components/ui/AppHeader';
@@ -26,10 +26,7 @@ export function HomeDashboardScreen() {
   };
 
   const handleMatch = () => {
-    Alert.alert(
-      'Blindfold Match',
-      'Voice match engine arrives in Phase 3. Set expectations — peek freely!',
-    );
+    router.push('/(main)/match' as never);
   };
 
   return (

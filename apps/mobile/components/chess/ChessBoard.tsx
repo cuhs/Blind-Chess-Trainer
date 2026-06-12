@@ -12,10 +12,14 @@ import { useBoardDimensions } from './useBoardDimensions';
 
 interface ChessBoardProps {
   fen: string;
+  /** Extra horizontal inset when the board must fit beside other chrome. */
+  horizontalInset?: number;
 }
 
-export function ChessBoard({ fen }: ChessBoardProps) {
-  const { squareSize, boardSize, labelGutter } = useBoardDimensions();
+export function ChessBoard({ fen, horizontalInset }: ChessBoardProps) {
+  const { squareSize, boardSize, labelGutter } = useBoardDimensions(
+    horizontalInset !== undefined ? { horizontalInset } : {},
+  );
   const squares = parseBoard(fen);
 
   return (
