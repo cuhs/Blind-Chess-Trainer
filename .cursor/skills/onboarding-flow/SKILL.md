@@ -21,7 +21,7 @@ Fetch via `get_screen` before implementing. Visual: Playful Tactile Minimalism.
 HookBoard → StoryCheck → RewardPuzzle ×2 → FogReveal → MatchPrimer → HomeDashboard
 ```
 
-Routes: `/(onboarding)/hook` → `story-check` → `reward/1` → `reward/2` → `fog-reveal` → `match-primer` → `/(main)` (replace, no back stack).
+Routes: `/(onboarding)/hook` → `story-check` → `reward/1` → `reward/2` → `fog-reveal` → `match-primer` → `/(main)` (replace, no back stack). **Resume:** `app/index.tsx` reads `guestStore.currentOnboardingStep` and redirects there when `onboardingComplete` is false (kill app mid-flow → continue at last step, not Hook).
 
 | Min | Screen | Stitch? | Input |
 |-----|--------|---------|-------|
@@ -84,5 +84,6 @@ After hook/onboarding changes:
 - [ ] Tactile input only (SquareKeypad / YesNoZone) — no native keyboard, no voice
 - [ ] expo-haptics: success on correct, soft warning on wrong, selection on key tap
 - [ ] FogReveal ~99% fog using FogOverlay + stone neutrals
+- [ ] Kill app mid-onboarding → relaunch resumes at `currentOnboardingStep` (not Hook)
 - [ ] accessibilityLabel on keys, Yes/No halves, Submit, board (MCP-testable)
 ```

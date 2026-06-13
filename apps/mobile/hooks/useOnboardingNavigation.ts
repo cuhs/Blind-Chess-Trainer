@@ -1,26 +1,10 @@
 import { useRouter } from 'expo-router';
 import type { OnboardingStep } from '@mindboard/shared';
+import {
+  ONBOARDING_STEP_ORDER,
+  ONBOARDING_STEP_ROUTES,
+} from '@/lib/onboardingRoutes';
 import { useOnboardingStore } from './useOnboardingStore';
-
-const STEP_ROUTES: Record<OnboardingStep, string> = {
-  hook: '/(onboarding)/hook',
-  'story-check': '/(onboarding)/story-check',
-  'reward-1': '/(onboarding)/reward/1',
-  'reward-2': '/(onboarding)/reward/2',
-  'fog-reveal': '/(onboarding)/fog-reveal',
-  'match-primer': '/(onboarding)/match-primer',
-  complete: '/(main)',
-};
-
-const STEP_ORDER: OnboardingStep[] = [
-  'hook',
-  'story-check',
-  'reward-1',
-  'reward-2',
-  'fog-reveal',
-  'match-primer',
-  'complete',
-];
 
 const PROGRESS_LABELS: Partial<Record<OnboardingStep, string>> = {
   hook: 'Level 1: The Hook',
@@ -45,16 +29,16 @@ export function useOnboardingNavigation(currentStep: OnboardingStep) {
   const { setCurrentStep } = useOnboardingStore();
 
   const advance = () => {
-    const idx = STEP_ORDER.indexOf(currentStep);
-    const next = STEP_ORDER[idx + 1];
+    const idx = ONBOARDING_STEP_ORDER.indexOf(currentStep);
+    const next = ONBOARDING_STEP_ORDER[idx + 1];
     if (!next) return;
     setCurrentStep(next);
-    router.replace(STEP_ROUTES[next] as never);
+    router.replace(ONBOARDING_STEP_ROUTES[next] as never);
   };
 
   const progressLabel = () => PROGRESS_LABELS[currentStep] ?? 'Level 1';
 
   const progressPercent = () => PROGRESS_PERCENTS[currentStep] ?? 0;
 
-  return { advance, progressLabel, progressPercent, STEP_ROUTES };
+  return { advance, progressLabel, progressPercent, STEP_ROUTES: ONBOARDING_STEP_ROUTES };
 }

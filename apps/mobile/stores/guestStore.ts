@@ -8,6 +8,8 @@ import type {
   PeekEvent,
   Square,
 } from '@mindboard/shared';
+import type { DrillProgress } from '@/lib/drillProgress';
+import { todayKey } from '@/lib/dateKey';
 
 export type HeatmapInteractionType = 'puzzle' | 'match_peek';
 
@@ -31,6 +33,7 @@ interface GuestState {
   streakDays: number;
   lastActiveDate: string | null;
   lastDrillCompletedDate: string | null;
+  drillProgress: DrillProgress | null;
   peekEvents: PeekEvent[];
   matchElo: number;
   matchPlayerColor: 'w' | 'b';
@@ -56,6 +59,8 @@ interface GuestState {
   setStreakDays: (days: number) => void;
   setLastActiveDate: (date: string) => void;
   setLastDrillCompletedDate: (date: string) => void;
+  recordDrillPuzzleComplete: (puzzleId: string) => void;
+  clearDrillProgress: () => void;
   setMatchElo: (elo: number) => void;
   setMatchPlayerColor: (color: 'w' | 'b') => void;
   setHasHydrated: (hydrated: boolean) => void;
@@ -74,6 +79,7 @@ export const useGuestStore = create<GuestState>()(
       streakDays: 0,
       lastActiveDate: null,
       lastDrillCompletedDate: null,
+      drillProgress: null,
       peekEvents: [],
       matchElo: 800,
       matchPlayerColor: 'w',
@@ -169,6 +175,25 @@ export const useGuestStore = create<GuestState>()(
       setLastDrillCompletedDate: (date) =>
         set({ lastDrillCompletedDate: date }),
 
+      recordDrillPuzzleComplete: (puzzleId) =>
+        set((state) => {
+          const today = todayKey();
+          const existing =
+            state.drillProgress?.dateKey === today
+              ? state.drillProgress.completedPuzzleIds
+              : [];
+          if (existing.includes(puzzleId)) return state;
+
+          return {
+            drillProgress: {
+              dateKey: today,
+              completedPuzzleIds: [...existing, puzzleId],
+            },
+          };
+        }),
+
+      clearDrillProgress: () => set({ drillProgress: null }),
+
       setMatchElo: (elo) => set({ matchElo: elo }),
 
       setMatchPlayerColor: (color) => set({ matchPlayerColor: color }),
@@ -192,6 +217,7 @@ export const useGuestStore = create<GuestState>()(
         streakDays: state.streakDays,
         lastActiveDate: state.lastActiveDate,
         lastDrillCompletedDate: state.lastDrillCompletedDate,
+        drillProgress: state.drillProgress,
         peekEvents: state.peekEvents,
         matchElo: state.matchElo,
         matchPlayerColor: state.matchPlayerColor,

@@ -101,6 +101,7 @@ For fresh onboarding: clear guest storage or reinstall — onboarding only shows
 | 3 | Reward 1 | Tap `File E` → `Rank 1` → `Submit Answer` | Advances |
 | 4 | Fog reveal | View only | Heatmap ~99% fog, legend visible |
 | 5 | Home | After match primer | HabitHeader, heatmap, CTAs |
+| 5b | Onboarding resume | Kill app after StoryCheck → relaunch | Lands on StoryCheck, not Hook |
 
 ### P1 — component verification
 
@@ -111,6 +112,7 @@ For fresh onboarding: clear guest storage or reinstall — onboarding only shows
 | 8 | Invisible grid | No pieces after hook timer |
 | 9 | Training hub | Tab Training → `DailyMatrixCard` visible; Start navigates to drill |
 | 10 | Daily drill | 5s board → invisible grid → keypad answer; progress chrome updates |
+| 10b | Drill resume | Complete 1 of 3 → leave drill → re-enter | Resumes at position 2 of 3 |
 | 11 | Match setup | Tab Match → Elo slider (default 800) → Start match loads Stockfish |
 | 12 | Match play | Dev move → engine reply <1s; peek + cover controls |
 

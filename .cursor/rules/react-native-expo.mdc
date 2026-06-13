@@ -26,7 +26,7 @@ Reanimated for press animations. Stockfish WASM + STT off main thread.
 ## Routes
 
 ```
-app/                    → Expo Router entry
+app/                    → Expo Router entry (`index` resumes onboarding at currentOnboardingStep)
   (onboarding)/         → linear flow, gestureEnabled: false
   (main)/               → tabs: Home | Training | Match | Settings
     training/           → stack: hub (index) + drill session
@@ -57,7 +57,7 @@ chess.js owns position. UI state in Zustand. Server state via TanStack Query.
 | Hook | Role |
 |------|------|
 | `usePuzzleBank` | Load all active `puzzle_bank` rows via React Query |
-| `useDailySession` | Slice to 3 puzzles per `todayKey()`; `isCompletedToday` from `lastDrillCompletedDate` |
+| `useDailySession` | Slice to 3 puzzles per `todayKey()`; `isCompletedToday` from `lastDrillCompletedDate`; resume via `drillProgress` |
 | `useResolvedPuzzle` | `resolveTrainingPuzzle` — engine prompt when motif matches `expected` |
 | `usePuzzleSessionPhase` | memorize → narrate → answer; skips memorize only for standard-start FENs; board/peek always show base FEN |
 | `useMemorizePhase` | 5s board memorize step |

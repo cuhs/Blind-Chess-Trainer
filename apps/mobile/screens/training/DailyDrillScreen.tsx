@@ -1,5 +1,5 @@
 // TODO(stitch): Active Recall Training Phase + Interactive Active Recall Training frames
-import { useState, useEffect, useCallback, type ReactNode } from 'react';
+import { useState, useEffect, useCallback, useRef, type ReactNode } from 'react';
 import { View, Text, StyleSheet } from 'react-native';
 import { useRouter } from 'expo-router';
 import { SafeAreaView } from 'react-native-safe-area-context';
@@ -16,6 +16,11 @@ import { useDailySession } from '@/hooks/useDailySession';
 import { useResolvedPuzzle } from '@/hooks/useResolvedPuzzle';
 import { useGuestStore } from '@/stores/guestStore';
 import { todayKey } from '@/lib/dateKey';
+import {
+  completedIdsForToday,
+  isAllDrillPuzzlesComplete,
+  resumePuzzleIndex,
+} from '@/lib/drillProgress';
 
 interface DrillStateProps {
   title?: string;
@@ -45,7 +50,7 @@ function DrillState({ title, message, onBack }: DrillStateProps) {
 export function DailyDrillScreen() {
   const router = useRouter();
   const [puzzleIndex, setPuzzleIndex] = useState(0);
-  const [sessionComplete, setSessionComplete] = useState(false);
+  const sessionBootstrapped = useRef(false);
   const {
     puzzles,
     puzzleCount,
@@ -72,28 +77,63 @@ export function DailyDrillScreen() {
   });
   const { submit } = useTrainingAnswer('training');
   const { flash, opacity, kind } = useAnswerFlash();
+  const drillProgress = useGuestStore((s) => s.drillProgress);
+  const lastDrillCompletedDate = useGuestStore((s) => s.lastDrillCompletedDate);
   const setLastDrillCompletedDate = useGuestStore(
     (s) => s.setLastDrillCompletedDate,
   );
   const setLastActiveDate = useGuestStore((s) => s.setLastActiveDate);
+  const recordDrillPuzzleComplete = useGuestStore(
+    (s) => s.recordDrillPuzzleComplete,
+  );
+  const clearDrillProgress = useGuestStore((s) => s.clearDrillProgress);
 
   const isLastPuzzle = puzzleIndex >= puzzleCount - 1;
-  const progressPercent = sessionComplete
-    ? 100
-    : Math.round(((puzzleIndex + 1) / Math.max(puzzleCount, 1)) * 100);
-  const progressLabel = sessionComplete
-    ? 'Drill complete'
-    : `Position ${puzzleIndex + 1} of ${puzzleCount}`;
+  const progressPercent = Math.round(
+    ((puzzleIndex + 1) / Math.max(puzzleCount, 1)) * 100,
+  );
+  const progressLabel = `Position ${puzzleIndex + 1} of ${puzzleCount}`;
 
   const completeDrill = useCallback(() => {
     const today = todayKey();
     setLastDrillCompletedDate(today);
     setLastActiveDate(today);
-    setSessionComplete(true);
-
-    // Nested under training stack — target home tab explicitly.
+    clearDrillProgress();
     router.replace('/(main)/' as never);
-  }, [router, setLastActiveDate, setLastDrillCompletedDate]);
+  }, [
+    router,
+    setLastActiveDate,
+    setLastDrillCompletedDate,
+    clearDrillProgress,
+  ]);
+
+  useEffect(() => {
+    sessionBootstrapped.current = false;
+  }, [isCompletedToday]);
+
+  useEffect(() => {
+    if (sessionBootstrapped.current || isLoading || puzzles.length === 0) return;
+
+    sessionBootstrapped.current = true;
+    const today = todayKey();
+    const completedIds = completedIdsForToday(drillProgress, today);
+
+    if (
+      isAllDrillPuzzlesComplete(puzzles, completedIds) &&
+      lastDrillCompletedDate !== today
+    ) {
+      completeDrill();
+      return;
+    }
+
+    setPuzzleIndex(resumePuzzleIndex(puzzles, completedIds));
+  }, [
+    isLoading,
+    puzzles,
+    drillProgress,
+    lastDrillCompletedDate,
+    completeDrill,
+  ]);
 
   useEffect(() => {
     if (puzzleCount === 0 || puzzleIndex < puzzleCount) return;
@@ -101,18 +141,25 @@ export function DailyDrillScreen() {
   }, [puzzleCount, puzzleIndex]);
 
   useEffect(() => {
-    if (phase !== 'success') return;
+    if (phase !== 'success' || !resolvedPuzzle) return;
 
     const timer = setTimeout(() => {
+      recordDrillPuzzleComplete(resolvedPuzzle.id);
       if (isLastPuzzle) {
         completeDrill();
       } else {
-        setPuzzleIndex((i) => i + 1);
+        setPuzzleIndex((index) => index + 1);
       }
     }, 600);
 
     return () => clearTimeout(timer);
-  }, [phase, isLastPuzzle, completeDrill]);
+  }, [
+    phase,
+    isLastPuzzle,
+    completeDrill,
+    recordDrillPuzzleComplete,
+    resolvedPuzzle,
+  ]);
 
   if (isNotConfigured) {
     return (
@@ -165,23 +212,13 @@ export function DailyDrillScreen() {
     }
   };
 
-  const resolvedPrompt = sessionComplete
-    ? 'Nice work — your heatmap just got sharper.'
-    : phase === 'success'
+  const resolvedPrompt =
+    phase === 'success'
       ? 'Correct!'
       : resolvedPuzzle.prompt;
 
   let controls: ReactNode = null;
-  if (sessionComplete) {
-    controls = (
-      <PrimaryButton
-        accessibilityLabel="Back to Home"
-        label="Back to Home"
-        onPress={completeDrill}
-        uppercase={false}
-      />
-    );
-  } else if (canAnswer) {
+  if (canAnswer) {
     controls =
       resolvedPuzzle.answerType === 'yes-no' ? (
         <YesNoZone onAnswer={(value) => handleSubmit(value)} />
@@ -199,8 +236,8 @@ export function DailyDrillScreen() {
           percent={progressPercent}
         />
       }
-      isListening={isListening && !sessionComplete}
-      isMemorizing={isMemorizing && !sessionComplete}
+      isListening={isListening}
+      isMemorizing={isMemorizing}
       prompt={resolvedPrompt}
       memorizeSubtitle={puzzle.subtitle}
       board={{
@@ -209,9 +246,9 @@ export function DailyDrillScreen() {
         // apply the narrated moves mentally, even on peek.
         fen: resolvedPuzzle.fen,
         peekVisible,
-        showBoard: (isMemorizing || peekVisible) && !sessionComplete,
+        showBoard: isMemorizing || peekVisible,
       }}
-      onPeek={canAnswer && !sessionComplete ? triggerPeek : undefined}
+      onPeek={canAnswer ? triggerPeek : undefined}
       flash={{ opacity, kind }}
     >
       {controls}
