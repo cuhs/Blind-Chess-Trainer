@@ -18,7 +18,7 @@ alwaysApply: false
 - Validate all request bodies with Zod middleware
 - Separate endpoints: `/motifs/detect` (deterministic) vs `/puzzles/generate` (LLM)
 - Return `{ data }` on success, `{ error, code }` on failure
-- Idempotent peek recording: dedupe by `(match_id, ply)`
+- Idempotent peek recording: dedupe by `(match_id, ply)` (planned server); client today uses `positionKeyFromFen` in `guestStore.addPeekEvent`
 
 ## Security
 

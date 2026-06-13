@@ -15,6 +15,7 @@ See `.cursor/skills/motif-engine/SKILL.md` for algorithms and checklist.
 - Deterministic templating: `motifToResult`, `buildPuzzleFromMotif`, `resolveTrainingPuzzle` in chess-core
 - Future LLM templating may adapt `MotifResult` in `apps/api/` — never in detection hot path
 - ≥90% branch coverage; ≥5 positive + ≥3 negative FENs per motif
+- Forks: tactical validity via influence map (loose target, royal fork, or value-winning fork) — see skill `reference.md`
 - Shared types from `packages/shared/`
 
 ## LLM Boundary

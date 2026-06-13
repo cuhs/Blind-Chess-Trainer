@@ -24,6 +24,7 @@ Position → analyzePosition() → Motif | null → buildPuzzleFromMotif() (dete
 
 - **Square** = file (`a`–`h`) + rank (`1`–`8`); type in `@mindboard/shared`
 - FEN + moves: chess.js only; `applyMoves(fen, moves)` then query position
+- `positionKeyFromFen()` for position identity (first four FEN fields; ignores move counters) — peek puzzle dedup
 - `normalizeSquare()` before comparing user input to `expected`
 - Engine output uses `PieceMap` (`square`, `type`, `color`); LLM templates may use SAN refs (`Bc4`)
 

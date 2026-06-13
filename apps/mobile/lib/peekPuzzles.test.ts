@@ -68,6 +68,22 @@ describe('trainingPuzzlesFromPeekEvents', () => {
     ]);
     expect(puzzles).toHaveLength(1);
   });
+
+  it('dedupes repeated peeks on the same position with different move counters', () => {
+    const puzzles = trainingPuzzlesFromPeekEvents([
+      {
+        fen: `${PIN_FEN.split(' ').slice(0, 4).join(' ')} 0 1`,
+        square: 'd5',
+        timestamp: `${todayKey()}T12:00:00.000Z`,
+      },
+      {
+        fen: `${PIN_FEN.split(' ').slice(0, 4).join(' ')} 5 12`,
+        square: 'd5',
+        timestamp: `${todayKey()}T12:05:00.000Z`,
+      },
+    ]);
+    expect(puzzles).toHaveLength(1);
+  });
 });
 
 describe('peek puzzle daily integration', () => {

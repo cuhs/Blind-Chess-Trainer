@@ -29,6 +29,8 @@ const resolved = resolveTrainingPuzzle(trainingPuzzle); // mobile DailyDrill
 
 Orchestrator: influence map → linear / divergent / discovered detectors → `rankMotifs` (single winner).
 
+Forks and non-check discovered attacks filter through `isSquareTacticallyThreatened` (undefended, underdefended, or royal fork / value-winning fork). See `reference.md` § Fork Edge Cases.
+
 ## Engine output (`BaseMotif` + `PieceMap`)
 
 ```typescript

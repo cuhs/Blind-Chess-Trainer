@@ -1,6 +1,7 @@
 import { create } from 'zustand';
 import { persist, createJSONStorage } from 'zustand/middleware';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import { positionKeyFromFen } from '@mindboard/chess-core';
 import type {
   OnboardingAnswer,
   OnboardingStep,
@@ -152,7 +153,14 @@ export const useGuestStore = create<GuestState>()(
         })),
 
       addPeekEvent: (event) =>
-        set((state) => ({ peekEvents: [...state.peekEvents, event] })),
+        set((state) => {
+          const positionKey = positionKeyFromFen(event.fen);
+          const alreadyPeaked = state.peekEvents.some(
+            (existing) => positionKeyFromFen(existing.fen) === positionKey,
+          );
+          if (alreadyPeaked) return state;
+          return { peekEvents: [...state.peekEvents, event] };
+        }),
 
       setStreakDays: (days) => set({ streakDays: days }),
 

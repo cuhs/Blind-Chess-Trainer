@@ -17,6 +17,22 @@
 | Discovered check | Detect — motif + check flag |
 | Double discovery (two pieces) | Return both MotifResults |
 | Phantom discovery (attacker still blocked) | Do not detect |
+| Revealed target still adequately defended (not check) | Do not detect |
+
+## Fork Edge Cases
+
+Forks use the influence map (`isSquareTacticallyThreatened`). A fork is detected only when a piece attacks **two or more** enemy pieces **and** at least one of:
+
+| Rule | Expected |
+|------|----------|
+| Royal fork (king is a target) | Detect — king must respond |
+| At least one target loose or underdefended | Detect — undefended, or more attackers than defenders on that square |
+| Value-winning fork | Detect — forker worth **less** than the highest-value target (e.g. knight forks defended queen + rook) |
+| Equally defended, forker not lower value | Do not detect (e.g. queen “forking” two defended rooks) |
+| Only one enemy piece attacked | Do not detect |
+| Mutual defense with equal counts, no value win | Do not detect (e.g. two bishops defended 1:1 by a knight) |
+
+Discovered attacks (non-check) use the same loose/underdefended test on the revealed target.
 
 ## Overloaded Defender Edge Cases
 

@@ -63,7 +63,7 @@ Voice match peek → heatmap_ledger (match_peek) + guestStore.peekEvents
   → DailyDrill → fog lifts
 ```
 
-**Today:** puzzle training records `heatmap_ledger` on answer via `useTrainingAnswer`. Match peeks write `match_peek` rows + `guestStore.peekEvents`; `lib/peekPuzzles.ts` turns yesterday's peeks (or today's when yesterday is empty) into `source: 'peek'` drills merged in `useDailySession`. Server-side `puzzle_bank` insert remains Phase 4.
+**Today:** puzzle training records `heatmap_ledger` on answer via `useTrainingAnswer`. Match peeks write a `match_peek` ledger row on **every** peek; `guestStore.addPeekEvent` stores at most **one** event per position (`positionKeyFromFen`). `lib/peekPuzzles.ts` turns yesterday's peeks (or today's when yesterday is empty) into `source: 'peek'` drills merged in `useDailySession` — one puzzle max per position. Server-side `puzzle_bank` insert remains Phase 4.
 
 ## Checklist
 

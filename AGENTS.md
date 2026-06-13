@@ -138,7 +138,7 @@ Supabase schema lives in `supabase/migrations/`; seed rows live in `supabase/see
 
 Client table grants are minimal: `authenticated` only (no `anon`), select/insert on ledger, select on puzzles. Streak and daily-drill date keys use the device's local calendar day (`apps/mobile/lib/dateKey.ts`).
 
-Mobile server state uses `@tanstack/react-query` and `apps/mobile/lib/supabase.ts`. `guestStore` remains the offline-first cache for heatmap aggregates and pending ledger inserts. `usePuzzleBank` loads all active `puzzle_bank` rows; `useDailySession` slices to 3 per local calendar day via `lib/dailySession.ts` and gates re-entry with `lastDrillCompletedDate`. `useResolvedPuzzle` overlays engine prompts when `analyzePosition` agrees with `expected_answer`. Validate seeds: `cd packages/chess-core && npm run validate:puzzles`. Skill: `training-flow`.
+Mobile server state uses `@tanstack/react-query` and `apps/mobile/lib/supabase.ts`. `guestStore` remains the offline-first cache for heatmap aggregates and pending ledger inserts. Match peeks append `match_peek` ledger rows on every peek; `peekEvents` dedupes by `positionKeyFromFen` (one stored event and one generated puzzle per position). `usePuzzleBank` loads all active `puzzle_bank` rows; `useDailySession` slices to 3 per local calendar day via `lib/dailySession.ts` and gates re-entry with `lastDrillCompletedDate`. `useResolvedPuzzle` overlays engine prompts when `analyzePosition` agrees with `expected_answer`. Validate seeds: `cd packages/chess-core && npm run validate:puzzles`. Skill: `training-flow`.
 
 ## Agent Doc Maintenance
 

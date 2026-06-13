@@ -1,4 +1,8 @@
-import { analyzePosition, buildPuzzleFromMotif } from '@mindboard/chess-core';
+import {
+  analyzePosition,
+  buildPuzzleFromMotif,
+  positionKeyFromFen,
+} from '@mindboard/chess-core';
 import type { PeekEvent } from '@mindboard/shared';
 import { isSquare, type Square } from '@mindboard/shared';
 import type { TrainingPuzzle } from '@/data/training-puzzles';
@@ -38,10 +42,10 @@ export function weaknessSquareFromFen(fen: string): Square | null {
   return draft.squaresTouched.find(isSquare) ?? null;
 }
 
-function peekPuzzleId(fen: string): string {
+function peekPuzzleId(positionKey: string): string {
   let hash = 0;
-  for (let i = 0; i < fen.length; i++) {
-    hash = (hash * 31 + fen.charCodeAt(i)) >>> 0;
+  for (let i = 0; i < positionKey.length; i++) {
+    hash = (hash * 31 + positionKey.charCodeAt(i)) >>> 0;
   }
   return `peek-${hash.toString(36)}`;
 }
@@ -49,11 +53,12 @@ function peekPuzzleId(fen: string): string {
 export function trainingPuzzlesFromPeekEvents(
   events: PeekEvent[],
 ): TrainingPuzzle[] {
-  const seenFens = new Set<string>();
+  const seenPositions = new Set<string>();
   const puzzles: TrainingPuzzle[] = [];
 
   for (const event of events) {
-    if (seenFens.has(event.fen)) continue;
+    const positionKey = positionKeyFromFen(event.fen);
+    if (seenPositions.has(positionKey)) continue;
 
     const motif = analyzePosition(event.fen);
     if (!motif) continue;
@@ -61,7 +66,7 @@ export function trainingPuzzlesFromPeekEvents(
     const draft = buildPuzzleFromMotif(motif);
     if (draft.squaresTouched.length === 0) continue;
 
-    seenFens.add(event.fen);
+    seenPositions.add(positionKey);
 
     const weakness = weaknessSquareFromFen(event.fen) ?? event.square;
     const squaresTouched = [
@@ -69,7 +74,7 @@ export function trainingPuzzlesFromPeekEvents(
     ];
 
     puzzles.push({
-      id: peekPuzzleId(event.fen),
+      id: peekPuzzleId(positionKey),
       fen: event.fen,
       moves: [],
       prompt: draft.prompt,

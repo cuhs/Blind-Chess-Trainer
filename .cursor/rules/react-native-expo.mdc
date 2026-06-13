@@ -73,7 +73,7 @@ Skill: `training-flow`. No separate `StoryPuzzle` screen.
 |------|------|
 | `useMatchSession` | chess.js game state, player side, clock freeze, engine reply |
 | `useMatchClock` | Countdown while player to move |
-| `useMatchPeek` | 2s board flash + `addPeekEvent` + `match_peek` ledger |
+| `useMatchPeek` | 2s board flash + `addPeekEvent` (one event per position) + `match_peek` ledger (every peek) |
 
 Engine: `lib/engine/stockfishWorker.ts` (fallback minimax until Stockfish WASM). Skill: `voice-match`.
 

@@ -30,8 +30,8 @@ Blueprint-only onboarding puzzles (`StoryCheck`, `RewardPuzzle`) infer visuals f
 ## Data flow
 
 ```
-puzzle_bank (Supabase) + match peekEvents (guestStore)
-  → peekPuzzles (motif engine) + usePuzzleBank
+puzzle_bank (Supabase) + match peekEvents (guestStore; one per position)
+  → peekPuzzles (motif engine; positionKeyFromFen dedup) + usePuzzleBank
   → useDailySession (selectDailyPuzzles — peek-first, 3 per todayKey)
   → useResolvedPuzzle (resolveTrainingPuzzle)
   → DailyDrillScreen
