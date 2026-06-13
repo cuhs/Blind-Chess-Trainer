@@ -85,8 +85,7 @@ export function MatchSetupScreen() {
 
         <Text style={styles.note}>
           Stockfish 17 (native C++) powers the engine on iOS. Ratings 1320+ use
-          calibrated UCI Elo; lower ratings use skill-based weakening. Requires
-          a dev build — run npm run ios:build once, then npm start.
+          calibrated UCI Elo; lower ratings use skill-based weakening.
         </Text>
       </ScrollView>
     </SafeAreaView>
