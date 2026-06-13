@@ -100,7 +100,7 @@ describe('analyzePosition', () => {
   });
 
   it('should return exactly one motif JSON object with PieceMap fields', () => {
-    const fen = 'k7/8/8/8/3N4/8/2q1r3/K7 w - - 0 1';
+    const fen = 'k7/8/8/5r2/3N4/8/2q5/K7 w - - 0 1';
     const motif = analyzePosition(fen);
 
     expect(motif).not.toBeNull();

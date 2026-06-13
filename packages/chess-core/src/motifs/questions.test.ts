@@ -43,7 +43,7 @@ describe('buildPuzzleFromMotif', () => {
   });
 
   it('should build a fork puzzle for the forking piece', () => {
-    const fen = 'k7/8/8/8/3N4/8/2q1r3/K7 w - - 0 1';
+    const fen = 'k7/8/8/5r2/3N4/8/2q5/K7 w - - 0 1';
     const motif = analyzePosition(fen);
     expect(motif).not.toBeNull();
     if (!motif) return;

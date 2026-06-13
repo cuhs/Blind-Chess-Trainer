@@ -1,6 +1,6 @@
 import { describe, it, expect } from 'vitest';
 import { Chess } from 'chess.js';
-import { buildInfluenceMap, findInfluenceForPiece, hasDefender } from './influence';
+import { buildInfluenceMap, findInfluenceForPiece, hasDefender, isSquareTacticallyThreatened } from './influence';
 
 describe('buildInfluenceMap', () => {
   it('should return null for an invalid FEN', () => {
@@ -63,5 +63,38 @@ describe('buildInfluenceMap', () => {
     const piece = { square: 'e2' as const, type: 'p' as const, color: 'w' as const };
 
     expect(findInfluenceForPiece(map, piece)).toBe(map.e2);
+  });
+});
+
+describe('isSquareTacticallyThreatened', () => {
+  it('should treat an attacked king as threatened', () => {
+    const map = buildInfluenceMap('4k3/8/8/8/8/8/4r3/4K3 w - - 0 1')!;
+    const king = map.e1;
+
+    expect(
+      isSquareTacticallyThreatened(king, { square: 'e1', type: 'k', color: 'w' }),
+    ).toBe(true);
+  });
+
+  it('should distinguish loose pieces from equally defended ones', () => {
+    const map = buildInfluenceMap('k7/8/8/5r2/3N4/8/2q5/K7 w - - 0 1')!;
+
+    expect(
+      isSquareTacticallyThreatened(map.c2, { square: 'c2', type: 'q', color: 'b' }),
+    ).toBe(true);
+    expect(
+      isSquareTacticallyThreatened(map.f5, { square: 'f5', type: 'r', color: 'b' }),
+    ).toBe(false);
+  });
+
+  it('should not treat equally defended pieces as threatened', () => {
+    const map = buildInfluenceMap('7k/8/3b1b2/3r1r2/4Q3/8/8/7K w - - 0 1')!;
+
+    expect(
+      isSquareTacticallyThreatened(map.d5, { square: 'd5', type: 'r', color: 'b' }),
+    ).toBe(false);
+    expect(
+      isSquareTacticallyThreatened(map.f5, { square: 'f5', type: 'r', color: 'b' }),
+    ).toBe(false);
   });
 });

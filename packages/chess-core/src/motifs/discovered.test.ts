@@ -126,6 +126,14 @@ describe('detectDiscoveredAttacks', () => {
     expect(detectDiscoveredAttacks(validFen, 'not a fen')).toHaveLength(0);
   });
 
+  it('should not detect a discovery when the revealed target remains adequately defended', () => {
+    const previousFen = '4k3/6q1/8/4b3/3P4/8/1B6/4K3 w - - 0 1';
+    const currentFen = '4k3/6q1/8/4P3/8/8/1B6/4K3 b - - 0 1';
+    const discoveries = detectDiscoveredAttacks(previousFen, currentFen);
+
+    expect(discoveries).toHaveLength(0);
+  });
+
   it('should list intervening squares along a sliding line', () => {
     expect(squareBetween('a1', 'a8')).toEqual([
       'a2', 'a3', 'a4', 'a5', 'a6', 'a7',

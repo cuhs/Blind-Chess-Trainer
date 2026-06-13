@@ -61,7 +61,7 @@ values
   ),
   (
     'drill-fork-knight',
-    'k7/8/8/8/3N4/8/2q1r3/K7 w - - 0 1',
+    'k7/8/8/5r2/3N4/8/2q5/K7 w - - 0 1',
     '{"motif":"fork","attacker":"Nd4","target":"Qc2","square":"d4"}'::jsonb,
     'What square is the knight fork on?',
     'e.g. a8',
@@ -70,7 +70,7 @@ values
     'square',
     'd4',
     '[]'::jsonb,
-    '["d4","c2","e2"]'::jsonb,
+    '["d4","c2","f5"]'::jsonb,
     'daily',
     true
   ),

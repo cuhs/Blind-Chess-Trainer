@@ -13,7 +13,7 @@ function mapFor(fen: string) {
 
 describe('detectForks', () => {
   it('should detect a knight fork on two enemy pieces', () => {
-    const fen = 'k7/8/8/8/3N4/8/2q1r3/K7 w - - 0 1';
+    const fen = 'k7/8/8/5r2/3N4/8/2q5/K7 w - - 0 1';
     const forks = detectForks(fen, mapFor(fen));
 
     expect(forks).toContainEqual(
@@ -22,7 +22,7 @@ describe('detectForks', () => {
         attacker: expect.objectContaining({ square: 'd4', type: 'n' }),
         targets: expect.arrayContaining([
           expect.objectContaining({ square: 'c2', type: 'q' }),
-          expect.objectContaining({ square: 'e2', type: 'r' }),
+          expect.objectContaining({ square: 'f5', type: 'r' }),
         ]),
         isRoyalFork: false,
         forcingWeight: 75,
@@ -51,18 +51,64 @@ describe('detectForks', () => {
   });
 
   it('should detect a pawn fork on two enemy pieces', () => {
-    const fen = '8/8/8/3r1r2/4P3/8/8/4K2k w - - 0 1';
+    const fen = '8/8/8/3n1b2/4P3/8/8/4K2k w - - 0 1';
     const forks = detectForks(fen, mapFor(fen));
 
     expect(forks).toContainEqual(
       expect.objectContaining({
         attacker: expect.objectContaining({ square: 'e4', type: 'p' }),
         targets: expect.arrayContaining([
-          expect.objectContaining({ square: 'd5', type: 'r' }),
-          expect.objectContaining({ square: 'f5', type: 'r' }),
+          expect.objectContaining({ square: 'd5', type: 'n' }),
+          expect.objectContaining({ square: 'f5', type: 'b' }),
         ]),
       }),
     );
+  });
+
+  it('should not detect a fork when every target is equally defended and not worth more than the forker', () => {
+    const fen = '7k/8/3b1b2/3r1r2/4Q3/8/8/7K w - - 0 1';
+    const map = mapFor(fen);
+    const forks = detectForks(fen, map);
+
+    expect(forks).toHaveLength(0);
+    expect(map.d5.attackers).toHaveLength(1);
+    expect(map.d5.defenders).toHaveLength(1);
+    expect(map.f5.attackers).toHaveLength(1);
+    expect(map.f5.defenders).toHaveLength(1);
+  });
+
+  it('should detect a fork when only one target is loose', () => {
+    const fen = '4k3/8/3b4/3r3r/4Q3/8/8/4K3 w - - 0 1';
+    const forks = detectForks(fen, mapFor(fen));
+
+    expect(forks).toContainEqual(
+      expect.objectContaining({
+        attacker: expect.objectContaining({ square: 'e4', type: 'q' }),
+        targets: expect.arrayContaining([
+          expect.objectContaining({ square: 'd5', type: 'r' }),
+        ]),
+      }),
+    );
+  });
+
+  it('should detect a value-winning fork when the forker is lower value than its targets', () => {
+    const fen = 'k7/8/8/8/3N4/8/2q1r3/K7 w - - 0 1';
+    const map = mapFor(fen);
+    const forks = detectForks(fen, map);
+
+    expect(forks).toContainEqual(
+      expect.objectContaining({
+        attacker: expect.objectContaining({ square: 'd4', type: 'n' }),
+        targets: expect.arrayContaining([
+          expect.objectContaining({ square: 'c2', type: 'q' }),
+          expect.objectContaining({ square: 'e2', type: 'r' }),
+        ]),
+      }),
+    );
+    expect(map.c2.attackers).toHaveLength(1);
+    expect(map.c2.defenders).toHaveLength(1);
+    expect(map.e2.attackers).toHaveLength(1);
+    expect(map.e2.defenders).toHaveLength(1);
   });
 });
 

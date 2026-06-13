@@ -1,6 +1,6 @@
 import type { DiscoveredAttackMotif, PieceMap } from '../types/motifs';
 import { ALL_SQUARES, type Square } from '@mindboard/shared';
-import { buildInfluenceMap } from './influence';
+import { buildInfluenceMap, isSquareTacticallyThreatened } from './influence';
 import {
   coordsToSquare,
   getOccupiedSquares,
@@ -121,6 +121,12 @@ export function detectDiscoveredAttacks(
       if (!unmaskMove) continue;
 
       const isCheck = target.type === 'k' && target.color !== attacker.color;
+      if (
+        !isCheck &&
+        !isSquareTacticallyThreatened(currMap[target.square], target)
+      ) {
+        continue;
+      }
 
       discoveries.push({
         type: 'discovered_attack',

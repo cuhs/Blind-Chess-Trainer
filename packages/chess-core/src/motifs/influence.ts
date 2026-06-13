@@ -1,5 +1,5 @@
 import { ALL_SQUARES, type Square } from '@mindboard/shared';
-import type { SquareInfluence } from '../types/motifs';
+import type { PieceMap, SquareInfluence } from '../types/motifs';
 import { getAttackSquares, getOccupiedSquares, scanBoard, isSamePiece } from './primitives';
 
 export type InfluenceMap = Record<Square, SquareInfluence>;
@@ -44,6 +44,22 @@ export function hasDefender(influence: SquareInfluence, piece: { square: Square 
 
 export function hasAttacker(influence: SquareInfluence, piece: { square: Square }): boolean {
   return influence.attackers.some((a) => a.square === piece.square);
+}
+
+/**
+ * A square is tactically threatened when it is in check, undefended, or
+ * attacked by more pieces than defend it (loose / underdefended).
+ */
+export function isSquareTacticallyThreatened(
+  influence: SquareInfluence,
+  occupant?: PieceMap | null,
+): boolean {
+  if (influence.attackers.length === 0) return false;
+  if (occupant?.type === 'k') return true;
+  return (
+    influence.defenders.length === 0 ||
+    influence.attackers.length > influence.defenders.length
+  );
 }
 
 export function findInfluenceForPiece(

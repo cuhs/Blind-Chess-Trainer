@@ -7,7 +7,8 @@ import type {
 } from '../types/motifs';
 import type { Square } from '@mindboard/shared';
 import type { InfluenceMap } from './influence';
-import { getOccupiedSquares, isSamePiece, scanBoard } from './primitives';
+import { isSquareTacticallyThreatened } from './influence';
+import { getOccupiedSquares, isSamePiece, pieceValue, scanBoard } from './primitives';
 
 const FORK_WEIGHT = 75;
 const ROYAL_FORK_WEIGHT = 80;
@@ -21,6 +22,13 @@ function pieceAttacksSquare(
 ): boolean {
   const influence = influenceMap[target];
   return influence.attackers.some((a) => a.square === attacker.square);
+}
+
+/** Capturing the best target and losing the forker to recapture still wins material. */
+function isValueWinningFork(attacker: PieceMap, targets: PieceMap[]): boolean {
+  const attackerVal = pieceValue(attacker.type);
+  const bestTargetVal = Math.max(...targets.map((t) => pieceValue(t.type)));
+  return bestTargetVal > attackerVal;
 }
 
 export function detectForks(fen: string, influenceMap: InfluenceMap): ForkMotif[] {
@@ -42,6 +50,20 @@ export function detectForks(fen: string, influenceMap: InfluenceMap): ForkMotif[
     if (targets.length < 2) continue;
 
     const isRoyalFork = targets.some((t) => t.type === 'k');
+    const threatenedTargets = targets.filter((target) =>
+      isSquareTacticallyThreatened(influenceMap[target.square], target),
+    );
+
+    // A fork must win material: royal forks force a reply; otherwise at least
+    // one target is loose/underdefended, or the forker is worth less than a
+    // target (e.g. knight forking defended queen + rook).
+    if (
+      !isRoyalFork &&
+      threatenedTargets.length === 0 &&
+      !isValueWinningFork(attacker, targets)
+    ) {
+      continue;
+    }
 
     forks.push({
       type: 'fork',
