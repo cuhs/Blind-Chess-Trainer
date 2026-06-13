@@ -1,16 +1,33 @@
 import { useMemo } from 'react';
 import { selectDailyPuzzles } from '@/lib/dailySession';
+import {
+  mergeBankWithPeekPuzzles,
+  peekEventsForTodayDrill,
+  trainingPuzzlesFromPeekEvents,
+} from '@/lib/peekPuzzles';
 import { todayKey } from '@/lib/dateKey';
 import { useGuestStore } from '@/stores/guestStore';
 import { usePuzzleBank } from './usePuzzleBank';
 
 export function useDailySession() {
   const bank = usePuzzleBank();
+  const peekEvents = useGuestStore((s) => s.peekEvents);
   const lastDrillCompletedDate = useGuestStore((s) => s.lastDrillCompletedDate);
 
-  const puzzles = useMemo(
-    () => selectDailyPuzzles(bank.puzzles, todayKey()),
-    [bank.puzzles],
+  const peekPuzzles = useMemo(
+    () =>
+      trainingPuzzlesFromPeekEvents(peekEventsForTodayDrill(peekEvents)),
+    [peekEvents],
+  );
+
+  const puzzles = useMemo(() => {
+    const merged = mergeBankWithPeekPuzzles(bank.puzzles, peekPuzzles);
+    return selectDailyPuzzles(merged, todayKey());
+  }, [bank.puzzles, peekPuzzles]);
+
+  const peekPuzzleCount = useMemo(
+    () => puzzles.filter((puzzle) => puzzle.source === 'peek').length,
+    [puzzles],
   );
 
   const puzzleCount = puzzles.length;
@@ -19,6 +36,7 @@ export function useDailySession() {
   return {
     puzzles,
     puzzleCount,
+    peekPuzzleCount,
     sessionSize: puzzleCount,
     isCompletedToday,
     isNotConfigured: bank.isNotConfigured,

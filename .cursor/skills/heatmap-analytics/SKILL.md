@@ -63,7 +63,7 @@ Voice match peek → heatmap_ledger (match_peek) + guestStore.peekEvents
   → DailyDrill → fog lifts
 ```
 
-**Today:** puzzle training records `heatmap_ledger` on answer/peek via `useTrainingAnswer`. `guestStore.peekEvents` and home `loopBadge` exist; peek FEN → `puzzle_bank` generation is **not built** (Phase 3/4).
+**Today:** puzzle training records `heatmap_ledger` on answer via `useTrainingAnswer`. Match peeks write `match_peek` rows + `guestStore.peekEvents`; `lib/peekPuzzles.ts` turns yesterday's peeks (or today's when yesterday is empty) into `source: 'peek'` drills merged in `useDailySession`. Server-side `puzzle_bank` insert remains Phase 4.
 
 ## Checklist
 

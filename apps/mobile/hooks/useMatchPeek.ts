@@ -1,9 +1,10 @@
 import { useCallback } from 'react';
 import type { Square } from '@mindboard/shared';
 import { useBlindfoldPeek } from '@/hooks/useBlindfoldPeek';
+import { weaknessSquareFromFen } from '@/lib/peekPuzzles';
 import { useGuestStore } from '@/stores/guestStore';
 
-const PEEK_SQUARE: Square = 'e4';
+const FALLBACK_SQUARE: Square = 'e4';
 
 export function useMatchPeek(fen: string) {
   const { peekVisible, triggerPeek } = useBlindfoldPeek();
@@ -14,8 +15,9 @@ export function useMatchPeek(fen: string) {
 
   const onPeek = useCallback(() => {
     const timestamp = new Date().toISOString();
-    addPeekEvent({ fen, square: PEEK_SQUARE, timestamp });
-    recordHeatmapInteractions([PEEK_SQUARE], {
+    const square = weaknessSquareFromFen(fen) ?? FALLBACK_SQUARE;
+    addPeekEvent({ fen, square, timestamp });
+    recordHeatmapInteractions([square], {
       isSuccess: false,
       interactionType: 'match_peek',
     });

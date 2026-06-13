@@ -30,9 +30,9 @@ Blueprint-only onboarding puzzles (`StoryCheck`, `RewardPuzzle`) infer visuals f
 ## Data flow
 
 ```
-puzzle_bank (Supabase)
-  → usePuzzleBank (full bank)
-  → useDailySession (selectDailyPuzzles — 3 per todayKey)
+puzzle_bank (Supabase) + match peekEvents (guestStore)
+  → peekPuzzles (motif engine) + usePuzzleBank
+  → useDailySession (selectDailyPuzzles — peek-first, 3 per todayKey)
   → useResolvedPuzzle (resolveTrainingPuzzle)
   → DailyDrillScreen
 ```
@@ -46,13 +46,13 @@ Validate seeds: `cd packages/chess-core && npm run validate:puzzles`.
 | Hook | Status | Role |
 |------|--------|------|
 | `usePuzzleBank` | Done | Loads all active `puzzle_bank` rows via React Query |
-| `useDailySession` | Done | Slices bank to 3 puzzles per `todayKey()`; `isCompletedToday` from `lastDrillCompletedDate` |
+| `useDailySession` | Done | Bank + peek-generated puzzles via `peekPuzzles`; 3 per `todayKey()`; `peekPuzzleCount` for loop badge |
 | `useResolvedPuzzle` | Done | Memoized `resolveTrainingPuzzle` per puzzle |
 | `useMemorizePhase` | Done | 5s board memorize → answering → success |
 | `usePuzzleSessionPhase` | Done | Board memorize or `useStoryNarration` when `moves[]` present |
 | `useStoryNarration` | Done | `expo-speech` move sequence (via session phase) |
 | `useTrainingAnswer` | Done | Validate answer + `recordHeatmapInteractions` |
-| `useDailyMatrix` | Done | Session puzzle count + peek loop badge + `isCompletedToday` for hub/home cards |
+| `useDailyMatrix` | Done | Session puzzle count + peek loop badge when session includes peek puzzles + `isCompletedToday` |
 
 ## Session model
 
