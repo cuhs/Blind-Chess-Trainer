@@ -1,23 +1,32 @@
 import { useQuery } from '@tanstack/react-query';
 import { isSupabaseConfigured, supabase } from '@/lib/supabase';
 
-function isInvalidSupabaseSession(error: { status?: number }): boolean {
+function isStaleOrMissingSession(error: {
+  status?: number;
+  message?: string;
+}): boolean {
   const status = error.status ?? 0;
+  if (status === 400 && error.message?.includes('Auth session missing')) {
+    return true;
+  }
   return status === 401 || status === 403 || status === 422;
 }
 
 async function ensureSupabaseUserId(): Promise<string | null> {
   if (!supabase) return null;
 
-  // getSession() reads AsyncStorage only; after `supabase db reset` the JWT can
-  // outlive the auth.users row and profile upserts hit profiles_id_fkey (23503).
-  const {
-    data: { user },
-    error: userError,
-  } = await supabase.auth.getUser();
-  if (user?.id) return user.id;
+  const { data: sessionData } = await supabase.auth.getSession();
+  const sessionUserId = sessionData.session?.user?.id;
 
-  if (userError && !isInvalidSupabaseSession(userError)) throw userError;
+  if (sessionUserId) {
+    // Validate cached JWT server-side; stale tokens survive `supabase db reset`.
+    const {
+      data: { user },
+      error: userError,
+    } = await supabase.auth.getUser();
+    if (user?.id) return user.id;
+    if (userError && !isStaleOrMissingSession(userError)) throw userError;
+  }
 
   await supabase.auth.signOut();
 

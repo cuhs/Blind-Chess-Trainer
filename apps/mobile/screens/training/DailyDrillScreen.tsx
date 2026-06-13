@@ -53,6 +53,7 @@ export function DailyDrillScreen() {
     isLoading,
     isError,
     isNotConfigured,
+    error,
   } = useDailySession();
   const puzzle = puzzles[puzzleIndex];
   const resolvedPuzzle = useResolvedPuzzle(puzzle);
@@ -117,7 +118,7 @@ export function DailyDrillScreen() {
     return (
       <DrillState
         title="Supabase not configured"
-        message="Add EXPO_PUBLIC_SUPABASE_URL and EXPO_PUBLIC_SUPABASE_ANON_KEY to .env.local (repo root or apps/mobile), then restart Expo."
+        message="Add EXPO_PUBLIC_SUPABASE_URL and EXPO_PUBLIC_SUPABASE_PUBLISHABLE_KEY to .env.local (repo root or apps/mobile), then restart Expo."
         onBack={() => router.back()}
       />
     );
@@ -138,10 +139,12 @@ export function DailyDrillScreen() {
   }
 
   if (isError || !puzzle || !resolvedPuzzle) {
+    const devHint =
+      __DEV__ && error instanceof Error ? `\n\n(${error.message})` : '';
     return (
       <DrillState
         title="Could not load puzzles"
-        message="Check that Supabase is running, anonymous auth is enabled, and puzzle_bank is seeded."
+        message={`Check EXPO_PUBLIC_SUPABASE_URL, anonymous auth, and that puzzle_bank is seeded on your cloud project.${devHint}`}
         onBack={() => router.back()}
       />
     );

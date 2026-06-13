@@ -10,6 +10,7 @@ Blind-Chess-Trainer is the repo for **MindBoard**, a cognitive blindfold chess p
 | `DESIGN.md` | Design system — **synced from Stitch** (tokens, screens, components) |
 | `apps/mobile/theme/tokens.ts` | Machine-readable design tokens |
 | `AGENTS.md` | This file — architecture, constraints, tooling |
+| `supabase/README.md` | Cloud project setup, link/push/seed, optional local Docker |
 | `.cursor/rules/` | Auto-applied coding standards |
 | `.cursor/skills/` | Domain workflows invoked by task |
 
@@ -34,6 +35,8 @@ MCP (`.cursor/mcp.json`):
 |--------|---------|
 | `stitch` | Design frames → `tokens.ts`, `DESIGN.md` |
 | `ios-simulator` | UI verification on booted Simulator (tap, type, screenshot, a11y tree) |
+| `supabase` | Cloud project queries, migrations, SQL (linked via Dashboard / `supabase link`) |
+| `supabase-postgres` | Optional local Docker Postgres only (`localhost:54322`) |
 
 ## Core Philosophy
 
@@ -128,7 +131,7 @@ Post-onboarding `/(main)/index` — Stitch frame `b1eff5fd32e743e2a7f8a4b78a3403
 
 ## Data Layer
 
-Supabase schema lives in `supabase/migrations/`; seed rows live in `supabase/seed.sql`.
+Supabase schema lives in `supabase/migrations/`; seed rows live in `supabase/seed.sql`. **Default backend:** cloud Supabase — setup in `supabase/README.md`. Secrets live in `.env.local` only (never commit or edit).
 
 | Table | Purpose |
 |-------|---------|
@@ -203,17 +206,35 @@ Verify `AGENTS.md` rules/skills tables match files in `.cursor/rules/` and `.cur
 ## Commands
 
 ```bash
-```bash
 cd apps/mobile && npm run nnue              # once: download Stockfish NNUE weights (~88 MB)
 cd apps/mobile && npm run ios:build        # first time / after native dep changes (Xcode 16.1+)
 cd apps/mobile && npm start                # Metro + MindBoard dev client (not Expo Go)
 cd apps/mobile && npm run ios              # same, opens iOS simulator
-```
 cd apps/api && npm run dev
 cd packages/chess-core && npm test
-npx @_davideast/stitch-mcp doctor      # verify Stitch API
+npx @_davideast/stitch-mcp doctor          # verify Stitch API
+```
+
+### Supabase (cloud — default)
+
+Copy `.env.example` → `.env.local` and fill in **publishable** key from Dashboard → Project Settings → API → API Keys. See `supabase/README.md`.
+
+```bash
+supabase login
+supabase link --project-ref <project-ref>
+supabase db push                                              # apply migrations
+supabase db execute --linked -f supabase/seed.sql             # seed puzzle_bank
+supabase config push                                          # sync auth (anonymous sign-ins)
+```
+
+One-time Dashboard check: **Authentication → Providers → Anonymous sign-ins** must be enabled.
+
+### Supabase (optional local Docker)
+
+```bash
 supabase start
-supabase db reset                      # apply migrations + seed puzzle_bank locally
+supabase db reset                      # migrations + seed locally
+# EXPO_PUBLIC_SUPABASE_URL=http://127.0.0.1:54321 in .env.local
 ```
 
 **Simulator MCP workflow:** `get_booted_sim_id` → `ui_describe_all` → `ui_find_element` / `ui_tap` / `ui_type` → `screenshot`. Bundle: `com.mindboard.app`.

@@ -46,7 +46,9 @@ pipx ensurepath
 
 Verify: `idb list-targets` shows booted simulators.
 
-**Local Supabase:** keep `EXPO_PUBLIC_SUPABASE_URL=http://127.0.0.1:54321` in `.env.local`. `lib/resolveSupabaseUrl` uses `Constants.isDevice` — simulator keeps loopback; physical Expo Go rewrites to LAN. Run `supabase start` on the Mac before training flows.
+**Cloud Supabase:** set `EXPO_PUBLIC_SUPABASE_URL` and `EXPO_PUBLIC_SUPABASE_PUBLISHABLE_KEY` in `.env.local` (see `.env.example`). Enable **Authentication → Providers → Anonymous sign-ins** in the Dashboard.
+
+Optional local Docker: `http://127.0.0.1:54321` + `supabase start` — see `AGENTS.md`.
 
 ```bash
 # Terminal 1 — native dev client (match engine requires this; Expo Go will not work)

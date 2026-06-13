@@ -15,12 +15,14 @@ const supabaseUrl = resolveSupabaseUrl(process.env.EXPO_PUBLIC_SUPABASE_URL, {
   isPhysicalDevice: Device.isDevice,
   debuggerHost,
 });
-const supabaseAnonKey = process.env.EXPO_PUBLIC_SUPABASE_ANON_KEY;
+const publishableKey =
+  process.env.EXPO_PUBLIC_SUPABASE_PUBLISHABLE_KEY ??
+  process.env.EXPO_PUBLIC_SUPABASE_ANON_KEY;
 
-export const isSupabaseConfigured = Boolean(supabaseUrl && supabaseAnonKey);
+export const isSupabaseConfigured = Boolean(supabaseUrl && publishableKey);
 
 export const supabase = isSupabaseConfigured
-  ? createClient(supabaseUrl as string, supabaseAnonKey as string, {
+  ? createClient(supabaseUrl as string, publishableKey as string, {
       auth: {
         storage: AsyncStorage,
         autoRefreshToken: true,

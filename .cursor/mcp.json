@@ -1,4 +1,7 @@
 {
+  "_mcp_notes": {
+    "supabase-postgres": "Optional local Docker only (localhost:54322). Use the supabase MCP plugin for cloud queries and migrations."
+  },
   "mcpServers": {
     "stitch": {
       "command": "node",
