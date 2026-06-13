@@ -32,6 +32,7 @@ interface GuestState {
   lastDrillCompletedDate: string | null;
   peekEvents: PeekEvent[];
   matchElo: number;
+  matchPlayerColor: 'w' | 'b';
   _hasHydrated: boolean;
 
   setOnboardingComplete: (complete: boolean) => void;
@@ -55,6 +56,7 @@ interface GuestState {
   setLastActiveDate: (date: string) => void;
   setLastDrillCompletedDate: (date: string) => void;
   setMatchElo: (elo: number) => void;
+  setMatchPlayerColor: (color: 'w' | 'b') => void;
   setHasHydrated: (hydrated: boolean) => void;
 }
 
@@ -72,7 +74,8 @@ export const useGuestStore = create<GuestState>()(
       lastActiveDate: null,
       lastDrillCompletedDate: null,
       peekEvents: [],
-      matchElo: 1200,
+      matchElo: 800,
+      matchPlayerColor: 'w',
       _hasHydrated: false,
 
       setOnboardingComplete: (complete) =>
@@ -160,6 +163,8 @@ export const useGuestStore = create<GuestState>()(
 
       setMatchElo: (elo) => set({ matchElo: elo }),
 
+      setMatchPlayerColor: (color) => set({ matchPlayerColor: color }),
+
       setHasHydrated: (hydrated) => set({ _hasHydrated: hydrated }),
     }),
     {
@@ -181,6 +186,7 @@ export const useGuestStore = create<GuestState>()(
         lastDrillCompletedDate: state.lastDrillCompletedDate,
         peekEvents: state.peekEvents,
         matchElo: state.matchElo,
+        matchPlayerColor: state.matchPlayerColor,
       }),
     },
   ),

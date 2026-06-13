@@ -13,7 +13,12 @@
     },
     "ios": {
       "supportsTablet": false,
-      "bundleIdentifier": "com.mindboard.app"
+      "bundleIdentifier": "com.mindboard.app",
+      "infoPlist": {
+        "NSAppTransportSecurity": {
+          "NSAllowsLocalNetworking": true
+        }
+      }
     },
     "android": {
       "adaptiveIcon": {
@@ -21,7 +26,7 @@
       },
       "package": "com.mindboard.app"
     },
-    "plugins": ["expo-router", "expo-font", "expo-audio"],
+    "plugins": ["expo-dev-client", "expo-router", "expo-font", "expo-audio"],
     "experiments": {
       "typedRoutes": true,
       "autolinkingModuleResolution": true

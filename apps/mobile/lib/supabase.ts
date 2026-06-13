@@ -1,14 +1,19 @@
 import 'react-native-url-polyfill/auto';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import Constants from 'expo-constants';
+import * as Device from 'expo-device';
 import { createClient } from '@supabase/supabase-js';
 import { resolveSupabaseUrl } from './resolveSupabaseUrl';
 
+const debuggerHost =
+  Constants.expoGoConfig?.debuggerHost ??
+  Constants.expoConfig?.hostUri ??
+  null;
+
 const supabaseUrl = resolveSupabaseUrl(process.env.EXPO_PUBLIC_SUPABASE_URL, {
   dev: __DEV__,
-  isPhysicalDevice: Constants.isDevice,
-  debuggerHost:
-    Constants.expoGoConfig?.debuggerHost ?? Constants.expoConfig?.hostUri,
+  isPhysicalDevice: Device.isDevice,
+  debuggerHost,
 });
 const supabaseAnonKey = process.env.EXPO_PUBLIC_SUPABASE_ANON_KEY;
 

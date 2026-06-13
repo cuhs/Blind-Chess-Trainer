@@ -1,5 +1,6 @@
 import Svg, { Circle, Path } from 'react-native-svg';
 import { colors } from '@/theme';
+import { BlindfoldIcon } from '@/components/ui/icons/BlindfoldIcon';
 
 interface TabIconProps {
   size?: number;
@@ -61,20 +62,7 @@ export function MatchTabIcon({
   filled = false,
 }: TabIconProps) {
   return (
-    <Svg width={size} height={size} viewBox="0 0 24 24" fill="none">
-      <Path
-        d="M12 14a3 3 0 0 0 3-3V6a3 3 0 1 0-6 0v5a3 3 0 0 0 3 3Z"
-        fill={filled ? color : 'none'}
-        stroke={color}
-        strokeWidth={filled ? 0 : 1.8}
-      />
-      <Path
-        d="M19 11a7 7 0 0 1-14 0M12 18v3"
-        stroke={color}
-        strokeLinecap="round"
-        strokeWidth={1.8}
-      />
-    </Svg>
+    <BlindfoldIcon color={color} filled={filled} size={size} />
   );
 }
 

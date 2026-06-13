@@ -31,7 +31,7 @@ export function DevMoveInput({
 
   return (
     <View style={styles.wrap}>
-      <Text style={styles.label}>DEV MOVE INPUT</Text>
+      <Text style={styles.label}>MOVE INPUT</Text>
       <View style={styles.inputRow}>
         <TextInput
           accessibilityLabel="Enter move in SAN"

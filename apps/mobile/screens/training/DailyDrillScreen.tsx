@@ -31,8 +31,8 @@ function DrillState({ title, message, onBack }: DrillStateProps) {
         <Text style={styles.stateText}>{message}</Text>
         {onBack ? (
           <PrimaryButton
-            accessibilityLabel="Back to Training"
-            label="Back to Training"
+            accessibilityLabel="Back to Home"
+            label="Back to Home"
             onPress={onBack}
             uppercase={false}
           />

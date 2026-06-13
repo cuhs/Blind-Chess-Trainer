@@ -2,20 +2,19 @@ import { useState } from 'react';
 import { Pressable, StyleSheet, Text, View } from 'react-native';
 import { colors, radius, spacing, touch, typography } from '@/theme';
 import { Card } from '@/components/ui/Card';
-import { MicIcon } from '@/components/ui/icons/MicIcon';
+import { BlindfoldIcon } from '@/components/ui/icons/BlindfoldIcon';
 import { ChevronRightIcon } from '@/components/ui/icons/ChevronRightIcon';
 
 interface VoiceMatchCardProps {
-  matchElo: number;
   onPress: () => void;
 }
 
-export function VoiceMatchCard({ matchElo, onPress }: VoiceMatchCardProps) {
+export function VoiceMatchCard({ onPress }: VoiceMatchCardProps) {
   const [pressed, setPressed] = useState(false);
 
   return (
     <Pressable
-      accessibilityLabel={`Start Blindfold Match, opponent ${matchElo} Elo`}
+      accessibilityLabel="Start Blindfold Match"
       accessibilityRole="button"
       onPress={onPress}
       onPressIn={() => setPressed(true)}
@@ -32,11 +31,10 @@ export function VoiceMatchCard({ matchElo, onPress }: VoiceMatchCardProps) {
         <View style={styles.row}>
           <View style={styles.lead}>
             <View style={styles.iconCircle}>
-              <MicIcon />
+              <BlindfoldIcon color={colors.onSecondaryContainer} />
             </View>
             <View style={styles.copy}>
               <Text style={styles.title}>Start Blindfold Match</Text>
-              <Text style={styles.eloText}>Opponent: {matchElo} Elo</Text>
             </View>
           </View>
           <ChevronRightIcon />
@@ -81,10 +79,5 @@ const styles = StyleSheet.create({
     ...typography.headlineMd,
     color: colors.onSurface,
     lineHeight: 26,
-  },
-  eloText: {
-    ...typography.labelBold,
-    color: colors.outline,
-    textTransform: 'uppercase',
   },
 });

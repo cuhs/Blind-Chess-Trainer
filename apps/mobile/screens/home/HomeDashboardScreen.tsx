@@ -12,13 +12,11 @@ import { VoiceMatchCard } from '@/components/home/VoiceMatchCard';
 import { useDailyMatrix } from '@/hooks/useDailyMatrix';
 import { useHabitStreak } from '@/hooks/useHabitStreak';
 import { useFogClearedPercent } from '@/hooks/useFogClearedPercent';
-import { useGuestStore } from '@/stores/guestStore';
 
 export function HomeDashboardScreen() {
   const { streakDays } = useHabitStreak();
   const { clarityPercent } = useFogClearedPercent();
   const { puzzleCount, loopBadge, isCompletedToday } = useDailyMatrix();
-  const matchElo = useGuestStore((s) => s.matchElo);
 
   const handleStartTraining = () => {
     if (isCompletedToday) return;
@@ -66,7 +64,7 @@ export function HomeDashboardScreen() {
             onPress={handleStartTraining}
             puzzleCount={puzzleCount}
           />
-          <VoiceMatchCard matchElo={matchElo} onPress={handleMatch} />
+          <VoiceMatchCard onPress={handleMatch} />
         </View>
       </ScrollView>
     </SafeAreaView>

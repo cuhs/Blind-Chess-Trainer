@@ -1,29 +1,55 @@
-import { getFallbackMove } from './fallbackEngine';
+import {
+  MATCH_ELO_DEFAULT,
+  userEloToEngineConfig,
+} from './engineElo';
+import { uciToSan } from './uciToSan';
+import { UciClient } from './uciClient';
+import { createStockfishModule } from './stockfishModule';
 
 export interface EngineOptions {
   elo: number;
 }
 
-let configuredElo = 1200;
+const DEFAULT_MOVETIME_MS = 400;
 
-/**
- * Stockfish worker client — async queue simulating an off-thread engine.
- * TODO: swap fallback for Stockfish WASM worker when RN bridge lands.
- */
+let client: UciClient | null = null;
+let initPromise: Promise<void> | null = null;
+let configuredElo: number | null = null;
+
+async function ensureClient(elo: number): Promise<UciClient> {
+  if (!initPromise) {
+    initPromise = (async () => {
+      const module = await createStockfishModule();
+      const uci = new UciClient(module);
+      await uci.initialize();
+      client = uci;
+    })();
+  }
+
+  await initPromise;
+
+  if (!client) {
+    throw new Error('Stockfish failed to initialize');
+  }
+
+  await client.configureStrength(userEloToEngineConfig(elo));
+  configuredElo = elo;
+  return client;
+}
+
 export async function initEngine(options: EngineOptions): Promise<void> {
-  configuredElo = options.elo;
-  await Promise.resolve();
+  await ensureClient(options.elo);
 }
 
 export async function disposeEngine(): Promise<void> {
-  await Promise.resolve();
+  client?.dispose();
+  client = null;
+  initPromise = null;
+  configuredElo = null;
 }
 
 export async function getEngineMove(fen: string, elo?: number): Promise<string> {
-  const targetElo = elo ?? configuredElo;
-  // Yield so UI can paint "thinking" before synchronous fallback search.
-  await new Promise<void>((resolve) => {
-    setTimeout(resolve, 80);
-  });
-  return getFallbackMove(fen, targetElo);
+  const targetElo = elo ?? configuredElo ?? MATCH_ELO_DEFAULT;
+  const uci = await (await ensureClient(targetElo)).bestMove(fen, DEFAULT_MOVETIME_MS);
+  return uciToSan(fen, uci);
 }

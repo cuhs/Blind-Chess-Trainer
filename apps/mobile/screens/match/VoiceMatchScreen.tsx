@@ -14,6 +14,7 @@ import {
 import { MatchControlBar } from '@/components/match/MatchControlBar';
 import { MatchSecondaryActions } from '@/components/match/MatchSecondaryActions';
 import { DevMoveInput } from '@/components/match/DevMoveInput';
+import { MoveDisambiguation } from '@/components/match/MoveDisambiguation';
 import { useMatchSession } from '@/hooks/useMatchSession';
 import { useMatchPeek } from '@/hooks/useMatchPeek';
 import { useGuestStore } from '@/stores/guestStore';
@@ -39,6 +40,7 @@ function resultStatus(
 export function VoiceMatchScreen() {
   const router = useRouter();
   const matchElo = useGuestStore((s) => s.matchElo);
+  const matchPlayerColor = useGuestStore((s) => s.matchPlayerColor);
   const {
     fen,
     isPlayerTurn,
@@ -47,29 +49,41 @@ export function VoiceMatchScreen() {
     lastMove,
     result,
     turn,
+    playerColor,
     moveError,
     resigned,
+    disambiguation,
     submitPlayerMove,
-    resetMatch,
+    chooseDisambiguation,
+    cancelDisambiguation,
     resignMatch,
     clearMoveError,
-  } = useMatchSession(matchElo);
+  } = useMatchSession(matchElo, matchPlayerColor);
   const { peekVisible, onPeek } = useMatchPeek(fen);
   const [fullyCovered, setFullyCovered] = useState(false);
+
+  const colorLabel = playerColor === 'w' ? 'White' : 'Black';
 
   const matchStatus: MatchStatus =
     isGameOver && result
       ? resultStatus(result, resigned)
-      : moveError
-        ? { text: moveError, tone: 'alert' }
-        : isThinking
-          ? { text: 'Engine thinking…', tone: 'neutral' }
-          : lastMove && turn === 'w'
-            ? { text: `Engine played ${lastMove} — your move`, tone: 'action' }
-            : { text: 'Your move — you play White', tone: 'action' };
+      : disambiguation
+        ? { text: disambiguation.prompt, tone: 'action' }
+        : moveError
+          ? { text: moveError, tone: 'alert' }
+          : isThinking
+            ? { text: 'Engine thinking…', tone: 'neutral' }
+            : lastMove && turn === playerColor
+              ? { text: `Engine played ${lastMove} — your move`, tone: 'action' }
+              : { text: `Your move — you play ${colorLabel}`, tone: 'action' };
 
   const handleSubmitMove = (move: string) => {
     void submitPlayerMove(move);
+  };
+
+  const handleNewMatch = () => {
+    setFullyCovered(false);
+    router.replace('/(main)/match' as never);
   };
 
   return (
@@ -101,12 +115,9 @@ export function VoiceMatchScreen() {
         {isGameOver ? (
           <View style={styles.gameOverActions}>
             <PrimaryButton
-              accessibilityLabel="Play again"
-              label="Play again"
-              onPress={() => {
-                setFullyCovered(false);
-                resetMatch();
-              }}
+              accessibilityLabel="New match"
+              label="New match"
+              onPress={handleNewMatch}
               uppercase={false}
             />
             <PrimaryButton
@@ -127,21 +138,28 @@ export function VoiceMatchScreen() {
             />
             <MatchSecondaryActions
               disabled={isThinking}
-              onNewGame={() => {
-                setFullyCovered(false);
-                resetMatch();
-              }}
               onResign={resignMatch}
             />
             <Text style={styles.peekHint}>
               Peeks build tomorrow&apos;s puzzles
             </Text>
-            <DevMoveInput
-              disabled={!isPlayerTurn || isThinking}
-              error={moveError}
-              onClearError={clearMoveError}
-              onSubmit={handleSubmitMove}
-            />
+            {disambiguation ? (
+              <MoveDisambiguation
+                candidates={disambiguation.candidates}
+                onCancel={cancelDisambiguation}
+                onSelect={(san) => {
+                  void chooseDisambiguation(san);
+                }}
+                prompt={disambiguation.prompt}
+              />
+            ) : (
+              <DevMoveInput
+                disabled={!isPlayerTurn || isThinking}
+                error={moveError}
+                onClearError={clearMoveError}
+                onSubmit={handleSubmitMove}
+              />
+            )}
           </>
         )}
       </ScrollView>

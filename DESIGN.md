@@ -201,7 +201,7 @@ Post-onboarding `/(main)/index`. Habit validation + fog heatmap + closed-loop CT
 | Hero | Title + subtitle | "Cognitive Heatmap" + body copy |
 | Hero board | `InteractiveHeatmap` (`showLabels={false}`) | Centered compact card with 8×8 fog grid |
 | Primary CTA | `DailyMatrixCard` | "Today's Matrix: N Positions" + peek loop badge; "Completed Today" when drill done |
-| Secondary CTA | `VoiceMatchCard` | "Start Blindfold Match" row + Elo + chevron |
+| Secondary CTA | `VoiceMatchCard` | "Start Blindfold Match" row + chevron |
 | Navigation | Expo tabs | Home · Training · Match · Settings (active tab green 3D pill) |
 
 ---
@@ -306,10 +306,15 @@ Shared icons live in `components/ui/icons/`. Reuse — do not inline emoji as te
 | `FogOverlay` | Stone grey opacity per square | Uses fog math |
 | `CognitiveHeatmap` | Clarity %, mastery count, legend | Proportional fog |
 | `MascotTip` | Chip with `LightbulbIcon` (SVG) + `bodyMd` copy | Optional only; never auto-reveal puzzle answers |
+| `MatchEloSlider` | Opponent Elo slider (300–3190, step 50) + tier label | `MatchSetupScreen` |
+| `MatchColorPicker` | White / Black segmented choice | `MatchSetupScreen` |
+| `MatchSetupHero` | Fog grid + blindfold icon hero | `MatchSetupScreen` |
+| `MatchSetupScreen` | Blindfold match prep — covered board preview, Elo slider, Start | `/(main)/match` |
 | `MatchStatusBar` | Card: VS ENGINE + Elo, one-line status (your move / thinking / illegal move / result) | `VoiceMatchScreen`; status tone: neutral/action/alert/success |
 | `MatchControlBar` | Mic + Peek + Cover (slashed-eye) circular controls | `VoiceMatchScreen` |
 | `BoardCover` | Solid panel hiding grid and coordinate labels | `BlindfoldBoard` when fully covered |
-| `MatchSecondaryActions` | Resign + New game text actions | `VoiceMatchScreen` (untimed match) |
+| `MatchSecondaryActions` | Resign text action | `VoiceMatchScreen` (untimed match) |
+| `MoveDisambiguation` | Ambiguous move picker (SAN + label) | `VoiceMatchScreen` |
 | `DevMoveInput` | Recessed card: SAN field + Play button (dev/testing) | `VoiceMatchScreen` until STT lands |
 | `PeekButton` | Yellow chip, `LightbulbIcon` (SVG) + label — no emoji | Rendered by `PuzzleSessionLayout` under the board (answer phase); reveal lands where the user taps |
 | `ProgressChrome` | Level/position label + percent + `ProgressBar` | Onboarding flow + DailyDrill (merged chrome) |
@@ -321,9 +326,9 @@ Shared icons live in `components/ui/icons/`. Reuse — do not inline emoji as te
 | `InteractiveHeatmap` | Hero 8×8 + `FogOverlay` + tap tooltips | Home + FogReveal |
 | `SquareTooltip` | Micro-tooltip on square tap | HomeDashboard |
 | `DailyMatrixCard` | Primary CTA + closed-loop badge; `completedToday` disables button | HomeDashboard + TrainingHub |
-| `VoiceMatchCard` | Blindfold match row + mic + Elo chip | HomeDashboard |
+| `VoiceMatchCard` | Blindfold match row + slashed-eye icon | HomeDashboard |
 | `BottomTabBar` | 4-tab nav: Home/Training/Match/Settings; active green pill + 4px extrusion | `(main)/_layout` |
-| Tab icons | `HomeTabIcon`, `TrainingTabIcon`, `MatchTabIcon`, `SettingsTabIcon` | Bottom tab bar |
+| Tab icons | `HomeTabIcon`, `TrainingTabIcon`, `MatchTabIcon` (blindfold), `SettingsTabIcon` | Bottom tab bar |
 | `BoltIcon` | Orange filled bolt for streak | `HabitHeader` |
 | `HeatmapStats` | CLARITY %, MASTERY count | FogReveal + heatmap |
 | `HeatmapLegend` | Three-state legend chips | FogReveal + heatmap |

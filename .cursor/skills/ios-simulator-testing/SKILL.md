@@ -49,14 +49,15 @@ Verify: `idb list-targets` shows booted simulators.
 **Local Supabase:** keep `EXPO_PUBLIC_SUPABASE_URL=http://127.0.0.1:54321` in `.env.local`. `lib/resolveSupabaseUrl` uses `Constants.isDevice` — simulator keeps loopback; physical Expo Go rewrites to LAN. Run `supabase start` on the Mac before training flows.
 
 ```bash
-# Terminal 1 — start app (required)
+# Terminal 1 — native dev client (match engine requires this; Expo Go will not work)
+cd apps/mobile && npm run ios:build   # first time only
 cd apps/mobile && npx expo start --ios
 ```
 
 ```
 - [ ] 1. open_simulator (if not visible)
 - [ ] 2. get_booted_sim_id → save udid for tool calls
-- [ ] 3. App running in simulator (Expo dev build or Expo Go with project loaded)
+- [ ] 3. App running in simulator (native dev build — not Expo Go for match flows)
 - [ ] 4. launch_app bundle_id: com.mindboard.app (if cold start / reset onboarding)
 ```
 
@@ -108,7 +109,8 @@ For fresh onboarding: clear guest storage or reinstall — onboarding only shows
 | 8 | Invisible grid | No pieces after hook timer |
 | 9 | Training hub | Tab Training → `DailyMatrixCard` visible; Start navigates to drill |
 | 10 | Daily drill | 5s board → invisible grid → keypad answer; progress chrome updates |
-| 11 | Match | Tab Match → status bar + invisible grid; `Cover board completely` hides grid; `Peek at board` flashes pieces 2s |
+| 11 | Match setup | Tab Match → Elo slider (default 800) → Start match loads Stockfish |
+| 12 | Match play | Dev move → engine reply <1s; peek + cover controls |
 
 ### Search strings (accessibility)
 

@@ -22,6 +22,7 @@ export function useSupabaseUserId() {
     queryKey: ['supabase-user-id'],
     enabled: isSupabaseConfigured && Boolean(supabase),
     staleTime: Infinity,
+    retry: 1,
     queryFn: ensureSupabaseUserId,
   });
 }

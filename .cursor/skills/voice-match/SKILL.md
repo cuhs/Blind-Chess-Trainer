@@ -47,5 +47,6 @@ No Stitch frame — **infer from `VoiceMatch`** (`2cbaa7be…`):
 - [x] Peek + Cover always visible during match
 - [ ] Clock freeze UI matches Stitch "CLOCK FROZEN" badge (voice ambiguous/illegal input only — not dev SAN errors)
 - [ ] Disambiguation re-enters same pipeline
-- [ ] Stockfish WASM off main thread (fallback minimax in `stockfishWorker.ts` for now)
+- [x] Native Stockfish 17 on iOS via `@og-nav/expo-stockfish` (requires dev build, not Expo Go)
+- [ ] Stockfish off main thread (runs on JS thread today; worker TBD)
 ```

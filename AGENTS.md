@@ -45,7 +45,7 @@ Closed-loop system: text training → voice matches → failures → custom puzz
 |-------|------------|
 | Mobile | React Native + Expo (Expo Router) |
 | Chess | chess.js |
-| Engine | Stockfish WASM (client-side) |
+| Engine | Stockfish 17 native C++ on iOS (`@og-nav/expo-stockfish`); WASM in Vitest only |
 | Backend | Supabase + Express.js |
 | Motifs | Deterministic TypeScript microservice |
 | Voice | On-device STT → regex normalizer → legality filter |
@@ -85,7 +85,8 @@ supabase/seed.sql     # Curated puzzle_bank seed rows
 | Main tabs | `/(main)/index` | `HomeDashboardScreen` |
 | Main tabs | `/(main)/training` | `TrainingHubScreen` |
 | Main tabs | `/(main)/training/drill` | `DailyDrillScreen` |
-| Main tabs | `/(main)/match` | `VoiceMatchScreen` |
+| Main tabs | `/(main)/match` | `MatchSetupScreen` |
+| Main tabs | `/(main)/match/play` | `VoiceMatchScreen` |
 | Main tabs | `/(main)/settings` | Settings stub |
 
 ## Stitch → Screen Mapping
@@ -121,7 +122,7 @@ Post-onboarding `/(main)/index` — Stitch frame `b1eff5fd32e743e2a7f8a4b78a3403
 2. Training — `TrainingHub`, `DailyDrill` backed by `puzzle_bank`; motif resolve via `useResolvedPuzzle` (no separate `StoryPuzzle` route — both Stitch training frames map to `DailyDrill`)
    - Done: engine-backed prompts when top motif matches `expected_answer`; daily cap at 3 puzzles (`selectDailyPuzzles` + `useDailySession`); completion gate via `lastDrillCompletedDate`; home + hub `DailyMatrixCard`
    - Next: expand seed content; Stitch polish on hub/drill
-3. Voice match — `VoiceMatchScreen` (dev move input + fallback engine; STT + `DisambiguationOverlay` next)
+3. Voice match — `MatchSetupScreen` (Elo slider) → `VoiceMatchScreen` (native Stockfish on iOS dev build)
 4. Post-game — `ReplayTimeline`, `CognitiveHeatmap`
 5. Infrastructure — Supabase, Express API (`apps/api/` — LLM templating when needed)
 
@@ -202,7 +203,12 @@ Verify `AGENTS.md` rules/skills tables match files in `.cursor/rules/` and `.cur
 ## Commands
 
 ```bash
-cd apps/mobile && npx expo start --ios   # boot app in simulator
+```bash
+cd apps/mobile && npm run nnue              # once: download Stockfish NNUE weights (~88 MB)
+cd apps/mobile && npm run ios:build        # first time / after native dep changes (Xcode 16.1+)
+cd apps/mobile && npm start                # Metro + MindBoard dev client (not Expo Go)
+cd apps/mobile && npm run ios              # same, opens iOS simulator
+```
 cd apps/api && npm run dev
 cd packages/chess-core && npm test
 npx @_davideast/stitch-mcp doctor      # verify Stitch API

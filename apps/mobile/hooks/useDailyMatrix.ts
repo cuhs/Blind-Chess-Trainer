@@ -8,9 +8,7 @@ export function useDailyMatrix() {
   const peekGeneratedCount = peekEvents.length;
 
   const loopBadge =
-    peekGeneratedCount > 0
-      ? `Includes ${peekGeneratedCount} puzzle${peekGeneratedCount > 1 ? 's' : ''} generated from yesterday's match`
-      : null;
+    peekGeneratedCount > 0 ? 'Includes puzzles from your matches' : null;
 
   return { puzzleCount, loopBadge, isCompletedToday };
 }
