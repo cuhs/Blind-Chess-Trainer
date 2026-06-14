@@ -1,14 +1,8 @@
 import { useEffect } from 'react';
-import { useQuery } from '@tanstack/react-query';
 import { useGuestStore } from '@/stores/guestStore';
 import { supabase } from '@/lib/supabase';
+import { useProfileQuery } from './useProfileSync';
 import { useSupabaseUserId } from './useSupabaseUserId';
-
-interface ProfileRow {
-  current_streak: number;
-  global_elo_handicap: number;
-  last_active_date: string | null;
-}
 
 /** Read-only streak for UI — bump happens via `recordHabitActivity` on drill/match completion. */
 export function useHabitStreak() {
@@ -22,33 +16,14 @@ export function useHabitStreakSync() {
   const lastActiveDate = useGuestStore((s) => s.lastActiveDate);
   const setStreakDays = useGuestStore((s) => s.setStreakDays);
   const setLastActiveDate = useGuestStore((s) => s.setLastActiveDate);
-  const setMatchElo = useGuestStore((s) => s.setMatchElo);
   const { data: userId } = useSupabaseUserId();
-
-  const profileQuery = useQuery({
-    queryKey: ['profile', userId],
-    enabled: Boolean(supabase && userId),
-    queryFn: async () => {
-      if (!supabase || !userId) return null;
-
-      const { data, error } = await supabase
-        .from('profiles')
-        .select('current_streak, global_elo_handicap, last_active_date')
-        .eq('id', userId)
-        .maybeSingle();
-
-      if (error) throw error;
-      return data as ProfileRow | null;
-    },
-  });
+  const profileQuery = useProfileQuery();
 
   // Reconcile with the server profile (multi-device) without clobbering a
   // fresher local streak — the query result may predate today's local bump.
   useEffect(() => {
     if (!profileQuery.data) return;
     const profile = profileQuery.data;
-
-    setMatchElo(profile.global_elo_handicap);
 
     const serverDate = profile.last_active_date;
     if (!serverDate) return;
@@ -64,7 +39,6 @@ export function useHabitStreakSync() {
     lastActiveDate,
     streakDays,
     setLastActiveDate,
-    setMatchElo,
     setStreakDays,
   ]);
 

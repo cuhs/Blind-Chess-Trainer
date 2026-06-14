@@ -1,23 +1,9 @@
-import { Chess } from 'chess.js';
 import { writeFileSync } from 'node:fs';
 import { resolve, dirname } from 'node:path';
 import { fileURLToPath } from 'node:url';
-import { analyzePosition } from '../src/motifs/analyze-position';
-import { buildPuzzleFromMotif } from '../src/motifs/questions';
-import { motifToResult } from '../src/motifs/adapters';
-import { applyMoves } from '../src/validate';
+import { probeCandidate, type ProbeCandidate } from './lib/puzzle-authoring';
 
-interface Candidate {
-  slug: string;
-  fen: string;
-  moves?: string[];
-  alternatePrompt?: boolean;
-  customPrompt?: string;
-  customExpected?: string;
-  storyCheck?: { color: 'w' | 'b'; expected: 'yes' | 'no' };
-}
-
-const candidates: Candidate[] = [
+const candidates: ProbeCandidate[] = [
   // --- pins (static) ---
   { slug: 'drill-pin-rook-pawn', fen: '4k3/4r3/8/8/8/8/4P3/4K3 w - - 0 1' },
   { slug: 'drill-pin-relative-knight', fen: '3qk3/8/5n2/6B1/8/8/8/4K3 w - - 0 1' },
@@ -82,7 +68,6 @@ const candidates: Candidate[] = [
   { slug: 'drill-story-check-white-yes', fen: 'rnbqkbnr/pppp1ppp/8/4p3/6Pq/5P2/PPPPP2P/RNBQKBNR w KQkq - 0 1', moves: [], storyCheck: { color: 'w', expected: 'yes' } },
 ];
 
-// Skip slugs that duplicate existing seed rows (same FEN + motif family).
 const EXISTING_SLUGS = new Set([
   'drill-pin-knight',
   'drill-pin-bishop',
@@ -96,89 +81,16 @@ const EXISTING_SLUGS = new Set([
 const fixtures: object[] = [];
 const failures: string[] = [];
 
-for (const c of candidates) {
-  if (EXISTING_SLUGS.has(c.slug)) continue;
-  const moves = c.moves ?? [];
+for (const candidate of candidates) {
+  if (EXISTING_SLUGS.has(candidate.slug)) continue;
 
-  if (c.storyCheck) {
-    let displayFen: string;
-    try {
-      displayFen = moves.length > 0 ? applyMoves(c.fen, moves) : c.fen;
-    } catch (e) {
-      failures.push(`${c.slug}: illegal moves`);
-      continue;
-    }
-    const chess = new Chess(displayFen);
-    const inCheck = chess.turn() === c.storyCheck.color && chess.inCheck();
-    const actual = inCheck ? 'yes' : 'no';
-    if (actual !== c.storyCheck.expected) {
-      failures.push(`${c.slug}: check=${actual}, expected=${c.storyCheck.expected}`);
-      continue;
-    }
-    fixtures.push({
-      slug: c.slug,
-      fen: c.fen,
-      moves,
-      motifJson: { motif: 'story_check' },
-      nlpPrompt: c.storyCheck.color === 'b' ? 'Is the Black King in check?' : 'Is the White King in check?',
-      expectedAnswer: c.storyCheck.expected,
-      answerSquare: c.storyCheck.color === 'b' ? 'e8' : 'e1',
-      answerType: 'yes-no',
-      squaresTouched: [],
-      skipEngine: true,
-      checkColor: c.storyCheck.color,
-    });
+  const result = probeCandidate(candidate);
+  if (!result.ok) {
+    failures.push(`${candidate.slug}: ${result.reason}`);
     continue;
   }
 
-  let displayFen: string;
-  try {
-    displayFen = moves.length > 0 ? applyMoves(c.fen, moves) : c.fen;
-  } catch {
-    failures.push(`${c.slug}: illegal moves`);
-    continue;
-  }
-
-  const previousFen =
-    moves.length === 1 ? c.fen : moves.length > 1 ? applyMoves(c.fen, moves.slice(0, -1)) : undefined;
-
-  const motif = analyzePosition(displayFen, previousFen);
-  if (!motif) {
-    failures.push(`${c.slug}: no motif detected`);
-    continue;
-  }
-
-  const draft = buildPuzzleFromMotif(motif);
-  const result = motifToResult(motif);
-  const expected = c.customExpected ?? draft.expected;
-  const prompt = c.customPrompt ?? draft.prompt;
-
-  if (!c.alternatePrompt && draft.expected !== expected) {
-    failures.push(`${c.slug}: expected mismatch ${draft.expected} vs ${expected}`);
-    continue;
-  }
-
-  fixtures.push({
-    slug: c.slug,
-    fen: c.fen,
-    moves,
-    motifJson: {
-      motif: result.motif,
-      ...(result.attacker ? { attacker: result.attacker } : {}),
-      ...(result.target ? { target: result.target } : {}),
-      ...(result.pinned_to ? { pinned_to: result.pinned_to } : {}),
-      ...(result.square && result.motif !== 'fork' && result.motif !== 'hanging_piece'
-        ? { square: result.square }
-        : {}),
-    },
-    nlpPrompt: prompt,
-    expectedAnswer: expected,
-    answerSquare: expected,
-    answerType: 'square',
-    squaresTouched: draft.squaresTouched,
-    skipEngine: false,
-    ...(c.alternatePrompt ? { alternatePrompt: true } : {}),
-  });
+  fixtures.push(result.fixture);
 }
 
 console.log('FAILURES:', failures.length);

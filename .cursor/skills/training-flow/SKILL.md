@@ -33,13 +33,14 @@ Blueprint-only onboarding puzzles (`StoryCheck`, `RewardPuzzle`) infer visuals f
 puzzle_bank (Supabase) + match peekEvents (guestStore; one per position)
   → peekPuzzles (motif engine; positionKeyFromFen dedup) + usePuzzleBank
   → useDailySession (selectDailyPuzzles — up to 2 peek + bank fill, 3 per todayKey)
+  → useDrillSessionController (resume via drillProgress; completeDailyDrill on finish)
   → useResolvedPuzzle (resolveTrainingPuzzle)
   → DailyDrillScreen
 ```
 
 `resolveTrainingPuzzle` runs `analyzePosition` on `displayFen`. When the top motif's `expected` matches `puzzle_bank.expected_answer`, the engine prompt and `squaresTouched` win; otherwise the curated DB prompt is kept (e.g. bishop square vs pinned knight on the same FEN).
 
-Validate seeds: `cd packages/chess-core && npm run validate:puzzles`. Author new rows with `scripts/probe-puzzles.ts` → merge fixtures → `scripts/generate-seed.ts` → `supabase db query --linked -f supabase/seed.sql` (see `supabase/README.md`).
+Validate seeds: `cd packages/chess-core && npm run validate:puzzles`. Author new rows with `npm run probe:puzzles` → merge fixtures → `npm run generate:seed` → `supabase db query --linked -f supabase/seed.sql` (see `supabase/README.md`).
 
 ## Hooks
 
@@ -47,6 +48,7 @@ Validate seeds: `cd packages/chess-core && npm run validate:puzzles`. Author new
 |------|--------|------|
 | `usePuzzleBank` | Done | Loads all active `puzzle_bank` rows via React Query |
 | `useDailySession` | Done | Bank + peek-generated puzzles via `peekPuzzles`; 3 per `todayKey()`; `peekPuzzleCount` for loop badge |
+| `useDrillSessionController` | Done | Resume/recovery via `lib/drillBootstrap.ts`; `completeDailyDrill` on session end |
 | `useResolvedPuzzle` | Done | Memoized `resolveTrainingPuzzle` per puzzle |
 | `useMemorizePhase` | Done | 5s board memorize → answering → success |
 | `usePuzzleSessionPhase` | Done | Board memorize or `useStoryNarration` when `moves[]` present |
@@ -95,7 +97,7 @@ Blueprint: **3 puzzles per daily session** — `lib/dailySession.selectDailyPuzz
 - [x] Daily session cap at 3 puzzles + completion gate (`useDailySession`)
 - [x] Mid-session drill resume (`guestStore.drillProgress` + `lib/drillProgress.ts`)
 - [x] Home + hub `DailyMatrixCard` with completed-today state
-- [x] Expand puzzle_bank (54 curated rows in `supabase/seed.sql`; re-validate via `npm run validate:puzzles`, regenerate with `packages/chess-core/scripts/generate-seed.ts`)
+- [x] Expand puzzle_bank (54 curated rows in `supabase/seed.sql`; re-validate via `npm run validate:puzzles`, regenerate with `npm run generate:seed` in `packages/chess-core`)
 - [ ] Stitch visual polish (TODO(stitch) on hub + drill screens)
 ```
 

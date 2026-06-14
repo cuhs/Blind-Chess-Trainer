@@ -56,3 +56,23 @@ export function mapPuzzleBankRow(row: PuzzleBankRow): TrainingPuzzle | null {
     source: toSource(row.source),
   };
 }
+
+export function mapPuzzleBankRows(rows: PuzzleBankRow[]): TrainingPuzzle[] {
+  const puzzles: TrainingPuzzle[] = [];
+  const droppedSlugs: string[] = [];
+
+  for (const row of rows) {
+    const puzzle = mapPuzzleBankRow(row);
+    if (puzzle) {
+      puzzles.push(puzzle);
+    } else {
+      droppedSlugs.push(row.slug);
+    }
+  }
+
+  if (__DEV__ && droppedSlugs.length > 0) {
+    console.warn('[puzzle-bank] dropped rows:', droppedSlugs);
+  }
+
+  return puzzles;
+}

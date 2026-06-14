@@ -7,7 +7,9 @@
   "scripts": {
     "test": "vitest run",
     "test:coverage": "vitest run --coverage",
-    "validate:puzzles": "vitest run src/motifs/validate-puzzle-bank.test.ts"
+    "validate:puzzles": "vitest run src/motifs/validate-puzzle-bank.test.ts",
+    "probe:puzzles": "npx tsx scripts/probe-puzzles.ts",
+    "generate:seed": "npx tsx scripts/generate-seed.ts"
   },
   "dependencies": {
     "@mindboard/shared": "*",

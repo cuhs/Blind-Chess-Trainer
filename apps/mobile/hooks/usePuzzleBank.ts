@@ -1,7 +1,7 @@
 import { useQuery } from '@tanstack/react-query';
 import type { TrainingPuzzle } from '@/data/training-puzzles';
 import { isSupabaseConfigured, supabase } from '@/lib/supabase';
-import { mapPuzzleBankRow, type PuzzleBankRow } from '@/lib/puzzleBank';
+import { mapPuzzleBankRows, type PuzzleBankRow } from '@/lib/puzzleBank';
 import { useSupabaseUserId } from './useSupabaseUserId';
 
 const EMPTY_PUZZLES: TrainingPuzzle[] = [];
@@ -44,9 +44,7 @@ export function usePuzzleBank() {
       if (error) throw error;
 
       const rows = (Array.isArray(data) ? data : []) as unknown as PuzzleBankRow[];
-      return rows
-        .map((row) => mapPuzzleBankRow(row))
-        .filter((puzzle): puzzle is TrainingPuzzle => puzzle !== null);
+      return mapPuzzleBankRows(rows);
     },
   });
 

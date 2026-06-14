@@ -1,5 +1,5 @@
 // TODO(stitch): Active Recall Training Phase + Interactive Active Recall Training frames
-import { useState, useEffect, useCallback, useRef, type ReactNode } from 'react';
+import { useEffect, type ReactNode } from 'react';
 import { View, Text, StyleSheet } from 'react-native';
 import { useRouter } from 'expo-router';
 import { SafeAreaView } from 'react-native-safe-area-context';
@@ -13,15 +13,9 @@ import { useTrainingAnswer } from '@/hooks/useTrainingAnswer';
 import { usePuzzleSessionPhase } from '@/hooks/usePuzzleSessionPhase';
 import { useAnswerFlash } from '@/hooks/useAnswerFlash';
 import { useDailySession } from '@/hooks/useDailySession';
+import { useDrillSessionController } from '@/hooks/useDrillSessionController';
 import { useResolvedPuzzle } from '@/hooks/useResolvedPuzzle';
 import type { TrainingPuzzle } from '@/data/training-puzzles';
-import { useGuestStore } from '@/stores/guestStore';
-import { todayKey } from '@/lib/dateKey';
-import {
-  completedIdsForToday,
-  isAllDrillPuzzlesComplete,
-  resumePuzzleIndex,
-} from '@/lib/drillProgress';
 
 interface DrillStateProps {
   title?: string;
@@ -152,9 +146,6 @@ function ActiveDrillSession({
 
 export function DailyDrillScreen() {
   const router = useRouter();
-  const [puzzleIndex, setPuzzleIndex] = useState(0);
-  const sessionBootstrapped = useRef(false);
-  const wasCompletedToday = useRef(false);
   const {
     puzzles,
     puzzleCount,
@@ -164,78 +155,15 @@ export function DailyDrillScreen() {
     isNotConfigured,
     error,
   } = useDailySession();
+  const { puzzleIndex, handlePuzzleSuccess, isBootstrapping } =
+    useDrillSessionController({
+      puzzles,
+      puzzleCount,
+      isLoading,
+      isCompletedToday,
+    });
   const puzzle = puzzles[puzzleIndex];
   const resolvedPuzzle = useResolvedPuzzle(puzzle);
-  const drillProgress = useGuestStore((s) => s.drillProgress);
-  const lastDrillCompletedDate = useGuestStore((s) => s.lastDrillCompletedDate);
-  const setLastDrillCompletedDate = useGuestStore(
-    (s) => s.setLastDrillCompletedDate,
-  );
-  const recordDrillPuzzleComplete = useGuestStore(
-    (s) => s.recordDrillPuzzleComplete,
-  );
-  const clearDrillProgress = useGuestStore((s) => s.clearDrillProgress);
-
-  const isLastPuzzle = puzzleIndex >= puzzleCount - 1;
-
-  const completeDrill = useCallback(() => {
-    setLastDrillCompletedDate(todayKey());
-    clearDrillProgress();
-    router.replace('/(main)/' as never);
-  }, [router, setLastDrillCompletedDate, clearDrillProgress]);
-
-  const handlePuzzleSuccess = useCallback(
-    (puzzleId: string) => {
-      recordDrillPuzzleComplete(puzzleId);
-      if (isLastPuzzle) {
-        completeDrill();
-      } else {
-        setPuzzleIndex((index) => index + 1);
-      }
-    },
-    [isLastPuzzle, recordDrillPuzzleComplete, completeDrill],
-  );
-
-  useEffect(() => {
-    if (wasCompletedToday.current && !isCompletedToday) {
-      sessionBootstrapped.current = false;
-    }
-    wasCompletedToday.current = isCompletedToday;
-  }, [isCompletedToday]);
-
-  useEffect(() => {
-    if (sessionBootstrapped.current || isLoading || puzzles.length === 0) return;
-
-    const today = todayKey();
-    if (lastDrillCompletedDate === today) {
-      sessionBootstrapped.current = true;
-      return;
-    }
-
-    sessionBootstrapped.current = true;
-    const completedIds = completedIdsForToday(drillProgress, today);
-
-    if (
-      isAllDrillPuzzlesComplete(puzzles, completedIds) &&
-      lastDrillCompletedDate !== today
-    ) {
-      completeDrill();
-      return;
-    }
-
-    setPuzzleIndex(resumePuzzleIndex(puzzles, completedIds));
-  }, [
-    isLoading,
-    puzzles,
-    drillProgress,
-    lastDrillCompletedDate,
-    completeDrill,
-  ]);
-
-  useEffect(() => {
-    if (puzzleCount === 0 || puzzleIndex < puzzleCount) return;
-    setPuzzleIndex(0);
-  }, [puzzleCount, puzzleIndex]);
 
   if (isNotConfigured) {
     return (
@@ -257,7 +185,7 @@ export function DailyDrillScreen() {
     );
   }
 
-  if (isLoading) {
+  if (isLoading || isBootstrapping) {
     return <DrillState message="Loading today's puzzles..." />;
   }
 

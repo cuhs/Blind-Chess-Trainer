@@ -28,9 +28,9 @@ Curated drills live in `packages/chess-core/src/motifs/fixtures/puzzle-bank-fixt
 
 ```bash
 cd packages/chess-core
-npx tsx scripts/probe-puzzles.ts          # validate candidate FENs → probe-output.json (gitignored)
+npm run probe:puzzles          # validate candidate FENs → probe-output.json (gitignored)
 # merge new rows into puzzle-bank-fixtures.json
-npx tsx scripts/generate-seed.ts           # regenerate seed.sql
+npm run generate:seed          # regenerate seed.sql
 npm run validate:puzzles
 supabase db query --linked -f supabase/seed.sql   # upsert cloud puzzle_bank
 ```

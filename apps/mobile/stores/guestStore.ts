@@ -9,6 +9,10 @@ import type {
   Square,
 } from '@mindboard/shared';
 import type { DrillProgress } from '@/lib/drillProgress';
+import {
+  applyDailyDrillCompletion,
+  applyDrillCompletedDate,
+} from '@/lib/drillCompletion';
 import { todayKey } from '@/lib/dateKey';
 import { nextStreakDays } from '@/lib/streak';
 
@@ -61,6 +65,7 @@ interface GuestState {
   setLastActiveDate: (date: string) => void;
   recordHabitActivity: (date?: string) => void;
   setLastDrillCompletedDate: (date: string) => void;
+  completeDailyDrill: (date?: string) => void;
   recordDrillPuzzleComplete: (puzzleId: string) => void;
   clearDrillProgress: () => void;
   setMatchElo: (elo: number) => void;
@@ -190,10 +195,17 @@ export const useGuestStore = create<GuestState>()(
           return next;
         }),
 
-      setLastDrillCompletedDate: (date) => {
-        get().recordHabitActivity(date);
-        set({ lastDrillCompletedDate: date });
-      },
+      setLastDrillCompletedDate: (date) =>
+        set((state) => ({
+          ...state,
+          ...applyDrillCompletedDate(state, date),
+        })),
+
+      completeDailyDrill: (date = todayKey()) =>
+        set((state) => ({
+          ...state,
+          ...applyDailyDrillCompletion(state, date),
+        })),
 
       recordDrillPuzzleComplete: (puzzleId) =>
         set((state) => {
