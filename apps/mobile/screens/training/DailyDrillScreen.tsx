@@ -82,7 +82,6 @@ export function DailyDrillScreen() {
   const setLastDrillCompletedDate = useGuestStore(
     (s) => s.setLastDrillCompletedDate,
   );
-  const setLastActiveDate = useGuestStore((s) => s.setLastActiveDate);
   const recordDrillPuzzleComplete = useGuestStore(
     (s) => s.recordDrillPuzzleComplete,
   );
@@ -95,17 +94,10 @@ export function DailyDrillScreen() {
   const progressLabel = `Position ${puzzleIndex + 1} of ${puzzleCount}`;
 
   const completeDrill = useCallback(() => {
-    const today = todayKey();
-    setLastDrillCompletedDate(today);
-    setLastActiveDate(today);
+    setLastDrillCompletedDate(todayKey());
     clearDrillProgress();
     router.replace('/(main)/' as never);
-  }, [
-    router,
-    setLastActiveDate,
-    setLastDrillCompletedDate,
-    clearDrillProgress,
-  ]);
+  }, [router, setLastDrillCompletedDate, clearDrillProgress]);
 
   useEffect(() => {
     sessionBootstrapped.current = false;

@@ -13,7 +13,12 @@ export function todayKey(): string {
 }
 
 export function yesterdayKey(): string {
-  const d = new Date();
+  return previousDayKey(todayKey());
+}
+
+export function previousDayKey(key: string): string {
+  const [year, month, day] = key.split('-').map(Number);
+  const d = new Date(year, month - 1, day);
   d.setDate(d.getDate() - 1);
   return dateKey(d);
 }

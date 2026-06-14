@@ -2,7 +2,6 @@ import { useEffect } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { useGuestStore } from '@/stores/guestStore';
 import { supabase } from '@/lib/supabase';
-import { todayKey, yesterdayKey } from '@/lib/dateKey';
 import { useSupabaseUserId } from './useSupabaseUserId';
 
 interface ProfileRow {
@@ -11,10 +10,16 @@ interface ProfileRow {
   last_active_date: string | null;
 }
 
+/** Read-only streak for UI — bump happens via `recordHabitActivity` on drill/match completion. */
 export function useHabitStreak() {
   const streakDays = useGuestStore((s) => s.streakDays);
+  return { streakDays };
+}
+
+/** Reconcile local streak with `profiles` and push when local is ahead. Mount once under `(main)`. */
+export function useHabitStreakSync() {
+  const streakDays = useGuestStore((s) => s.streakDays);
   const lastActiveDate = useGuestStore((s) => s.lastActiveDate);
-  const onboardingComplete = useGuestStore((s) => s.onboardingComplete);
   const setStreakDays = useGuestStore((s) => s.setStreakDays);
   const setLastActiveDate = useGuestStore((s) => s.setLastActiveDate);
   const setMatchElo = useGuestStore((s) => s.setMatchElo);
@@ -63,24 +68,7 @@ export function useHabitStreak() {
     setStreakDays,
   ]);
 
-  // Daily bump: first activity of a local calendar day extends or restarts the streak.
-  useEffect(() => {
-    if (!onboardingComplete) return;
-
-    const today = todayKey();
-    if (lastActiveDate === today) {
-      // Invariant: active today means a streak of at least 1.
-      if (streakDays === 0) setStreakDays(1);
-      return;
-    }
-
-    const nextStreak = lastActiveDate === yesterdayKey() ? streakDays + 1 : 1;
-    setStreakDays(nextStreak);
-    setLastActiveDate(today);
-  }, [onboardingComplete, lastActiveDate, streakDays, setStreakDays, setLastActiveDate]);
-
   // Push local progress to the server once the profile is known and local is ahead.
-  // Runs whenever streak/date change, so it also covers a userId that arrives late.
   useEffect(() => {
     if (!supabase || !userId || !lastActiveDate || !profileQuery.isSuccess) return;
 
@@ -108,6 +96,4 @@ export function useHabitStreak() {
         }
       });
   }, [userId, lastActiveDate, streakDays, profileQuery.isSuccess, profileQuery.data]);
-
-  return { streakDays };
 }

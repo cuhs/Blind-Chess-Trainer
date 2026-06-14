@@ -10,6 +10,7 @@ import type {
 } from '@mindboard/shared';
 import type { DrillProgress } from '@/lib/drillProgress';
 import { todayKey } from '@/lib/dateKey';
+import { nextStreakDays } from '@/lib/streak';
 
 export type HeatmapInteractionType = 'puzzle' | 'match_peek';
 
@@ -58,6 +59,7 @@ interface GuestState {
   addPeekEvent: (event: PeekEvent) => void;
   setStreakDays: (days: number) => void;
   setLastActiveDate: (date: string) => void;
+  recordHabitActivity: (date?: string) => void;
   setLastDrillCompletedDate: (date: string) => void;
   recordDrillPuzzleComplete: (puzzleId: string) => void;
   clearDrillProgress: () => void;
@@ -172,8 +174,26 @@ export const useGuestStore = create<GuestState>()(
 
       setLastActiveDate: (date) => set({ lastActiveDate: date }),
 
-      setLastDrillCompletedDate: (date) =>
-        set({ lastDrillCompletedDate: date }),
+      recordHabitActivity: (date = todayKey()) =>
+        set((state) => {
+          const next = nextStreakDays(
+            state.lastActiveDate,
+            state.streakDays,
+            date,
+          );
+          if (
+            next.lastActiveDate === state.lastActiveDate &&
+            next.streakDays === state.streakDays
+          ) {
+            return state;
+          }
+          return next;
+        }),
+
+      setLastDrillCompletedDate: (date) => {
+        get().recordHabitActivity(date);
+        set({ lastDrillCompletedDate: date });
+      },
 
       recordDrillPuzzleComplete: (puzzleId) =>
         set((state) => {

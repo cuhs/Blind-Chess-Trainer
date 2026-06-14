@@ -1,5 +1,5 @@
 // TODO(stitch): Animated Match Engine frame 2cbaa7be4acd4190a3f95dae66d1b0bc
-import { useState } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { View, Text, StyleSheet, ScrollView } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useRouter } from 'expo-router';
@@ -61,6 +61,14 @@ export function VoiceMatchScreen() {
   } = useMatchSession(matchElo, matchPlayerColor);
   const { peekVisible, onPeek } = useMatchPeek(fen);
   const [fullyCovered, setFullyCovered] = useState(false);
+  const habitRecorded = useRef(false);
+  const recordHabitActivity = useGuestStore((s) => s.recordHabitActivity);
+
+  useEffect(() => {
+    if (!isGameOver || habitRecorded.current) return;
+    habitRecorded.current = true;
+    recordHabitActivity();
+  }, [isGameOver, recordHabitActivity]);
 
   const colorLabel = playerColor === 'w' ? 'White' : 'Black';
 

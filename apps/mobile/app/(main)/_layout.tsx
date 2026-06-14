@@ -3,6 +3,7 @@ import { Pressable, StyleSheet, Text } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import type { BottomTabBarButtonProps } from '@react-navigation/bottom-tabs';
 import { colors, radius, spacing, typography, touch } from '@/theme';
+import { useHabitStreakSync } from '@/hooks/useHabitStreak';
 import {
   HomeTabIcon,
   MatchTabIcon,
@@ -44,6 +45,7 @@ function tabIconColor(focused: boolean) {
 export default function MainLayout() {
   const insets = useSafeAreaInsets();
   const bottomInset = Math.max(insets.bottom, spacing.md);
+  useHabitStreakSync();
 
   return (
     <Tabs
