@@ -1,6 +1,48 @@
 import type { TrainingPuzzle } from '@/data/training-puzzles';
 
 export const DAILY_SESSION_SIZE = 3;
+
+/** Coarse prompt family — used to spread motif types across a daily session. */
+export function puzzlePromptCategory(prompt: string): string {
+  const p = prompt.toLowerCase();
+  if (p.includes('undefended') || p.includes('attacking ')) return 'hanging';
+  if (p.includes('pinned') || p.includes('pinning')) return 'pin';
+  if (p.includes('fork')) return 'fork';
+  if (p.startsWith('is the')) return 'yes-no';
+  if (p.includes('attack from')) return 'discovered';
+  if (p.includes('skewer') || p.includes('skewered')) return 'skewer';
+  if (p.includes('in check')) return 'check';
+  return 'other';
+}
+
+function pickWithCategorySpread(
+  pool: TrainingPuzzle[],
+  count: number,
+  seed: number,
+  usedCategories: Set<string>,
+): TrainingPuzzle[] {
+  if (count <= 0 || pool.length === 0) return [];
+
+  const shuffled = shuffleDeterministic(pool, seed);
+  const picked: TrainingPuzzle[] = [];
+  const categories = new Set(usedCategories);
+
+  for (const puzzle of shuffled) {
+    if (picked.length >= count) break;
+    const category = puzzlePromptCategory(puzzle.prompt);
+    if (categories.has(category)) continue;
+    picked.push(puzzle);
+    categories.add(category);
+  }
+
+  for (const puzzle of shuffled) {
+    if (picked.length >= count) break;
+    if (picked.some((candidate) => candidate.id === puzzle.id)) continue;
+    picked.push(puzzle);
+  }
+
+  return picked;
+}
 export const MAX_PEEK_PUZZLES_PER_SESSION = 2;
 
 /** Deterministic hash for rotating daily puzzle selection by calendar day. */
@@ -50,10 +92,15 @@ export function selectDailyPuzzles(
   ).slice(0, MAX_PEEK_PUZZLES_PER_SESSION);
 
   const bankSlots = DAILY_SESSION_SIZE - selectedPeek.length;
-  const selectedBank = shuffleDeterministic(
+  const peekCategories = new Set(
+    selectedPeek.map((puzzle) => puzzlePromptCategory(puzzle.prompt)),
+  );
+  const selectedBank = pickWithCategorySpread(
     daily,
+    bankSlots,
     hashDateKey(`${dateKey}:bank`),
-  ).slice(0, bankSlots);
+    peekCategories,
+  );
 
   const session = [...selectedPeek, ...selectedBank];
   return shuffleDeterministic(session, hashDateKey(`${dateKey}:order`)).slice(

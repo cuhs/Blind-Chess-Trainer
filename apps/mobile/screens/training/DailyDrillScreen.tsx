@@ -15,6 +15,7 @@ import { useAnswerFlash } from '@/hooks/useAnswerFlash';
 import { useDailySession } from '@/hooks/useDailySession';
 import { useDrillSessionController } from '@/hooks/useDrillSessionController';
 import { useResolvedPuzzle } from '@/hooks/useResolvedPuzzle';
+import { getTrainingDisplayFen } from '@/data/puzzleFen';
 import type { TrainingPuzzle } from '@/data/training-puzzles';
 
 interface DrillStateProps {
@@ -104,6 +105,12 @@ function ActiveDrillSession({
 
   const resolvedPrompt =
     phase === 'success' ? 'Correct!' : resolvedPuzzle.prompt;
+  const memorizeFen = resolvedPuzzle.fen;
+  const peekFen =
+    puzzle.moves.length > 0
+      ? getTrainingDisplayFen(puzzle)
+      : resolvedPuzzle.fen;
+  const boardFen = isMemorizing ? memorizeFen : peekFen;
 
   let controls: ReactNode = null;
   if (canAnswer) {
@@ -130,9 +137,8 @@ function ActiveDrillSession({
       memorizeSubtitle={puzzle.subtitle}
       board={{
         boardKey: resolvedPuzzle.id,
-        // Base position, not displayFen — for story puzzles the user must
-        // apply the narrated moves mentally, even on peek.
-        fen: resolvedPuzzle.fen,
+        // Memorize shows the base FEN; peek shows the position after moves[].
+        fen: boardFen,
         peekVisible,
         showBoard: isMemorizing || peekVisible,
       }}

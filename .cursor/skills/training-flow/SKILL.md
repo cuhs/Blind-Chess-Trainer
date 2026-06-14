@@ -66,7 +66,7 @@ Validate seeds: `cd packages/chess-core && npm run validate:puzzles`. Author new
 | `moves[]` + standard-start FEN | narrate (blank screen) → answer |
 | `moves[]` + custom FEN | memorize board 5s → narrate (blank) → answer |
 
-Then: **Answer** (`SquareKeypad` / `YesNoZone`) → **Peek** (2s flash of the **base** FEN, never post-move) → advance or complete → home tab.
+Then: **Answer** (`SquareKeypad` / `YesNoZone`) → **Peek** (2s flash — base FEN for static puzzles; post-move `displayFen` when `moves[]` were narrated) → advance or complete → home tab.
 
 ## Authoring audio (story) puzzles
 

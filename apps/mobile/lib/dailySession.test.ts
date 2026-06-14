@@ -4,16 +4,21 @@ import {
   DAILY_SESSION_SIZE,
   MAX_PEEK_PUZZLES_PER_SESSION,
   hashDateKey,
+  puzzlePromptCategory,
   selectDailyPuzzles,
   shuffleDeterministic,
 } from './dailySession';
 
-function puzzle(id: string, source?: 'daily' | 'peek'): TrainingPuzzle {
+function puzzle(
+  id: string,
+  source?: 'daily' | 'peek',
+  prompt = 'test',
+): TrainingPuzzle {
   return {
     id,
     fen: 'start',
     moves: [],
-    prompt: 'test',
+    prompt,
     answerType: 'square',
     expected: 'e4',
     squaresTouched: ['e4'],
@@ -112,5 +117,21 @@ describe('selectDailyPuzzles', () => {
     expect(selectDailyPuzzles(bank, '2026-06-12')).toHaveLength(
       MAX_PEEK_PUZZLES_PER_SESSION,
     );
+  });
+
+  it('spreads prompt categories when the bank has alternatives', () => {
+    const bank = [
+      puzzle('hang-1', undefined, 'What square is the undefended knight on?'),
+      puzzle('hang-2', undefined, 'What square is the undefended rook on?'),
+      puzzle('hang-3', undefined, 'What square is the undefended queen on?'),
+      puzzle('pin-1', undefined, 'What square is the pinned knight on?'),
+      puzzle('fork-1', undefined, 'What square is the knight fork on?'),
+      puzzle('check-1', undefined, 'Is the Black King in check?'),
+    ];
+    const session = selectDailyPuzzles(bank, '2026-06-14');
+    const categories = new Set(
+      session.map((item) => puzzlePromptCategory(item.prompt)),
+    );
+    expect(categories.size).toBeGreaterThan(1);
   });
 });
