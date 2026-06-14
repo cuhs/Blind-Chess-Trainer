@@ -23,32 +23,50 @@ export interface SpeakNarrationCallbacks {
   onError?: (error: unknown) => void;
 }
 
-export async function speakNarration(
+/** Starts TTS; returns cancel() so callers can abort before speak begins. */
+export function speakNarration(
   text: string,
   { onDone, onError }: SpeakNarrationCallbacks,
-): Promise<void> {
-  if (!text.trim()) {
+): () => void {
+  let cancelled = false;
+
+  const finish = () => {
+    if (cancelled) return;
     onDone();
-    return;
-  }
+  };
 
-  await ensureSpeechAudioMode();
-  await Speech.stop();
+  void (async () => {
+    if (!text.trim()) {
+      finish();
+      return;
+    }
 
-  Speech.speak(text, {
-    language: 'en-US',
-    rate: 0.92,
-    pitch: 1.0,
-    onDone,
-    onStopped: onDone,
-    onError: (error) => {
-      if (__DEV__) {
-        console.warn('[speech] narration failed', error);
-      }
-      onError?.(error);
-      onDone();
-    },
-  });
+    await ensureSpeechAudioMode();
+    if (cancelled) return;
+
+    await Speech.stop();
+    if (cancelled) return;
+
+    Speech.speak(text, {
+      language: 'en-US',
+      rate: 0.92,
+      pitch: 1.0,
+      onDone: finish,
+      onStopped: finish,
+      onError: (error) => {
+        if (__DEV__) {
+          console.warn('[speech] narration failed', error);
+        }
+        onError?.(error);
+        finish();
+      },
+    });
+  })();
+
+  return () => {
+    cancelled = true;
+    void Speech.stop();
+  };
 }
 
 export async function stopNarration(): Promise<void> {

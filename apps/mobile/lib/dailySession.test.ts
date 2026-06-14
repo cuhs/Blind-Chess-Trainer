@@ -2,8 +2,10 @@ import { describe, expect, it } from 'vitest';
 import type { TrainingPuzzle } from '@/data/training-puzzles';
 import {
   DAILY_SESSION_SIZE,
+  MAX_PEEK_PUZZLES_PER_SESSION,
   hashDateKey,
   selectDailyPuzzles,
+  shuffleDeterministic,
 } from './dailySession';
 
 function puzzle(id: string, source?: 'daily' | 'peek'): TrainingPuzzle {
@@ -26,6 +28,15 @@ describe('hashDateKey', () => {
 
   it('differs across dates', () => {
     expect(hashDateKey('2026-06-12')).not.toBe(hashDateKey('2026-06-13'));
+  });
+});
+
+describe('shuffleDeterministic', () => {
+  it('is stable for the same seed', () => {
+    const input = [1, 2, 3, 4, 5];
+    expect(shuffleDeterministic(input, 42)).toEqual(
+      shuffleDeterministic(input, 42),
+    );
   });
 });
 
@@ -60,21 +71,38 @@ describe('selectDailyPuzzles', () => {
     expect(day1).not.toEqual(day2);
   });
 
-  it('prioritizes peek-sourced puzzles', () => {
+  it('uses up to two peek puzzles and fills the rest from the bank', () => {
     const bank = [
       puzzle('daily-1'),
       puzzle('daily-2'),
-      puzzle('peek-1', 'peek'),
       puzzle('daily-3'),
+      puzzle('peek-1', 'peek'),
       puzzle('peek-2', 'peek'),
+      puzzle('peek-3', 'peek'),
     ];
     const session = selectDailyPuzzles(bank, '2026-06-12');
-    expect(session[0].id).toBe('peek-1');
-    expect(session[1].id).toBe('peek-2');
+
     expect(session).toHaveLength(DAILY_SESSION_SIZE);
+    expect(session.filter((p) => p.source === 'peek')).toHaveLength(
+      MAX_PEEK_PUZZLES_PER_SESSION,
+    );
+    expect(session.filter((p) => p.source !== 'peek')).toHaveLength(1);
   });
 
-  it('limits peek puzzles to session size', () => {
+  it('uses one peek and two bank puzzles when only one peek is available', () => {
+    const bank = [
+      puzzle('daily-1'),
+      puzzle('daily-2'),
+      puzzle('daily-3'),
+      puzzle('peek-1', 'peek'),
+    ];
+    const session = selectDailyPuzzles(bank, '2026-06-12');
+
+    expect(session.filter((p) => p.source === 'peek')).toHaveLength(1);
+    expect(session.filter((p) => p.source !== 'peek')).toHaveLength(2);
+  });
+
+  it('limits peek puzzles to MAX_PEEK_PUZZLES_PER_SESSION when bank is empty', () => {
     const bank = [
       puzzle('peek-1', 'peek'),
       puzzle('peek-2', 'peek'),
@@ -82,7 +110,7 @@ describe('selectDailyPuzzles', () => {
       puzzle('peek-4', 'peek'),
     ];
     expect(selectDailyPuzzles(bank, '2026-06-12')).toHaveLength(
-      DAILY_SESSION_SIZE,
+      MAX_PEEK_PUZZLES_PER_SESSION,
     );
   });
 });

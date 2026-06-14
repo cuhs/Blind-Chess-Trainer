@@ -1,6 +1,7 @@
 import type { TrainingPuzzle } from '@/data/training-puzzles';
 
 export const DAILY_SESSION_SIZE = 3;
+export const MAX_PEEK_PUZZLES_PER_SESSION = 2;
 
 /** Deterministic hash for rotating daily puzzle selection by calendar day. */
 export function hashDateKey(dateKey: string): number {
@@ -11,9 +12,28 @@ export function hashDateKey(dateKey: string): number {
   return hash;
 }
 
+function createSeededRandom(seed: number): () => number {
+  let state = seed >>> 0;
+  return () => {
+    state = (state * 1664525 + 1013904223) >>> 0;
+    return state / 0x1_0000_0000;
+  };
+}
+
+/** Fisher–Yates shuffle with a fixed seed — stable order for a given date key. */
+export function shuffleDeterministic<T>(items: T[], seed: number): T[] {
+  const arr = [...items];
+  const random = createSeededRandom(seed);
+  for (let i = arr.length - 1; i > 0; i--) {
+    const j = Math.floor(random() * (i + 1));
+    [arr[i], arr[j]] = [arr[j], arr[i]];
+  }
+  return arr;
+}
+
 /**
- * Pick up to 3 puzzles for a calendar day: peek-sourced first, then a
- * deterministic rotation through daily puzzles.
+ * Pick up to 3 puzzles for a calendar day: up to 2 peek-sourced (from matches),
+ * remaining slots from puzzle bank, then shuffle slot order for the day.
  */
 export function selectDailyPuzzles(
   all: TrainingPuzzle[],
@@ -22,22 +42,22 @@ export function selectDailyPuzzles(
   if (all.length === 0) return [];
 
   const peek = all.filter((p) => p.source === 'peek');
-  const daily = all
-    .filter((p) => p.source !== 'peek')
-    .sort((a, b) => a.id.localeCompare(b.id));
+  const daily = all.filter((p) => p.source !== 'peek');
 
-  const session: TrainingPuzzle[] = peek.slice(0, DAILY_SESSION_SIZE);
+  const selectedPeek = shuffleDeterministic(
+    peek,
+    hashDateKey(`${dateKey}:peek`),
+  ).slice(0, MAX_PEEK_PUZZLES_PER_SESSION);
 
-  if (daily.length === 0) {
-    return session.slice(0, DAILY_SESSION_SIZE);
-  }
+  const bankSlots = DAILY_SESSION_SIZE - selectedPeek.length;
+  const selectedBank = shuffleDeterministic(
+    daily,
+    hashDateKey(`${dateKey}:bank`),
+  ).slice(0, bankSlots);
 
-  const start = hashDateKey(dateKey) % daily.length;
-  let i = 0;
-  while (session.length < DAILY_SESSION_SIZE && i < daily.length) {
-    session.push(daily[(start + i) % daily.length]);
-    i++;
-  }
-
-  return session.slice(0, DAILY_SESSION_SIZE);
+  const session = [...selectedPeek, ...selectedBank];
+  return shuffleDeterministic(session, hashDateKey(`${dateKey}:order`)).slice(
+    0,
+    DAILY_SESSION_SIZE,
+  );
 }

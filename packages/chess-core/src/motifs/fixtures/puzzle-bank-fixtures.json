@@ -31,7 +31,14 @@
   {
     "slug": "drill-story-check",
     "fen": "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1",
-    "moves": ["e4", "e5", "Nf3", "Nc6", "Bc4", "Nf6"],
+    "moves": [
+      "e4",
+      "e5",
+      "Nf3",
+      "Nc6",
+      "Bc4",
+      "Nf6"
+    ],
     "motifJson": {
       "motif": "story_check"
     },
@@ -61,13 +68,16 @@
       "attacker": "Rd6",
       "target": "Kd3"
     },
+    "nlpPrompt": "What square is the White King on?",
     "expectedAnswer": "d3",
     "skipEngine": false
   },
   {
     "slug": "drill-discovered-bishop",
     "fen": "4k3/6q1/8/8/3P4/8/1B6/4K3 w - - 0 1",
-    "moves": ["d5"],
+    "moves": [
+      "d5"
+    ],
     "motifJson": {
       "motif": "discovered_attack",
       "attacker": "Bb2",
@@ -88,5 +98,649 @@
     "nlpPrompt": "The White King is in check — what square is it on?",
     "expectedAnswer": "e1",
     "skipEngine": false
+  },
+  {
+    "slug": "drill-pin-rook-pawn",
+    "fen": "4k3/4r3/8/8/8/8/4P3/4K3 w - - 0 1",
+    "moves": [],
+    "motifJson": {
+      "motif": "pin",
+      "attacker": "Re7",
+      "target": "e2",
+      "pinned_to": "Ke1"
+    },
+    "nlpPrompt": "What square is the pinned pawn on?",
+    "expectedAnswer": "e2",
+    "skipEngine": false
+  },
+  {
+    "slug": "drill-pin-relative-knight",
+    "fen": "3qk3/8/5n2/6B1/8/8/8/4K3 w - - 0 1",
+    "moves": [],
+    "motifJson": {
+      "motif": "pin",
+      "attacker": "Bg5",
+      "target": "Nf6",
+      "pinned_to": "Qd8"
+    },
+    "nlpPrompt": "What square is the pinned knight on?",
+    "expectedAnswer": "f6",
+    "skipEngine": false
+  },
+  {
+    "slug": "drill-pin-bishop-diagonal",
+    "fen": "4k3/8/2n5/1B6/8/8/8/4K3 w - - 0 1",
+    "moves": [],
+    "motifJson": {
+      "motif": "pin",
+      "attacker": "Bb5",
+      "target": "Nc6",
+      "pinned_to": "Ke8"
+    },
+    "nlpPrompt": "What square is the pinned knight on?",
+    "expectedAnswer": "c6",
+    "skipEngine": false
+  },
+  {
+    "slug": "drill-pin-rook-attacker",
+    "fen": "4k3/4r3/8/8/8/8/4P3/4K3 w - - 0 1",
+    "moves": [],
+    "motifJson": {
+      "motif": "pin",
+      "attacker": "Re7",
+      "target": "e2",
+      "pinned_to": "Ke1"
+    },
+    "nlpPrompt": "What square is the pinning rook on?",
+    "expectedAnswer": "e7",
+    "skipEngine": false,
+    "alternatePrompt": true
+  },
+  {
+    "slug": "drill-pin-queen-behind",
+    "fen": "3qk3/8/5n2/6B1/8/8/8/4K3 w - - 0 1",
+    "moves": [],
+    "motifJson": {
+      "motif": "pin",
+      "attacker": "Bg5",
+      "target": "Nf6",
+      "pinned_to": "Qd8"
+    },
+    "nlpPrompt": "What square is the Black Queen on?",
+    "expectedAnswer": "d8",
+    "skipEngine": false,
+    "alternatePrompt": true
+  },
+  {
+    "slug": "drill-pin-bishop-attacker",
+    "fen": "4k3/8/2n5/1B6/8/8/8/4K3 w - - 0 1",
+    "moves": [],
+    "motifJson": {
+      "motif": "pin",
+      "attacker": "Bb5",
+      "target": "Nc6",
+      "pinned_to": "Ke8"
+    },
+    "nlpPrompt": "What square is the pinning bishop on?",
+    "expectedAnswer": "b5",
+    "skipEngine": false,
+    "alternatePrompt": true
+  },
+  {
+    "slug": "drill-pin-king-behind",
+    "fen": "4k3/4r3/8/8/8/8/4P3/4K3 w - - 0 1",
+    "moves": [],
+    "motifJson": {
+      "motif": "pin",
+      "attacker": "Re7",
+      "target": "e2",
+      "pinned_to": "Ke1"
+    },
+    "nlpPrompt": "What square is the White King pinned to?",
+    "expectedAnswer": "e1",
+    "skipEngine": false,
+    "alternatePrompt": true
+  },
+  {
+    "slug": "drill-pin-bishop-f6",
+    "fen": "4k3/8/5n2/4B3/8/8/8/4K3 w - - 0 1",
+    "moves": [],
+    "motifJson": {
+      "motif": "hanging_piece",
+      "attacker": "Be5",
+      "target": "Nf6"
+    },
+    "nlpPrompt": "What square is the undefended knight on?",
+    "expectedAnswer": "f6",
+    "skipEngine": false
+  },
+  {
+    "slug": "drill-fork-royal-knight",
+    "fen": "8/8/8/8/3N4/8/2q1k3/1K6 w - - 0 1",
+    "moves": [],
+    "motifJson": {
+      "motif": "fork",
+      "attacker": "Nd4",
+      "target": "Qc2"
+    },
+    "nlpPrompt": "What square is the knight fork on?",
+    "expectedAnswer": "d4",
+    "skipEngine": false
+  },
+  {
+    "slug": "drill-fork-pawn-e4",
+    "fen": "8/8/8/3n1b2/4P3/8/8/4K2k w - - 0 1",
+    "moves": [],
+    "motifJson": {
+      "motif": "fork",
+      "attacker": "e4",
+      "target": "Nd5"
+    },
+    "nlpPrompt": "What square is the pawn fork on?",
+    "expectedAnswer": "e4",
+    "skipEngine": false
+  },
+  {
+    "slug": "drill-fork-queen-d5",
+    "fen": "4k3/8/3b4/3r3r/4Q3/8/8/4K3 w - - 0 1",
+    "moves": [],
+    "motifJson": {
+      "motif": "fork",
+      "attacker": "Qe4",
+      "target": "Rd5"
+    },
+    "nlpPrompt": "What square is the queen fork on?",
+    "expectedAnswer": "e4",
+    "skipEngine": false
+  },
+  {
+    "slug": "drill-fork-queen-target",
+    "fen": "4k3/8/3b4/3r3r/4Q3/8/8/4K3 w - - 0 1",
+    "moves": [],
+    "motifJson": {
+      "motif": "fork",
+      "attacker": "Qe4",
+      "target": "Rd5"
+    },
+    "nlpPrompt": "What square is one of the forked rooks on?",
+    "expectedAnswer": "d5",
+    "skipEngine": false,
+    "alternatePrompt": true
+  },
+  {
+    "slug": "drill-fork-knight-queen",
+    "fen": "k7/8/8/8/3N4/8/2q5/K7 w - - 0 1",
+    "moves": [],
+    "motifJson": {
+      "motif": "hanging_piece",
+      "attacker": "Nd4",
+      "target": "Qc2"
+    },
+    "nlpPrompt": "What square is the forked queen on?",
+    "expectedAnswer": "c2",
+    "skipEngine": false,
+    "alternatePrompt": true
+  },
+  {
+    "slug": "drill-fork-bishop-pair",
+    "fen": "8/8/8/3n1b2/4P3/8/8/4K2k w - - 0 1",
+    "moves": [],
+    "motifJson": {
+      "motif": "fork",
+      "attacker": "e4",
+      "target": "Nd5"
+    },
+    "nlpPrompt": "What square is the forked knight on?",
+    "expectedAnswer": "d5",
+    "skipEngine": false,
+    "alternatePrompt": true
+  },
+  {
+    "slug": "drill-skewer-queen-behind",
+    "fen": "4k3/8/8/3r4/8/3K4/8/3Q4 w - - 0 1",
+    "moves": [],
+    "motifJson": {
+      "motif": "skewer",
+      "attacker": "Rd5",
+      "target": "Kd3",
+      "square": "d1"
+    },
+    "nlpPrompt": "What square is the White King on?",
+    "expectedAnswer": "d3",
+    "skipEngine": false
+  },
+  {
+    "slug": "drill-skewer-bishop-rear",
+    "fen": "4k3/8/3r4/8/8/3K4/3B4/8 w - - 0 1",
+    "moves": [],
+    "motifJson": {
+      "motif": "skewer",
+      "attacker": "Rd6",
+      "target": "Kd3",
+      "square": "d2"
+    },
+    "nlpPrompt": "What square is the skewered bishop on?",
+    "expectedAnswer": "d2",
+    "skipEngine": false,
+    "alternatePrompt": true
+  },
+  {
+    "slug": "drill-skewer-rook-attacker",
+    "fen": "4k3/8/8/3r4/8/3K4/8/3Q4 w - - 0 1",
+    "moves": [],
+    "motifJson": {
+      "motif": "skewer",
+      "attacker": "Rd5",
+      "target": "Kd3",
+      "square": "d1"
+    },
+    "nlpPrompt": "What square is the skewering rook on?",
+    "expectedAnswer": "d5",
+    "skipEngine": false,
+    "alternatePrompt": true
+  },
+  {
+    "slug": "drill-hanging-queen-a4",
+    "fen": "4k3/8/8/8/q7/8/8/R3K3 w - - 0 1",
+    "moves": [],
+    "motifJson": {
+      "motif": "hanging_piece",
+      "attacker": "Qa4",
+      "target": "Ra1"
+    },
+    "nlpPrompt": "What square is the undefended rook on?",
+    "expectedAnswer": "a1",
+    "skipEngine": false
+  },
+  {
+    "slug": "drill-hanging-attacker-rook",
+    "fen": "4k3/8/8/8/q7/8/8/R3K3 w - - 0 1",
+    "moves": [],
+    "motifJson": {
+      "motif": "hanging_piece",
+      "attacker": "Qa4",
+      "target": "Ra1"
+    },
+    "nlpPrompt": "What square is the attacking rook on?",
+    "expectedAnswer": "a1",
+    "skipEngine": false,
+    "alternatePrompt": true
+  },
+  {
+    "slug": "drill-fork-queen-f5",
+    "fen": "4k3/8/4N3/5q2/4P1N1/8/8/4K3 w - - 0 1",
+    "moves": [],
+    "motifJson": {
+      "motif": "fork",
+      "attacker": "Qf5",
+      "target": "e4"
+    },
+    "nlpPrompt": "What square is the queen fork on?",
+    "expectedAnswer": "f5",
+    "skipEngine": false
+  },
+  {
+    "slug": "drill-disc-rook-check",
+    "fen": "7k/8/8/8/8/6p1/7P/2K4R w - - 0 1",
+    "moves": [
+      "hxg3"
+    ],
+    "motifJson": {
+      "motif": "discovered_attack",
+      "attacker": "Rh1",
+      "target": "Kh8",
+      "square": "g3"
+    },
+    "nlpPrompt": "What square does the White Rook attack from?",
+    "expectedAnswer": "h1",
+    "skipEngine": false
+  },
+  {
+    "slug": "drill-disc-knight-check",
+    "fen": "7k/8/8/8/8/8/7N/2K4R w - - 0 1",
+    "moves": [
+      "Ng4"
+    ],
+    "motifJson": {
+      "motif": "discovered_attack",
+      "attacker": "Rh1",
+      "target": "Kh8",
+      "square": "g4"
+    },
+    "nlpPrompt": "What square does the White Rook attack from?",
+    "expectedAnswer": "h1",
+    "skipEngine": false
+  },
+  {
+    "slug": "drill-disc-queen-rook",
+    "fen": "r3k3/8/8/8/R7/8/8/Q3K3 w - - 0 1",
+    "moves": [
+      "Rh4"
+    ],
+    "motifJson": {
+      "motif": "discovered_attack",
+      "attacker": "Qa1",
+      "target": "Ra8",
+      "square": "h4"
+    },
+    "nlpPrompt": "What square does the White Queen attack from?",
+    "expectedAnswer": "a1",
+    "skipEngine": false
+  },
+  {
+    "slug": "drill-disc-rook-attacker",
+    "fen": "7k/8/8/8/8/6p1/7P/2K4R w - - 0 1",
+    "moves": [
+      "hxg3"
+    ],
+    "motifJson": {
+      "motif": "discovered_attack",
+      "attacker": "Rh1",
+      "target": "Kh8",
+      "square": "g3"
+    },
+    "nlpPrompt": "What square does the White Rook attack from?",
+    "expectedAnswer": "h1",
+    "skipEngine": false,
+    "alternatePrompt": true
+  },
+  {
+    "slug": "drill-story-check-yes",
+    "fen": "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1",
+    "moves": [
+      "e4",
+      "e5",
+      "Qh5",
+      "Nc6",
+      "Bc4",
+      "Nf6",
+      "Qxf7+"
+    ],
+    "motifJson": {
+      "motif": "story_check"
+    },
+    "nlpPrompt": "Is the Black King in check?",
+    "expectedAnswer": "yes",
+    "skipEngine": true,
+    "checkColor": "b"
+  },
+  {
+    "slug": "drill-story-check-white-no",
+    "fen": "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1",
+    "moves": [
+      "d4",
+      "d5",
+      "c4",
+      "e6",
+      "Nc3",
+      "Nf6"
+    ],
+    "motifJson": {
+      "motif": "story_check"
+    },
+    "nlpPrompt": "Is the White King in check?",
+    "expectedAnswer": "no",
+    "skipEngine": true,
+    "checkColor": "w"
+  },
+  {
+    "slug": "drill-story-check-scholar",
+    "fen": "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1",
+    "moves": [
+      "e4",
+      "e5",
+      "Bc4",
+      "Nc6",
+      "Qh5"
+    ],
+    "motifJson": {
+      "motif": "story_check"
+    },
+    "nlpPrompt": "Is the Black King in check?",
+    "expectedAnswer": "no",
+    "skipEngine": true,
+    "checkColor": "b"
+  },
+  {
+    "slug": "drill-story-check-pin",
+    "fen": "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1",
+    "moves": [
+      "e4",
+      "e5",
+      "Nf3",
+      "d6",
+      "d4",
+      "Bg4"
+    ],
+    "motifJson": {
+      "motif": "story_check"
+    },
+    "nlpPrompt": "Is the White King in check?",
+    "expectedAnswer": "no",
+    "skipEngine": true,
+    "checkColor": "w"
+  },
+  {
+    "slug": "drill-story-memorize-fork",
+    "fen": "4k3/8/8/5r2/3N4/8/2q5/K7 w - - 0 1",
+    "moves": [
+      "Nxf5"
+    ],
+    "motifJson": {
+      "motif": "hanging_piece",
+      "attacker": "Qc2",
+      "target": "Nf5"
+    },
+    "nlpPrompt": "What square is the undefended knight on?",
+    "expectedAnswer": "f5",
+    "skipEngine": false
+  },
+  {
+    "slug": "drill-fork-bishop-pair-b",
+    "fen": "8/8/8/3b3b/4N3/8/8/4K2k w - - 0 1",
+    "moves": [],
+    "motifJson": {
+      "motif": "hanging_piece",
+      "attacker": "Bd5",
+      "target": "Ne4"
+    },
+    "nlpPrompt": "What square is the undefended knight on?",
+    "expectedAnswer": "e4",
+    "skipEngine": false
+  },
+  {
+    "slug": "drill-skewer-bishop-diagonal",
+    "fen": "4k3/8/8/8/8/3K4/3B4/4r3 w - - 0 1",
+    "moves": [],
+    "motifJson": {
+      "motif": "hanging_piece",
+      "attacker": "Bd2",
+      "target": "Re1"
+    },
+    "nlpPrompt": "What square is the undefended rook on?",
+    "expectedAnswer": "e1",
+    "skipEngine": false
+  },
+  {
+    "slug": "drill-hanging-queen-a7",
+    "fen": "4k3/q7/8/8/8/8/8/R3K3 w - - 0 1",
+    "moves": [],
+    "motifJson": {
+      "motif": "hanging_piece",
+      "attacker": "Qa7",
+      "target": "Ra1"
+    },
+    "nlpPrompt": "What square is the undefended rook on?",
+    "expectedAnswer": "a1",
+    "skipEngine": false
+  },
+  {
+    "slug": "drill-pin-knight-c3",
+    "fen": "4k3/8/8/8/2n5/1B6/8/4K3 w - - 0 1",
+    "moves": [],
+    "motifJson": {
+      "motif": "hanging_piece",
+      "attacker": "Bb3",
+      "target": "Nc4"
+    },
+    "nlpPrompt": "What square is the undefended knight on?",
+    "expectedAnswer": "c4",
+    "skipEngine": false
+  },
+  {
+    "slug": "drill-fork-knight-back",
+    "fen": "8/8/8/8/1N6/8/2q1k2r/K7 w - - 0 1",
+    "moves": [],
+    "motifJson": {
+      "motif": "hanging_piece",
+      "attacker": "Nb4",
+      "target": "Qc2"
+    },
+    "nlpPrompt": "What square is the undefended queen on?",
+    "expectedAnswer": "c2",
+    "skipEngine": false
+  },
+  {
+    "slug": "drill-story-italian",
+    "fen": "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1",
+    "moves": [
+      "e4",
+      "e5",
+      "Nf3",
+      "Nc6",
+      "Bc4",
+      "Bc5"
+    ],
+    "motifJson": {
+      "motif": "story_check"
+    },
+    "nlpPrompt": "Is the Black King in check?",
+    "expectedAnswer": "no",
+    "skipEngine": true,
+    "checkColor": "b"
+  },
+  {
+    "slug": "drill-story-disc-prep",
+    "fen": "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1",
+    "moves": [
+      "e4",
+      "e5",
+      "Nf3",
+      "Nc6",
+      "Bc4",
+      "Nf6",
+      "Ng5"
+    ],
+    "motifJson": {
+      "motif": "story_check"
+    },
+    "nlpPrompt": "Is the Black King in check?",
+    "expectedAnswer": "no",
+    "skipEngine": true,
+    "checkColor": "b"
+  },
+  {
+    "slug": "drill-disc-pawn-queen",
+    "fen": "4k3/6q1/8/8/3P4/8/1B6/4K3 w - - 0 1",
+    "moves": [
+      "d5"
+    ],
+    "motifJson": {
+      "motif": "discovered_attack",
+      "attacker": "Bb2",
+      "target": "Qg7",
+      "square": "d5"
+    },
+    "nlpPrompt": "What square is the discovered attack target on?",
+    "expectedAnswer": "g7",
+    "skipEngine": false,
+    "alternatePrompt": true
+  },
+  {
+    "slug": "drill-pin-attacker-c4",
+    "fen": "8/8/4k3/3n4/2B5/8/8/4K3 w - - 0 1",
+    "moves": [],
+    "motifJson": {
+      "motif": "pin",
+      "attacker": "Bc4",
+      "target": "Nd5",
+      "pinned_to": "Ke6"
+    },
+    "nlpPrompt": "What square is the pinning bishop on?",
+    "expectedAnswer": "c4",
+    "skipEngine": false,
+    "alternatePrompt": true
+  },
+  {
+    "slug": "drill-hanging-rook-e3",
+    "fen": "4k3/8/8/8/8/4r3/8/4K3 w - - 0 1",
+    "moves": [],
+    "motifJson": {
+      "motif": "hanging_piece",
+      "attacker": "Re3",
+      "target": "Ke1"
+    },
+    "nlpPrompt": "The White King is in check — what square is it on?",
+    "expectedAnswer": "e1",
+    "skipEngine": false
+  },
+  {
+    "slug": "drill-fork-knight-dual",
+    "fen": "k7/8/8/8/3N4/8/2q1r3/K7 w - - 0 1",
+    "moves": [],
+    "motifJson": {
+      "motif": "fork",
+      "attacker": "Nd4",
+      "target": "Qc2"
+    },
+    "nlpPrompt": "What square is the knight fork on?",
+    "expectedAnswer": "d4",
+    "skipEngine": false
+  },
+  {
+    "slug": "drill-pin-queen-d8",
+    "fen": "3qk3/8/5n2/6B1/8/8/8/4K3 w - - 0 1",
+    "moves": [],
+    "motifJson": {
+      "motif": "pin",
+      "attacker": "Bg5",
+      "target": "Nf6",
+      "pinned_to": "Qd8"
+    },
+    "nlpPrompt": "What square is the pinned piece on?",
+    "expectedAnswer": "f6",
+    "skipEngine": false,
+    "alternatePrompt": true
+  },
+  {
+    "slug": "drill-story-london",
+    "fen": "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1",
+    "moves": [
+      "d4",
+      "d5",
+      "Bf4",
+      "Nf6",
+      "e3",
+      "e6"
+    ],
+    "motifJson": {
+      "motif": "story_check"
+    },
+    "nlpPrompt": "Is the Black King in check?",
+    "expectedAnswer": "no",
+    "skipEngine": true,
+    "checkColor": "b"
+  },
+  {
+    "slug": "drill-story-check-white-yes",
+    "fen": "rnbqkbnr/pppp1ppp/8/4p3/6Pq/5P2/PPPPP2P/RNBQKBNR w KQkq - 0 1",
+    "moves": [],
+    "motifJson": {
+      "motif": "story_check"
+    },
+    "nlpPrompt": "Is the White King in check?",
+    "expectedAnswer": "yes",
+    "skipEngine": true,
+    "checkColor": "w"
   }
 ]

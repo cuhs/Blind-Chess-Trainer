@@ -16,10 +16,14 @@ export function useStoryNarration(
     active ? 'narrating' : 'pending',
   );
   const generationRef = useRef(0);
+  const cancelSpeakRef = useRef<(() => void) | null>(null);
 
   const spoken = active ? buildMoveNarrationScript(moves) : '';
 
   useEffect(() => {
+    cancelSpeakRef.current?.();
+    cancelSpeakRef.current = null;
+
     if (!active) {
       setPhase('pending');
       return;
@@ -28,7 +32,7 @@ export function useStoryNarration(
     const generation = ++generationRef.current;
     setPhase('narrating');
 
-    void speakNarration(spoken, {
+    cancelSpeakRef.current = speakNarration(spoken, {
       onDone: () => {
         if (generation !== generationRef.current) return;
         setPhase('prompting');
@@ -41,11 +45,18 @@ export function useStoryNarration(
 
     return () => {
       generationRef.current += 1;
+      cancelSpeakRef.current?.();
+      cancelSpeakRef.current = null;
       void stopNarration();
     };
   }, [active, resetKey, spoken]);
 
-  const markSuccess = useCallback(() => setPhase('success'), []);
+  const markSuccess = useCallback(() => {
+    cancelSpeakRef.current?.();
+    cancelSpeakRef.current = null;
+    void stopNarration();
+    setPhase('success');
+  }, []);
 
   return { phase, markSuccess };
 }

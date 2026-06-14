@@ -12,7 +12,7 @@ alwaysApply: false
 - Mobile uses **publishable** keys (`sb_publishable_...`); **secret** keys (`sb_secret_...`) are server-only (`apps/api`, Edge Functions) — never in the mobile bundle
 - Migrations only in `supabase/migrations/` — never hand-edit production
 - Push schema: `supabase link` then `supabase db push`
-- Seed curated starter data: `supabase db execute --linked -f supabase/seed.sql` (cloud) or `supabase db reset` (local Docker)
+- Seed curated starter data: `supabase db query --linked -f supabase/seed.sql` (cloud) or `supabase db reset` (local Docker)
 - Sync auth settings (anonymous sign-ins): `supabase config push` after link
 - Row Level Security on every user-data table
 - Onboarding works guest-first; auth optional until dashboard

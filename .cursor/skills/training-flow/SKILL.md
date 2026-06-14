@@ -32,7 +32,7 @@ Blueprint-only onboarding puzzles (`StoryCheck`, `RewardPuzzle`) infer visuals f
 ```
 puzzle_bank (Supabase) + match peekEvents (guestStore; one per position)
   → peekPuzzles (motif engine; positionKeyFromFen dedup) + usePuzzleBank
-  → useDailySession (selectDailyPuzzles — peek-first, 3 per todayKey)
+  → useDailySession (selectDailyPuzzles — up to 2 peek + bank fill, 3 per todayKey)
   → useResolvedPuzzle (resolveTrainingPuzzle)
   → DailyDrillScreen
 ```
@@ -83,7 +83,7 @@ Rules:
 
 Full recipe comment at the bottom of `supabase/seed.sql`.
 
-Blueprint: **3 puzzles per daily session** — `lib/dailySession.selectDailyPuzzles` (peek-first, deterministic rotation by `todayKey()`). Completion gated via `guestStore.lastDrillCompletedDate`. **Mid-session resume:** `guestStore.drillProgress` stores `completedPuzzleIds` for the current `dateKey`; `DailyDrillScreen` resumes at the next unsolved puzzle via `lib/drillProgress.ts` and clears progress on session complete.
+Blueprint: **3 puzzles per daily session** — `lib/dailySession.selectDailyPuzzles` (up to 2 peek-sourced from matches, remaining slots from `puzzle_bank`; slot order shuffled deterministically by `todayKey()`). Completion gated via `guestStore.lastDrillCompletedDate`. **Mid-session resume:** `guestStore.drillProgress` stores `completedPuzzleIds` for the current `dateKey`; `DailyDrillScreen` resumes at the next unsolved puzzle via `lib/drillProgress.ts` and clears progress on session complete.
 
 ## Phase 2 remaining
 
@@ -95,7 +95,7 @@ Blueprint: **3 puzzles per daily session** — `lib/dailySession.selectDailyPuzz
 - [x] Daily session cap at 3 puzzles + completion gate (`useDailySession`)
 - [x] Mid-session drill resume (`guestStore.drillProgress` + `lib/drillProgress.ts`)
 - [x] Home + hub `DailyMatrixCard` with completed-today state
-- [ ] Expand puzzle_bank (~50 curated rows; 7 seeds today)
+- [x] Expand puzzle_bank (50 curated rows in `supabase/seed.sql`; re-validate via `npm run validate:puzzles`, regenerate with `packages/chess-core/scripts/generate-seed.ts`)
 - [ ] Stitch visual polish (TODO(stitch) on hub + drill screens)
 ```
 

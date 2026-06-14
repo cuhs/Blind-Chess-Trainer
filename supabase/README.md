@@ -14,7 +14,7 @@ Use your Supabase Dashboard project. Do **not** commit project refs, URLs, or AP
 ```bash
 supabase link --project-ref <project-ref>
 supabase db push
-supabase db execute --linked -f supabase/seed.sql
+supabase db query --linked -f supabase/seed.sql
 supabase config push   # syncs enable_anonymous_sign_ins from config.toml
 ```
 

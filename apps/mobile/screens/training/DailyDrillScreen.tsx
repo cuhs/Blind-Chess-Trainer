@@ -14,6 +14,7 @@ import { usePuzzleSessionPhase } from '@/hooks/usePuzzleSessionPhase';
 import { useAnswerFlash } from '@/hooks/useAnswerFlash';
 import { useDailySession } from '@/hooks/useDailySession';
 import { useResolvedPuzzle } from '@/hooks/useResolvedPuzzle';
+import type { TrainingPuzzle } from '@/data/training-puzzles';
 import { useGuestStore } from '@/stores/guestStore';
 import { todayKey } from '@/lib/dateKey';
 import {
@@ -47,22 +48,21 @@ function DrillState({ title, message, onBack }: DrillStateProps) {
   );
 }
 
-export function DailyDrillScreen() {
-  const router = useRouter();
-  const [puzzleIndex, setPuzzleIndex] = useState(0);
-  const sessionBootstrapped = useRef(false);
-  const {
-    puzzles,
-    puzzleCount,
-    isCompletedToday,
-    isLoading,
-    isError,
-    isNotConfigured,
-    error,
-  } = useDailySession();
-  const puzzle = puzzles[puzzleIndex];
-  const resolvedPuzzle = useResolvedPuzzle(puzzle);
-  const puzzleKey = puzzle?.id ?? `drill-${puzzleIndex}`;
+interface ActiveDrillSessionProps {
+  puzzle: TrainingPuzzle;
+  resolvedPuzzle: NonNullable<ReturnType<typeof useResolvedPuzzle>>;
+  puzzleIndex: number;
+  puzzleCount: number;
+  onPuzzleSuccess: (puzzleId: string) => void;
+}
+
+function ActiveDrillSession({
+  puzzle,
+  resolvedPuzzle,
+  puzzleIndex,
+  puzzleCount,
+  onPuzzleSuccess,
+}: ActiveDrillSessionProps) {
   const {
     phase,
     peekVisible,
@@ -71,123 +71,27 @@ export function DailyDrillScreen() {
     canAnswer,
     markSuccess,
     triggerPeek,
-  } = usePuzzleSessionPhase(puzzleKey, {
-    fen: puzzle?.fen ?? '',
-    moves: puzzle?.moves ?? [],
+  } = usePuzzleSessionPhase(resolvedPuzzle.id, {
+    fen: puzzle.fen,
+    moves: puzzle.moves,
   });
   const { submit } = useTrainingAnswer('training');
   const { flash, opacity, kind } = useAnswerFlash();
-  const drillProgress = useGuestStore((s) => s.drillProgress);
-  const lastDrillCompletedDate = useGuestStore((s) => s.lastDrillCompletedDate);
-  const setLastDrillCompletedDate = useGuestStore(
-    (s) => s.setLastDrillCompletedDate,
-  );
-  const recordDrillPuzzleComplete = useGuestStore(
-    (s) => s.recordDrillPuzzleComplete,
-  );
-  const clearDrillProgress = useGuestStore((s) => s.clearDrillProgress);
 
-  const isLastPuzzle = puzzleIndex >= puzzleCount - 1;
   const progressPercent = Math.round(
     ((puzzleIndex + 1) / Math.max(puzzleCount, 1)) * 100,
   );
   const progressLabel = `Position ${puzzleIndex + 1} of ${puzzleCount}`;
 
-  const completeDrill = useCallback(() => {
-    setLastDrillCompletedDate(todayKey());
-    clearDrillProgress();
-    router.replace('/(main)/' as never);
-  }, [router, setLastDrillCompletedDate, clearDrillProgress]);
-
   useEffect(() => {
-    sessionBootstrapped.current = false;
-  }, [isCompletedToday]);
-
-  useEffect(() => {
-    if (sessionBootstrapped.current || isLoading || puzzles.length === 0) return;
-
-    sessionBootstrapped.current = true;
-    const today = todayKey();
-    const completedIds = completedIdsForToday(drillProgress, today);
-
-    if (
-      isAllDrillPuzzlesComplete(puzzles, completedIds) &&
-      lastDrillCompletedDate !== today
-    ) {
-      completeDrill();
-      return;
-    }
-
-    setPuzzleIndex(resumePuzzleIndex(puzzles, completedIds));
-  }, [
-    isLoading,
-    puzzles,
-    drillProgress,
-    lastDrillCompletedDate,
-    completeDrill,
-  ]);
-
-  useEffect(() => {
-    if (puzzleCount === 0 || puzzleIndex < puzzleCount) return;
-    setPuzzleIndex(0);
-  }, [puzzleCount, puzzleIndex]);
-
-  useEffect(() => {
-    if (phase !== 'success' || !resolvedPuzzle) return;
+    if (phase !== 'success') return;
 
     const timer = setTimeout(() => {
-      recordDrillPuzzleComplete(resolvedPuzzle.id);
-      if (isLastPuzzle) {
-        completeDrill();
-      } else {
-        setPuzzleIndex((index) => index + 1);
-      }
+      onPuzzleSuccess(resolvedPuzzle.id);
     }, 600);
 
     return () => clearTimeout(timer);
-  }, [
-    phase,
-    isLastPuzzle,
-    completeDrill,
-    recordDrillPuzzleComplete,
-    resolvedPuzzle,
-  ]);
-
-  if (isNotConfigured) {
-    return (
-      <DrillState
-        title="Supabase not configured"
-        message="Add EXPO_PUBLIC_SUPABASE_URL and EXPO_PUBLIC_SUPABASE_PUBLISHABLE_KEY to .env.local (repo root or apps/mobile), then restart Expo."
-        onBack={() => router.back()}
-      />
-    );
-  }
-
-  if (isCompletedToday) {
-    return (
-      <DrillState
-        title="Matrix cleared"
-        message="You finished today's puzzles. Come back tomorrow."
-        onBack={() => router.back()}
-      />
-    );
-  }
-
-  if (isLoading) {
-    return <DrillState message="Loading today's puzzles..." />;
-  }
-
-  if (isError || !puzzle || !resolvedPuzzle) {
-    const devHint =
-      __DEV__ && error instanceof Error ? `\n\n(${error.message})` : '';
-    return (
-      <DrillState
-        title="Could not load puzzles"
-        message={`Check EXPO_PUBLIC_SUPABASE_URL, anonymous auth, and that puzzle_bank is seeded on your cloud project.${devHint}`}
-        onBack={() => router.back()}
-      />
-    );
-  }
+  }, [phase, onPuzzleSuccess, resolvedPuzzle.id]);
 
   const handleSubmit = async (value: string) => {
     const correct = await submit(value, {
@@ -205,9 +109,7 @@ export function DailyDrillScreen() {
   };
 
   const resolvedPrompt =
-    phase === 'success'
-      ? 'Correct!'
-      : resolvedPuzzle.prompt;
+    phase === 'success' ? 'Correct!' : resolvedPuzzle.prompt;
 
   let controls: ReactNode = null;
   if (canAnswer) {
@@ -245,6 +147,140 @@ export function DailyDrillScreen() {
     >
       {controls}
     </PuzzleSessionLayout>
+  );
+}
+
+export function DailyDrillScreen() {
+  const router = useRouter();
+  const [puzzleIndex, setPuzzleIndex] = useState(0);
+  const sessionBootstrapped = useRef(false);
+  const wasCompletedToday = useRef(false);
+  const {
+    puzzles,
+    puzzleCount,
+    isCompletedToday,
+    isLoading,
+    isError,
+    isNotConfigured,
+    error,
+  } = useDailySession();
+  const puzzle = puzzles[puzzleIndex];
+  const resolvedPuzzle = useResolvedPuzzle(puzzle);
+  const drillProgress = useGuestStore((s) => s.drillProgress);
+  const lastDrillCompletedDate = useGuestStore((s) => s.lastDrillCompletedDate);
+  const setLastDrillCompletedDate = useGuestStore(
+    (s) => s.setLastDrillCompletedDate,
+  );
+  const recordDrillPuzzleComplete = useGuestStore(
+    (s) => s.recordDrillPuzzleComplete,
+  );
+  const clearDrillProgress = useGuestStore((s) => s.clearDrillProgress);
+
+  const isLastPuzzle = puzzleIndex >= puzzleCount - 1;
+
+  const completeDrill = useCallback(() => {
+    setLastDrillCompletedDate(todayKey());
+    clearDrillProgress();
+    router.replace('/(main)/' as never);
+  }, [router, setLastDrillCompletedDate, clearDrillProgress]);
+
+  const handlePuzzleSuccess = useCallback(
+    (puzzleId: string) => {
+      recordDrillPuzzleComplete(puzzleId);
+      if (isLastPuzzle) {
+        completeDrill();
+      } else {
+        setPuzzleIndex((index) => index + 1);
+      }
+    },
+    [isLastPuzzle, recordDrillPuzzleComplete, completeDrill],
+  );
+
+  useEffect(() => {
+    if (wasCompletedToday.current && !isCompletedToday) {
+      sessionBootstrapped.current = false;
+    }
+    wasCompletedToday.current = isCompletedToday;
+  }, [isCompletedToday]);
+
+  useEffect(() => {
+    if (sessionBootstrapped.current || isLoading || puzzles.length === 0) return;
+
+    const today = todayKey();
+    if (lastDrillCompletedDate === today) {
+      sessionBootstrapped.current = true;
+      return;
+    }
+
+    sessionBootstrapped.current = true;
+    const completedIds = completedIdsForToday(drillProgress, today);
+
+    if (
+      isAllDrillPuzzlesComplete(puzzles, completedIds) &&
+      lastDrillCompletedDate !== today
+    ) {
+      completeDrill();
+      return;
+    }
+
+    setPuzzleIndex(resumePuzzleIndex(puzzles, completedIds));
+  }, [
+    isLoading,
+    puzzles,
+    drillProgress,
+    lastDrillCompletedDate,
+    completeDrill,
+  ]);
+
+  useEffect(() => {
+    if (puzzleCount === 0 || puzzleIndex < puzzleCount) return;
+    setPuzzleIndex(0);
+  }, [puzzleCount, puzzleIndex]);
+
+  if (isNotConfigured) {
+    return (
+      <DrillState
+        title="Supabase not configured"
+        message="Add EXPO_PUBLIC_SUPABASE_URL and EXPO_PUBLIC_SUPABASE_PUBLISHABLE_KEY to .env.local (repo root or apps/mobile), then restart Expo."
+        onBack={() => router.back()}
+      />
+    );
+  }
+
+  if (isCompletedToday) {
+    return (
+      <DrillState
+        title="Matrix cleared"
+        message="You finished today's puzzles. Come back tomorrow."
+        onBack={() => router.back()}
+      />
+    );
+  }
+
+  if (isLoading) {
+    return <DrillState message="Loading today's puzzles..." />;
+  }
+
+  if (isError || !puzzle || !resolvedPuzzle) {
+    const devHint =
+      __DEV__ && error instanceof Error ? `\n\n(${error.message})` : '';
+    return (
+      <DrillState
+        title="Could not load puzzles"
+        message={`Check EXPO_PUBLIC_SUPABASE_URL, anonymous auth, and that puzzle_bank is seeded on your cloud project.${devHint}`}
+        onBack={() => router.back()}
+      />
+    );
+  }
+
+  return (
+    <ActiveDrillSession
+      puzzle={puzzle}
+      resolvedPuzzle={resolvedPuzzle}
+      puzzleIndex={puzzleIndex}
+      puzzleCount={puzzleCount}
+      onPuzzleSuccess={handlePuzzleSuccess}
+    />
   );
 }
 

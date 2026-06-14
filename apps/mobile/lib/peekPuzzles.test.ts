@@ -87,7 +87,7 @@ describe('trainingPuzzlesFromPeekEvents', () => {
 });
 
 describe('peek puzzle daily integration', () => {
-  it('prioritizes generated peek puzzles in the daily session', () => {
+  it('mixes peek puzzles with bank puzzles in the daily session', () => {
     const peekPuzzles = trainingPuzzlesFromPeekEvents([
       peekEvent(`${todayKey()}T12:00:00.000Z`),
     ]);
@@ -102,12 +102,23 @@ describe('peek puzzle daily integration', () => {
         squaresTouched: ['e4' as const],
         source: 'daily' as const,
       },
+      {
+        id: 'daily-2',
+        fen: 'start',
+        moves: [],
+        prompt: 'daily',
+        answerType: 'square' as const,
+        expected: 'e4',
+        squaresTouched: ['e4' as const],
+        source: 'daily' as const,
+      },
     ];
 
     const session = selectDailyPuzzles(
       [...peekPuzzles, ...bank],
       todayKey(),
     );
-    expect(session[0].source).toBe('peek');
+    expect(session.some((puzzle) => puzzle.source === 'peek')).toBe(true);
+    expect(session.some((puzzle) => puzzle.source === 'daily')).toBe(true);
   });
 });
