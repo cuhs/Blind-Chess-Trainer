@@ -26,7 +26,7 @@ const candidates: Candidate[] = [
   { slug: 'drill-pin-queen-behind', fen: '3qk3/8/5n2/6B1/8/8/8/4K3 w - - 0 1', alternatePrompt: true, customPrompt: 'What square is the Black Queen on?', customExpected: 'd8' },
   { slug: 'drill-pin-bishop-attacker', fen: '4k3/8/2n5/1B6/8/8/8/4K3 w - - 0 1', alternatePrompt: true, customPrompt: 'What square is the pinning bishop on?', customExpected: 'b5' },
   { slug: 'drill-pin-king-behind', fen: '4k3/4r3/8/8/8/8/4P3/4K3 w - - 0 1', alternatePrompt: true, customPrompt: 'What square is the White King pinned to?', customExpected: 'e1' },
-  { slug: 'drill-pin-queen-file', fen: '4k3/8/8/3q4/8/8/4P3/4K3 w - - 0 1' },
+  { slug: 'drill-pin-queen-file', fen: '4k3/8/8/8/4q3/8/4P3/4K3 w - - 0 1' },
   { slug: 'drill-pin-bishop-f6', fen: '4k3/8/5n2/4B3/8/8/8/4K3 w - - 0 1' },
 
   // --- forks ---
@@ -44,7 +44,7 @@ const candidates: Candidate[] = [
 
   // --- hanging ---
   { slug: 'drill-hanging-queen-a4', fen: '4k3/8/8/8/q7/8/8/R3K3 w - - 0 1' },
-  { slug: 'drill-hanging-knight-f6', fen: '4k3/8/5n2/8/8/8/8/4K1R1 w - - 0 1' },
+  { slug: 'drill-hanging-knight-f6', fen: '4k3/8/5n2/8/5R2/8/8/4K3 w - - 0 1' },
   { slug: 'drill-hanging-attacker-rook', fen: '4k3/8/8/8/q7/8/8/R3K3 w - - 0 1', alternatePrompt: true, customPrompt: 'What square is the attacking rook on?', customExpected: 'a1' },
 
   // --- fork (queen triple) ---
@@ -62,10 +62,10 @@ const candidates: Candidate[] = [
   { slug: 'drill-story-check-scholar', fen: 'rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1', moves: ['e4', 'e5', 'Bc4', 'Nc6', 'Qh5'], storyCheck: { color: 'b', expected: 'no' } },
   { slug: 'drill-story-check-pin', fen: 'rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1', moves: ['e4', 'e5', 'Nf3', 'd6', 'd4', 'Bg4'], storyCheck: { color: 'w', expected: 'no' } },
   { slug: 'drill-story-memorize-fork', fen: '4k3/8/8/5r2/3N4/8/2q5/K7 w - - 0 1', moves: ['Nxf5'] },
-  { slug: 'drill-story-memorize-check', fen: '4k3/8/8/8/8/8/5r2/4K3 w - - 0 1', moves: ['Re2+'], storyCheck: { color: 'b', expected: 'yes' } },
+  { slug: 'drill-story-memorize-check', fen: '4k3/8/4R3/8/8/8/8/4K3 w - - 0 1', moves: ['Re7+'], storyCheck: { color: 'b', expected: 'yes' } },
 
   // --- more variety ---
-  { slug: 'drill-pin-rook-backrank', fen: '4k3/8/8/8/8/8/r3P3/4K3 w - - 0 1' },
+  { slug: 'drill-pin-rook-backrank', fen: '4k3/8/8/8/8/4r3/4P3/4K3 w - - 0 1' },
   { slug: 'drill-fork-bishop-pair-b', fen: '8/8/8/3b3b/4N3/8/8/4K2k w - - 0 1' },
   { slug: 'drill-skewer-bishop-diagonal', fen: '4k3/8/8/8/8/3K4/3B4/4r3 w - - 0 1' },
   { slug: 'drill-hanging-queen-a7', fen: '4k3/q7/8/8/8/8/8/R3K3 w - - 0 1' },

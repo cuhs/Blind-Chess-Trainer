@@ -22,6 +22,21 @@ supabase config push   # syncs enable_anonymous_sign_ins from config.toml
 6. After verifying the app works, disable legacy **anon** / **service_role** keys under **API → Legacy API Keys**.
 7. Restart Metro: `cd apps/mobile && npm start`.
 
+### Puzzle bank updates
+
+Curated drills live in `packages/chess-core/src/motifs/fixtures/puzzle-bank-fixtures.json` (54 rows) and `supabase/seed.sql`.
+
+```bash
+cd packages/chess-core
+npx tsx scripts/probe-puzzles.ts          # validate candidate FENs → probe-output.json (gitignored)
+# merge new rows into puzzle-bank-fixtures.json
+npx tsx scripts/generate-seed.ts           # regenerate seed.sql
+npm run validate:puzzles
+supabase db query --linked -f supabase/seed.sql   # upsert cloud puzzle_bank
+```
+
+`probe-output.json` is local-only — do not commit.
+
 ### Agent / MCP
 
 - **Cloud queries & migrations:** Supabase MCP plugin (`supabase` in `.cursor/mcp.json`).

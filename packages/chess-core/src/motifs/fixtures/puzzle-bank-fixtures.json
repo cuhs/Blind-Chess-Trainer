@@ -742,5 +742,60 @@
     "expectedAnswer": "yes",
     "skipEngine": true,
     "checkColor": "w"
+  },
+  {
+    "slug": "drill-pin-queen-file",
+    "fen": "4k3/8/8/8/4q3/8/4P3/4K3 w - - 0 1",
+    "moves": [],
+    "motifJson": {
+      "motif": "pin",
+      "attacker": "Qe4",
+      "target": "e2",
+      "pinned_to": "Ke1"
+    },
+    "nlpPrompt": "What square is the pinned pawn on?",
+    "expectedAnswer": "e2",
+    "skipEngine": false
+  },
+  {
+    "slug": "drill-hanging-knight-f6",
+    "fen": "4k3/8/5n2/8/5R2/8/8/4K3 w - - 0 1",
+    "moves": [],
+    "motifJson": {
+      "motif": "hanging_piece",
+      "attacker": "Rf4",
+      "target": "Nf6"
+    },
+    "nlpPrompt": "What square is the undefended knight on?",
+    "expectedAnswer": "f6",
+    "skipEngine": false
+  },
+  {
+    "slug": "drill-story-memorize-check",
+    "fen": "4k3/8/4R3/8/8/8/8/4K3 w - - 0 1",
+    "moves": [
+      "Re7+"
+    ],
+    "motifJson": {
+      "motif": "story_check"
+    },
+    "nlpPrompt": "Is the Black King in check?",
+    "expectedAnswer": "yes",
+    "skipEngine": true,
+    "checkColor": "b"
+  },
+  {
+    "slug": "drill-pin-rook-backrank",
+    "fen": "4k3/8/8/8/8/4r3/4P3/4K3 w - - 0 1",
+    "moves": [],
+    "motifJson": {
+      "motif": "pin",
+      "attacker": "Re3",
+      "target": "e2",
+      "pinned_to": "Ke1"
+    },
+    "nlpPrompt": "What square is the pinned pawn on?",
+    "expectedAnswer": "e2",
+    "skipEngine": false
   }
 ]

@@ -763,6 +763,66 @@ values
     '[]'::jsonb,
     'daily',
     true
+  ),
+  (
+    'drill-pin-queen-file',
+    '4k3/8/8/8/4q3/8/4P3/4K3 w - - 0 1',
+    '{"motif":"pin","attacker":"Qe4","target":"e2","pinned_to":"Ke1"}'::jsonb,
+    'What square is the pinned pawn on?',
+    'e.g. a8',
+    null,
+    'e2',
+    'square',
+    'e2',
+    '[]'::jsonb,
+    '["e4","e2","e1"]'::jsonb,
+    'daily',
+    true
+  ),
+  (
+    'drill-hanging-knight-f6',
+    '4k3/8/5n2/8/5R2/8/8/4K3 w - - 0 1',
+    '{"motif":"hanging_piece","attacker":"Rf4","target":"Nf6"}'::jsonb,
+    'What square is the undefended knight on?',
+    'e.g. a8',
+    null,
+    'f6',
+    'square',
+    'f6',
+    '[]'::jsonb,
+    '["f6","f4"]'::jsonb,
+    'daily',
+    true
+  ),
+  (
+    'drill-story-memorize-check',
+    '4k3/8/4R3/8/8/8/8/4K3 w - - 0 1',
+    '{"motif":"story_check"}'::jsonb,
+    'Is the Black King in check?',
+    'e.g. Yes',
+    null,
+    'e8',
+    'yes-no',
+    'yes',
+    '["Re7+"]'::jsonb,
+    '[]'::jsonb,
+    'daily',
+    true
+  ),
+  (
+    'drill-pin-rook-backrank',
+    '4k3/8/8/8/8/4r3/4P3/4K3 w - - 0 1',
+    '{"motif":"pin","attacker":"Re3","target":"e2","pinned_to":"Ke1"}'::jsonb,
+    'What square is the pinned pawn on?',
+    'e.g. a8',
+    null,
+    'e2',
+    'square',
+    'e2',
+    '[]'::jsonb,
+    '["e3","e2","e1"]'::jsonb,
+    'daily',
+    true
   )
 on conflict (slug) do update
 set

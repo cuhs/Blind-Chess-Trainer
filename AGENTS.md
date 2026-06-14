@@ -123,7 +123,7 @@ Post-onboarding `/(main)/index` — Stitch frame `b1eff5fd32e743e2a7f8a4b78a3403
 1. Onboarding — `HookBoard` → `MatchPrimer` (Stitch: Invisible Grid Hook)
 1b. Home — `HomeDashboard` from Stitch `b1eff5fd32e743e2a7f8a4b78a340318`
 2. Training — `TrainingHub`, `DailyDrill` backed by `puzzle_bank`; motif resolve via `useResolvedPuzzle` (no separate `StoryPuzzle` route — both Stitch training frames map to `DailyDrill`)
-   - Done: engine-backed prompts when top motif matches `expected_answer`; daily cap at 3 puzzles (`selectDailyPuzzles` + `useDailySession`); completion gate via `lastDrillCompletedDate`; home + hub `DailyMatrixCard`; 50 curated `puzzle_bank` seed rows
+   - Done: engine-backed prompts when top motif matches `expected_answer`; daily cap at 3 puzzles (`selectDailyPuzzles` + `useDailySession`); completion gate via `lastDrillCompletedDate`; home + hub `DailyMatrixCard`; 54 curated `puzzle_bank` seed rows
    - Next: Stitch polish on hub/drill
 3. Voice match — `MatchSetupScreen` (Elo slider) → `VoiceMatchScreen` (native Stockfish on iOS dev build)
 4. Post-game — `ReplayTimeline`, `CognitiveHeatmap`

@@ -39,7 +39,7 @@ puzzle_bank (Supabase) + match peekEvents (guestStore; one per position)
 
 `resolveTrainingPuzzle` runs `analyzePosition` on `displayFen`. When the top motif's `expected` matches `puzzle_bank.expected_answer`, the engine prompt and `squaresTouched` win; otherwise the curated DB prompt is kept (e.g. bishop square vs pinned knight on the same FEN).
 
-Validate seeds: `cd packages/chess-core && npm run validate:puzzles`.
+Validate seeds: `cd packages/chess-core && npm run validate:puzzles`. Author new rows with `scripts/probe-puzzles.ts` → merge fixtures → `scripts/generate-seed.ts` → `supabase db query --linked -f supabase/seed.sql` (see `supabase/README.md`).
 
 ## Hooks
 
@@ -95,7 +95,7 @@ Blueprint: **3 puzzles per daily session** — `lib/dailySession.selectDailyPuzz
 - [x] Daily session cap at 3 puzzles + completion gate (`useDailySession`)
 - [x] Mid-session drill resume (`guestStore.drillProgress` + `lib/drillProgress.ts`)
 - [x] Home + hub `DailyMatrixCard` with completed-today state
-- [x] Expand puzzle_bank (50 curated rows in `supabase/seed.sql`; re-validate via `npm run validate:puzzles`, regenerate with `packages/chess-core/scripts/generate-seed.ts`)
+- [x] Expand puzzle_bank (54 curated rows in `supabase/seed.sql`; re-validate via `npm run validate:puzzles`, regenerate with `packages/chess-core/scripts/generate-seed.ts`)
 - [ ] Stitch visual polish (TODO(stitch) on hub + drill screens)
 ```
 
