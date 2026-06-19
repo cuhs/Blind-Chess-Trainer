@@ -9,8 +9,16 @@ describe('eloProfile', () => {
   it('targets ~1200 with depth 3 and low blunder rate', () => {
     const profile = eloProfile(1200);
     expect(profile.depth).toBe(3);
-    expect(profile.blunderRate).toBeCloseTo(0.07, 2);
-    expect(profile.noiseCp).toBeCloseTo(70, 0);
+    expect(profile.blunderRate).toBeCloseTo(0.077, 2);
+    expect(profile.noiseCp).toBeCloseTo(79.5, 0);
+  });
+
+  it('plays much weaker at 300 than at 1200', () => {
+    const weak = eloProfile(300);
+    const mid = eloProfile(1200);
+    expect(weak.blunderRate).toBeGreaterThan(mid.blunderRate);
+    expect(weak.noiseCp).toBeGreaterThan(mid.noiseCp);
+    expect(weak.blunderPoolStart).toBeGreaterThan(mid.blunderPoolStart);
   });
 });
 

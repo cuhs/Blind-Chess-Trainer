@@ -25,7 +25,7 @@ function clamp(value: number, min: number, max: number): number {
  * Maps display Elo to Stockfish UCI options.
  *
  * - 1320–3190: UCI_LimitStrength + UCI_Elo (Stockfish-calibrated)
- * - 300–1319: Skill Level 0–19 (approximate human strength; SF has no sub-1320 UCI_Elo)
+ * - 300–1319: routed to human fallback engine (SF Skill Level 0 is still ~800+ Elo)
  */
 export function userEloToEngineConfig(userElo: number): EngineStrengthConfig {
   const elo = clamp(Math.round(userElo), MATCH_ELO_MIN, MATCH_ELO_MAX);
@@ -79,7 +79,12 @@ export function eloTierLabel(elo: number): string {
   return TIER_COPY[eloTier(elo)];
 }
 
-/** Whether the rating uses Stockfish's calibrated UCI_Elo (vs Skill Level). */
+/** Whether the rating uses Stockfish's calibrated UCI_Elo (vs human fallback). */
 export function usesCalibratedUciElo(elo: number): boolean {
   return elo >= STOCKFISH_UCI_ELO_MIN;
+}
+
+/** Opponent move generation below Stockfish's UCI_Elo floor. */
+export function usesHumanFallbackEngine(elo: number): boolean {
+  return !usesCalibratedUciElo(elo);
 }

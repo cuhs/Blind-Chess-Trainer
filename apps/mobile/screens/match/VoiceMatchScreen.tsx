@@ -1,6 +1,13 @@
 // TODO(stitch): Animated Match Engine frame 2cbaa7be4acd4190a3f95dae66d1b0bc
 import { useState, useEffect, useRef } from 'react';
-import { View, Text, StyleSheet, ScrollView } from 'react-native';
+import {
+  View,
+  Text,
+  StyleSheet,
+  ScrollView,
+  KeyboardAvoidingView,
+  Platform,
+} from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useRouter } from 'expo-router';
 import { colors, layout, spacing, typography } from '@/theme';
@@ -13,13 +20,13 @@ import {
 } from '@/components/match/MatchStatusBar';
 import { MatchControlBar } from '@/components/match/MatchControlBar';
 import { MatchSecondaryActions } from '@/components/match/MatchSecondaryActions';
-import { DevMoveInput } from '@/components/match/DevMoveInput';
+import { MatchMovePanel } from '@/components/match/MatchMovePanel';
 import { MoveDisambiguation } from '@/components/match/MoveDisambiguation';
 import { useMatchSession } from '@/hooks/useMatchSession';
 import { useMatchPeek } from '@/hooks/useMatchPeek';
 import { useGuestStore } from '@/stores/guestStore';
 
-/** Shrinks the board so status bar, controls, and input fit in one viewport. */
+/** Shrinks the board so status, move panel, and controls fit without overlap. */
 const BOARD_EXTRA_INSET = spacing.marginMobile * 2 + spacing.xl * 2;
 
 interface MatchStatus {
@@ -46,9 +53,9 @@ export function VoiceMatchScreen() {
     isPlayerTurn,
     isThinking,
     isGameOver,
-    lastMove,
+    lastEngineMove,
+    lastPlayerMove,
     result,
-    turn,
     playerColor,
     moveError,
     resigned,
@@ -77,13 +84,9 @@ export function VoiceMatchScreen() {
       ? resultStatus(result, resigned)
       : disambiguation
         ? { text: disambiguation.prompt, tone: 'action' }
-        : moveError
-          ? { text: moveError, tone: 'alert' }
-          : isThinking
-            ? { text: 'Engine thinking…', tone: 'neutral' }
-            : lastMove && turn === playerColor
-              ? { text: `Engine played ${lastMove} — your move`, tone: 'action' }
-              : { text: `Your move — you play ${colorLabel}`, tone: 'action' };
+        : isThinking
+          ? { text: 'Engine thinking…', tone: 'neutral' }
+          : { text: `Your move — you play ${colorLabel}`, tone: 'action' };
 
   const handleSubmitMove = (move: string) => {
     void submitPlayerMove(move);
@@ -100,77 +103,91 @@ export function VoiceMatchScreen() {
         bordered
         onSettingsPress={() => router.push('/(main)/settings' as never)}
       />
-      <ScrollView
-        contentContainerStyle={styles.content}
-        keyboardShouldPersistTaps="handled"
-        showsVerticalScrollIndicator={false}
+      <KeyboardAvoidingView
+        behavior={Platform.OS === 'ios' ? 'padding' : undefined}
+        keyboardVerticalOffset={Platform.OS === 'ios' ? 8 : 0}
+        style={styles.flex}
       >
-        <MatchStatusBar
-          elo={matchElo}
-          statusText={matchStatus.text}
-          statusTone={matchStatus.tone}
-        />
-
-        <View style={styles.boardWrap}>
-          <BlindfoldBoard
-            fen={fen}
-            fullyCovered={fullyCovered}
-            horizontalInset={BOARD_EXTRA_INSET}
-            peekVisible={peekVisible}
+        <ScrollView
+          contentContainerStyle={styles.content}
+          keyboardShouldPersistTaps="handled"
+          showsVerticalScrollIndicator={false}
+        >
+          <MatchStatusBar
+            elo={matchElo}
+            statusText={matchStatus.text}
+            statusTone={matchStatus.tone}
           />
-        </View>
 
-        {isGameOver ? (
-          <View style={styles.gameOverActions}>
-            <PrimaryButton
-              accessibilityLabel="New match"
-              label="New match"
-              onPress={handleNewMatch}
-              uppercase={false}
-            />
-            <PrimaryButton
-              accessibilityLabel="Back to home"
-              label="Back to home"
-              onPress={() => router.replace('/(main)')}
-              uppercase={false}
-              variant="secondary"
+          <View style={styles.boardWrap}>
+            <BlindfoldBoard
+              fen={fen}
+              fullyCovered={fullyCovered}
+              horizontalInset={BOARD_EXTRA_INSET}
+              peekVisible={peekVisible}
             />
           </View>
-        ) : (
-          <>
-            <MatchControlBar
-              covered={fullyCovered}
-              micDisabled
-              onCoverPress={() => setFullyCovered((value) => !value)}
-              onPeekPress={onPeek}
-            />
-            <MatchSecondaryActions
-              disabled={isThinking}
-              onResign={resignMatch}
-            />
-            <Text style={styles.peekHint}>
-              Peeks build tomorrow&apos;s puzzles
-            </Text>
-            {disambiguation ? (
-              <MoveDisambiguation
-                candidates={disambiguation.candidates}
-                onCancel={cancelDisambiguation}
-                onSelect={(san) => {
-                  void chooseDisambiguation(san);
-                }}
-                prompt={disambiguation.prompt}
+
+          {isGameOver ? (
+            <View style={styles.gameOverActions}>
+              <PrimaryButton
+                accessibilityLabel="New match"
+                label="New match"
+                onPress={handleNewMatch}
+                uppercase={false}
               />
-            ) : (
-              <DevMoveInput
-                disabled={!isPlayerTurn || isThinking}
-                error={moveError}
-                onClearError={clearMoveError}
-                onSubmit={handleSubmitMove}
+              <PrimaryButton
+                accessibilityLabel="Back to home"
+                label="Back to home"
+                onPress={() => router.replace('/(main)')}
+                uppercase={false}
+                variant="secondary"
               />
-            )}
-          </>
-        )}
-      </ScrollView>
+            </View>
+          ) : (
+            <>
+              {disambiguation ? (
+                <MoveDisambiguation
+                  candidates={disambiguation.candidates}
+                  onCancel={cancelDisambiguation}
+                  onSelect={(san) => {
+                    void chooseDisambiguation(san);
+                  }}
+                  prompt={disambiguation.prompt}
+                />
+              ) : (
+                <MatchMovePanel
+                  error={moveError}
+                  inputDisabled={!isPlayerTurn || isThinking}
+                  isThinking={isThinking}
+                  lastEngineMove={lastEngineMove}
+                  lastPlayerMove={lastPlayerMove}
+                  onClearError={clearMoveError}
+                  onSubmit={handleSubmitMove}
+                />
+              )}
+              <MatchControlBar
+                covered={fullyCovered}
+                micDisabled
+                onCoverPress={() => setFullyCovered((value) => !value)}
+                onPeekPress={onPeek}
+              />
+              <View style={styles.footerRow}>
+                <Text
+                  accessibilityLabel="Your peeks become custom training drills"
+                  style={styles.peekHint}
+                >
+                  Your peeks become custom training drills
+                </Text>
+                <MatchSecondaryActions
+                  disabled={isThinking}
+                  onResign={resignMatch}
+                />
+              </View>
+            </>
+          )}
+        </ScrollView>
+      </KeyboardAvoidingView>
     </SafeAreaView>
   );
 }
@@ -179,6 +196,9 @@ const styles = StyleSheet.create({
   safe: {
     flex: 1,
     backgroundColor: colors.background,
+  },
+  flex: {
+    flex: 1,
   },
   content: {
     paddingHorizontal: spacing.marginMobile,
@@ -189,11 +209,15 @@ const styles = StyleSheet.create({
   boardWrap: {
     alignItems: 'center',
   },
+  footerRow: {
+    alignItems: 'center',
+    gap: spacing.sm,
+    marginTop: -spacing.sm,
+  },
   peekHint: {
     ...typography.labelBold,
     color: colors.outline,
     textAlign: 'center',
-    marginTop: -spacing.sm,
   },
   gameOverActions: {
     gap: spacing.md,

@@ -1,7 +1,9 @@
 import {
   MATCH_ELO_DEFAULT,
+  usesHumanFallbackEngine,
   userEloToEngineConfig,
 } from './engineElo';
+import { getFallbackMove } from './fallbackEngine';
 import { uciToSan } from './uciToSan';
 import { UciClient } from './uciClient';
 import { createStockfishModule } from './stockfishModule';
@@ -38,6 +40,8 @@ async function ensureClient(elo: number): Promise<UciClient> {
 }
 
 export async function initEngine(options: EngineOptions): Promise<void> {
+  configuredElo = options.elo;
+  if (usesHumanFallbackEngine(options.elo)) return;
   await ensureClient(options.elo);
 }
 
@@ -50,6 +54,9 @@ export async function disposeEngine(): Promise<void> {
 
 export async function getEngineMove(fen: string, elo?: number): Promise<string> {
   const targetElo = elo ?? configuredElo ?? MATCH_ELO_DEFAULT;
+  if (usesHumanFallbackEngine(targetElo)) {
+    return getFallbackMove(fen, targetElo);
+  }
   const uci = await (await ensureClient(targetElo)).bestMove(fen, DEFAULT_MOVETIME_MS);
   return uciToSan(fen, uci);
 }

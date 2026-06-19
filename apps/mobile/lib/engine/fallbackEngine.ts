@@ -214,6 +214,8 @@ interface EloProfile {
   blunderRate: number;
   /** Centipawns — 2nd-best move within this gap may be chosen. */
   noiseCp: number;
+  /** Fraction of ranked moves skipped when blundering (higher = worse blunders). */
+  blunderPoolStart: number;
 }
 
 function interpolate(elo: number, anchors: [number, number][]): number {
@@ -236,26 +238,35 @@ export function eloProfile(elo: number): EloProfile {
   return {
     depth: Math.round(
       interpolate(elo, [
+        [300, 1],
         [600, 1],
         [900, 2],
         [1200, 3],
-        [1500, 4],
-        [1800, 5],
+        [1320, 3],
       ]),
     ),
     blunderRate: interpolate(elo, [
-      [600, 0.28],
-      [900, 0.16],
-      [1200, 0.07],
-      [1500, 0.03],
-      [1800, 0.01],
+      [300, 0.48],
+      [500, 0.38],
+      [700, 0.28],
+      [900, 0.18],
+      [1100, 0.1],
+      [1320, 0.05],
     ]),
     noiseCp: interpolate(elo, [
-      [600, 180],
-      [900, 120],
-      [1200, 70],
-      [1500, 40],
-      [1800, 20],
+      [300, 350],
+      [500, 280],
+      [700, 220],
+      [900, 160],
+      [1100, 100],
+      [1320, 55],
+    ]),
+    blunderPoolStart: interpolate(elo, [
+      [300, 0.55],
+      [600, 0.4],
+      [900, 0.25],
+      [1200, 0.15],
+      [1320, 0.1],
     ]),
   };
 }
@@ -352,9 +363,11 @@ function pickHumanMove(scored: ScoredMove[], profile: EloProfile): string {
   if (scored.length === 1) return scored[0].san;
 
   if (Math.random() < profile.blunderRate) {
-    const blunderPool = scored.slice(1);
-    const index = Math.floor(Math.random() * blunderPool.length);
-    return blunderPool[index].san;
+    const start = Math.max(1, Math.floor(scored.length * profile.blunderPoolStart));
+    const blunderPool = scored.slice(start);
+    const pool = blunderPool.length > 0 ? blunderPool : scored.slice(1);
+    const index = Math.floor(Math.random() * pool.length);
+    return pool[index].san;
   }
 
   const best = scored[0].score;

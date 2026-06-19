@@ -28,6 +28,8 @@ export function useMatchSession(matchElo: number, playerColor: MatchPlayerColor)
   const [status, setStatus] = useState<MatchStatus>('playing');
   const [isThinking, setIsThinking] = useState(false);
   const [lastMove, setLastMove] = useState<string | null>(null);
+  const [lastEngineMove, setLastEngineMove] = useState<string | null>(null);
+  const [lastPlayerMove, setLastPlayerMove] = useState<string | null>(null);
   const [result, setResult] = useState<GameResult | null>(null);
   const [moveError, setMoveError] = useState<string | null>(null);
   const [resigned, setResigned] = useState(false);
@@ -73,6 +75,7 @@ export function useMatchSession(matchElo: number, playerColor: MatchPlayerColor)
       if (!san) return;
       chessRef.current.move(san);
       setLastMove(san);
+      setLastEngineMove(san);
       syncFen();
       finishIfGameOver();
     } catch {
@@ -98,6 +101,7 @@ export function useMatchSession(matchElo: number, playerColor: MatchPlayerColor)
       setDisambiguation(null);
       chessRef.current.move(san);
       setLastMove(san);
+      setLastPlayerMove(san);
       syncFen();
 
       if (finishIfGameOver()) return true;
@@ -157,6 +161,8 @@ export function useMatchSession(matchElo: number, playerColor: MatchPlayerColor)
     setStatus('playing');
     setIsThinking(false);
     setLastMove(null);
+    setLastEngineMove(null);
+    setLastPlayerMove(null);
     setResult(null);
     setMoveError(null);
     setResigned(false);
@@ -186,6 +192,8 @@ export function useMatchSession(matchElo: number, playerColor: MatchPlayerColor)
     isThinking,
     isGameOver,
     lastMove,
+    lastEngineMove,
+    lastPlayerMove,
     result,
     moveError,
     resigned,

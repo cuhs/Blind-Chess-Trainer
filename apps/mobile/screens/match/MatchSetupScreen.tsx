@@ -84,8 +84,8 @@ export function MatchSetupScreen() {
         {error ? <Text style={styles.error}>{error}</Text> : null}
 
         <Text style={styles.note}>
-          Stockfish 17 (native C++) powers the engine on iOS. Ratings 1320+ use
-          calibrated UCI Elo; lower ratings use skill-based weakening.
+          Stockfish 17 powers ratings 1320+. Lower ratings use human-style
+          mistakes tuned to match chess.com beginner play.
         </Text>
       </ScrollView>
     </SafeAreaView>

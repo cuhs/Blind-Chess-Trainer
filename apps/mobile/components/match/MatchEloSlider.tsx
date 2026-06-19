@@ -43,7 +43,7 @@ export function MatchEloSlider({ value, onChange }: MatchEloSliderProps) {
       <Text style={styles.hint}>
         {calibrated
           ? 'Calibrated Stockfish strength'
-          : 'Skill-based weakening below 1320'}
+          : 'Human-style play below 1320'}
       </Text>
     </View>
   );

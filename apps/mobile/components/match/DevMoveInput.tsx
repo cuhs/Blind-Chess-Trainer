@@ -13,6 +13,7 @@ interface DevMoveInputProps {
   error: string | null;
   onSubmit: (move: string) => void;
   onClearError: () => void;
+  variant?: 'card' | 'embedded';
 }
 
 export function DevMoveInput({
@@ -20,6 +21,7 @@ export function DevMoveInput({
   error,
   onSubmit,
   onClearError,
+  variant = 'card',
 }: DevMoveInputProps) {
   const [input, setInput] = useState('');
 
@@ -30,8 +32,8 @@ export function DevMoveInput({
   };
 
   return (
-    <View style={styles.wrap}>
-      <Text style={styles.label}>MOVE INPUT</Text>
+    <View style={variant === 'card' ? styles.wrap : styles.embeddedWrap}>
+      {variant === 'card' ? <Text style={styles.label}>MOVE INPUT</Text> : null}
       <View style={styles.inputRow}>
         <TextInput
           accessibilityLabel="Enter move in SAN"
@@ -76,6 +78,10 @@ const styles = StyleSheet.create({
     borderColor: colors.cardStroke,
     padding: spacing.md,
     gap: spacing.sm,
+  },
+  embeddedWrap: {
+    flex: 1,
+    gap: spacing.xs,
   },
   label: {
     ...typography.labelBold,

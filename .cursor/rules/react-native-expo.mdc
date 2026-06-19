@@ -77,7 +77,7 @@ Skill: `training-flow`. No separate `StoryPuzzle` screen.
 | `useMatchClock` | Countdown while player to move |
 | `useMatchPeek` | 2s board flash + `addPeekEvent` (one event per position) + `match_peek` ledger (every peek) |
 
-Engine: `lib/engine/stockfishWorker.ts` (fallback minimax until Stockfish WASM). Skill: `voice-match`.
+Engine: `lib/engine/stockfishWorker.ts` — Stockfish 17 at 1320+; human fallback below. Skill: `voice-match`.
 
 ## Blueprint
 
