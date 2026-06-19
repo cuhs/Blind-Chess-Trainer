@@ -119,4 +119,18 @@ describe('detectLinearMotifs', () => {
 
     expect(motifs).toHaveLength(0);
   });
+
+  it('should not detect a relative pin when the rear is defended and not tactically capturable', () => {
+    const fen = 'rn1qkb1r/1pppppp1/p6n/7p/3PP3/5Q2/PPP2PPP/RNB1KBNR w KQkq - 0 1';
+    const motifs = detect(fen).filter((m) => m.type === 'pin');
+
+    expect(motifs).toHaveLength(0);
+  });
+
+  it('should not detect a relative pin when removing the front piece still leaves the rear defended', () => {
+    const fen = '4k3/8/8/8/8/8/4p3/3Q1B2 w - - 0 1';
+    const motifs = detect(fen).filter((m) => m.type === 'pin');
+
+    expect(motifs).toHaveLength(0);
+  });
 });

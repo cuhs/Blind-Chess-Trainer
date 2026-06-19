@@ -5,7 +5,8 @@
 | Case | Expected |
 |------|----------|
 | Absolute pin to king | Detect — piece cannot legally move |
-| Relative pin to queen/rook | Detect — piece can move but loses material |
+| Relative pin to queen/rook | Detect — removing front leaves rear undefended, underdefended with a profitable attacker, or a winning exchange for the pin attacker |
+| Relative pin when rear stays adequately defended | Do not detect (e.g. queen eyes f7 pawn with defended bishop behind) |
 | Pin broken by interposing piece | No pin after interposition |
 | Pinned piece can capture attacker | Not a pin if capture is legal and breaks threat |
 
@@ -26,8 +27,9 @@ Forks use the influence map (`isSquareTacticallyThreatened`). A fork is detected
 | Rule | Expected |
 |------|----------|
 | Royal fork (king is a target) | Detect — king must respond |
-| At least one target loose or underdefended | Detect — undefended, or more attackers than defenders on that square |
+| At least two targets loose or underdefended | Detect — opponent cannot save both |
 | Value-winning fork | Detect — forker worth **less** than the highest-value target (e.g. knight forks defended queen + rook) |
+| One loose target plus adequately defended second target | Do not detect (e.g. queen eyes h5 pawn and well-defended f7 pawn) |
 | Equally defended, forker not lower value | Do not detect (e.g. queen “forking” two defended rooks) |
 | Only one enemy piece attacked | Do not detect |
 | Mutual defense with equal counts, no value win | Do not detect (e.g. two bishops defended 1:1 by a knight) |

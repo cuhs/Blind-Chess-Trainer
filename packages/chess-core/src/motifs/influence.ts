@@ -1,6 +1,12 @@
 import { ALL_SQUARES, type Square } from '@mindboard/shared';
 import type { PieceMap, SquareInfluence } from '../types/motifs';
-import { getAttackSquares, getOccupiedSquares, scanBoard, isSamePiece } from './primitives';
+import {
+  getAttackSquares,
+  getOccupiedSquares,
+  scanBoard,
+  isSamePiece,
+  type BoardState,
+} from './primitives';
 
 export type InfluenceMap = Record<Square, SquareInfluence>;
 
@@ -12,10 +18,7 @@ function emptyInfluenceMap(): InfluenceMap {
   return map;
 }
 
-export function buildInfluenceMap(fen: string): InfluenceMap | null {
-  const board = scanBoard(fen);
-  if (!board) return null;
-
+export function buildInfluenceMapFromBoard(board: BoardState): InfluenceMap {
   const map = emptyInfluenceMap();
   const pieces = getOccupiedSquares(board);
 
@@ -36,6 +39,13 @@ export function buildInfluenceMap(fen: string): InfluenceMap | null {
   }
 
   return map;
+}
+
+export function buildInfluenceMap(fen: string): InfluenceMap | null {
+  const board = scanBoard(fen);
+  if (!board) return null;
+
+  return buildInfluenceMapFromBoard(board);
 }
 
 export function hasDefender(influence: SquareInfluence, piece: { square: Square }): boolean {

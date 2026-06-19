@@ -1,4 +1,4 @@
-import type { Motif, PinMotif, SkewerMotif } from '../types/motifs';
+import type { Motif, PieceMap, PinMotif, SkewerMotif } from '../types/motifs';
 import type { InfluenceMap } from './influence';
 import {
   coordsToSquare,
@@ -10,7 +10,7 @@ import {
   squareToCoords,
   type BoardState,
 } from './primitives';
-import { hasAttacker } from './influence';
+import { buildInfluenceMapFromBoard, hasAttacker } from './influence';
 
 const PIN_WEIGHT = { absolute: 90, relative: 60 } as const;
 const SKEWER_WEIGHT = 70;
@@ -75,6 +75,43 @@ function confirmsAttack(influenceMap: InfluenceMap, attackerSquare: string, targ
   return hasAttacker(influenceMap[targetSquare as keyof InfluenceMap], { square: attackerSquare as never });
 }
 
+function captureWinsMaterial(attacker: PieceMap, rear: PieceMap): boolean {
+  return pieceValue(rear.type) > pieceValue(attacker.type);
+}
+
+/**
+ * With the front blocker gone, the rear must be attacked by the pin attacker and
+ * capturable: undefended, or underdefended with a profitable attacker, or the
+ * pin attacker can win the exchange even when defenders match.
+ */
+function isRearCapturableIfFrontRemoved(
+  board: BoardState,
+  attacker: PieceMap,
+  frontSq: string,
+  rear: PieceMap,
+): boolean {
+  const cleared: BoardState = { ...board, [frontSq]: null };
+  if (!getAttackSquares(attacker, cleared).includes(rear.square as never)) {
+    return false;
+  }
+
+  if (rear.type === 'k') return true;
+
+  const influence = buildInfluenceMapFromBoard(cleared)[rear.square];
+  const { attackers, defenders } = influence;
+
+  if (attackers.length === 0) return false;
+  if (defenders.length === 0) return true;
+
+  const profitableAttackers = attackers.filter((a) => captureWinsMaterial(a, rear));
+  if (profitableAttackers.length === 0) return false;
+
+  return (
+    attackers.length > defenders.length ||
+    profitableAttackers.some((a) => a.square === attacker.square)
+  );
+}
+
 export function detectLinearMotifs(fen: string, influenceMap: InfluenceMap): Motif[] {
   const board = scanBoard(fen);
   if (!board) return [];
@@ -108,6 +145,7 @@ export function detectLinearMotifs(fen: string, influenceMap: InfluenceMap): Mot
           attacker.square as never,
         );
         if (frontCanCaptureAttacker) continue;
+        if (!isRearCapturableIfFrontRemoved(board, attacker, frontSq, rear)) continue;
 
         const pinKind = rear.type === 'k' ? 'absolute' : 'relative';
         const pin: PinMotif = {

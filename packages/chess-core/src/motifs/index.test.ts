@@ -113,4 +113,12 @@ describe('analyzePosition', () => {
       );
     }
   });
+
+  it('should not label a queen eyeing one loose pawn and one defended pawn as a fork', () => {
+    const fen = 'rn1qkb1r/1pppppp1/p6n/7p/3PP3/5Q2/PPP2PPP/RNB1KBNR w KQkq - 0 1';
+    const motif = analyzePosition(fen);
+
+    expect(motif?.type).not.toBe('fork');
+    expect(motif?.type).not.toBe('pin');
+  });
 });

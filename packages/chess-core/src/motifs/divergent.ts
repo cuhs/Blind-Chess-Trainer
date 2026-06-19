@@ -54,12 +54,14 @@ export function detectForks(fen: string, influenceMap: InfluenceMap): ForkMotif[
       isSquareTacticallyThreatened(influenceMap[target.square], target),
     );
 
-    // A fork must win material: royal forks force a reply; otherwise at least
-    // one target is loose/underdefended, or the forker is worth less than a
-    // target (e.g. knight forking defended queen + rook).
+    // A fork must create a real dilemma: royal forks force a reply; otherwise at
+    // least two targets are loose/underdefended, or the forker is worth less
+    // than a defended target so capture-recapture still wins (e.g. knight forking
+    // defended queen + rook). A single loose pawn plus a well-defended piece is
+    // not a fork — it is just pressure on the loose target.
     if (
       !isRoyalFork &&
-      threatenedTargets.length === 0 &&
+      threatenedTargets.length < 2 &&
       !isValueWinningFork(attacker, targets)
     ) {
       continue;

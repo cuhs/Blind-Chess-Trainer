@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest';
-import { buildInfluenceMap } from './influence';
+import { buildInfluenceMap, isSquareTacticallyThreatened } from './influence';
 import {
   detectDivergentMotifs,
   detectForks,
@@ -77,18 +77,35 @@ describe('detectForks', () => {
     expect(map.f5.defenders).toHaveLength(1);
   });
 
-  it('should detect a fork when only one target is loose', () => {
-    const fen = '4k3/8/3b4/3r3r/4Q3/8/8/4K3 w - - 0 1';
-    const forks = detectForks(fen, mapFor(fen));
+  it('should detect a fork when both targets are loose', () => {
+    const fen = '8/8/8/3n1b2/4P3/8/8/4K2k w - - 0 1';
+    const map = mapFor(fen);
+    const forks = detectForks(fen, map);
 
     expect(forks).toContainEqual(
       expect.objectContaining({
-        attacker: expect.objectContaining({ square: 'e4', type: 'q' }),
+        attacker: expect.objectContaining({ square: 'e4', type: 'p' }),
         targets: expect.arrayContaining([
-          expect.objectContaining({ square: 'd5', type: 'r' }),
+          expect.objectContaining({ square: 'd5', type: 'n' }),
+          expect.objectContaining({ square: 'f5', type: 'b' }),
         ]),
+        isRoyalFork: false,
       }),
     );
+    expect(isSquareTacticallyThreatened(map.d5, { square: 'd5', type: 'n', color: 'b' })).toBe(true);
+    expect(isSquareTacticallyThreatened(map.f5, { square: 'f5', type: 'b', color: 'b' })).toBe(true);
+  });
+
+  it('should not detect a fork when only one target is loose and the other is well defended', () => {
+    const fen = 'rn1qkb1r/1pppppp1/p6n/7p/3PP3/5Q2/PPP2PPP/RNB1KBNR w KQkq - 0 1';
+    const map = mapFor(fen);
+    const forks = detectForks(fen, map);
+
+    expect(forks).toHaveLength(0);
+    expect(map.h5.attackers).toHaveLength(1);
+    expect(map.h5.defenders).toHaveLength(0);
+    expect(map.f7.attackers).toHaveLength(1);
+    expect(map.f7.defenders.length).toBeGreaterThanOrEqual(2);
   });
 
   it('should detect a value-winning fork when the forker is lower value than its targets', () => {
