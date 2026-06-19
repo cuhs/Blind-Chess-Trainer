@@ -66,23 +66,43 @@ export function MatchTabIcon({
   );
 }
 
-export function SettingsTabIcon({
+export function AnalysisTabIcon({
   size = 24,
   color = colors.outline,
   filled = false,
 }: TabIconProps) {
   return (
     <Svg width={size} height={size} viewBox="0 0 24 24" fill="none">
+      <Path
+        d="M5 19V5"
+        stroke={color}
+        strokeLinecap="round"
+        strokeWidth={1.8}
+      />
       <Circle
-        cx={12}
-        cy={12}
-        r={3}
+        cx={5}
+        cy={8}
+        r={2}
+        fill={filled ? color : 'none'}
+        stroke={color}
+        strokeWidth={1.8}
+      />
+      <Circle
+        cx={5}
+        cy={14}
+        r={2}
         fill={filled ? color : 'none'}
         stroke={color}
         strokeWidth={1.8}
       />
       <Path
-        d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M4.93 19.07l1.41-1.41M17.66 6.34l1.41-1.41"
+        d="M9 8h10M9 14h7"
+        stroke={color}
+        strokeLinecap="round"
+        strokeWidth={1.8}
+      />
+      <Path
+        d="M19 8v6"
         stroke={color}
         strokeLinecap="round"
         strokeWidth={1.8}

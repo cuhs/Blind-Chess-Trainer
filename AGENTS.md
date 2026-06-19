@@ -90,7 +90,8 @@ supabase/seed.sql     # Curated puzzle_bank seed rows
 | Main tabs | `/(main)/training/drill` | `DailyDrillScreen` |
 | Main tabs | `/(main)/match` | `MatchSetupScreen` |
 | Main tabs | `/(main)/match/play` | `VoiceMatchScreen` |
-| Main tabs | `/(main)/settings` | Settings stub |
+| Main tabs | `/(main)/analysis` | `ReplayTimeline` stub (post-game review) |
+| Settings (header only) | `/(main)/settings` | Settings stub — not in tab bar |
 
 ## Stitch → Screen Mapping
 
@@ -116,7 +117,7 @@ Post-onboarding `/(main)/index` — Stitch frame `b1eff5fd32e743e2a7f8a4b78a3403
 4. **InteractiveHeatmap** — centered compact card, label-free fog grid
 5. **DailyMatrixCard** — "Today's Matrix: 3 Positions" primary CTA + peek loop badge; disabled when today's drill is complete
 6. **VoiceMatchCard** — "Start Blindfold Match" secondary row
-7. **Tab bar** — Home | Training | Match | Settings (active green 3D pill)
+7. **Tab bar** — Home | Training | Match | Analysis (active green 3D pill); Settings via header gear only
 
 ## Build Order
 

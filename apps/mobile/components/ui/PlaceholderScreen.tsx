@@ -14,7 +14,7 @@ interface PlaceholderScreenProps {
 }
 
 /**
- * Centered "coming soon" scaffold for not-yet-built routes (Match, Settings).
+ * Centered "coming soon" scaffold for not-yet-built routes (Analysis, Settings).
  * Keeps unfinished tabs on-brand instead of bare left-aligned text.
  */
 export function PlaceholderScreen({

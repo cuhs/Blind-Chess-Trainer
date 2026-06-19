@@ -6,9 +6,9 @@ import { colors, radius, spacing, typography, touch } from '@/theme';
 import { useHabitStreakSync } from '@/hooks/useHabitStreak';
 import { useProfileSync } from '@/hooks/useProfileSync';
 import {
+  AnalysisTabIcon,
   HomeTabIcon,
   MatchTabIcon,
-  SettingsTabIcon,
   TrainingTabIcon,
 } from '@/components/ui/icons/TabIcons';
 
@@ -127,16 +127,22 @@ export default function MainLayout() {
         }}
       />
       <Tabs.Screen
-        name="settings"
+        name="analysis"
         options={{
-          title: 'Settings',
+          title: 'Analysis',
           tabBarIcon: ({ focused }) => (
-            <SettingsTabIcon
+            <AnalysisTabIcon
               color={tabIconColor(focused)}
               filled={focused}
               size={TAB_ICON_SIZE}
             />
           ),
+        }}
+      />
+      <Tabs.Screen
+        name="settings"
+        options={{
+          href: null,
         }}
       />
     </Tabs>

@@ -28,7 +28,7 @@ Reanimated for press animations. Stockfish WASM + STT off main thread.
 ```
 app/                    → Expo Router entry (`index` resumes onboarding at currentOnboardingStep)
   (onboarding)/         → linear flow, gestureEnabled: false
-  (main)/               → tabs: Home | Training | Match | Settings
+  (main)/               → tabs: Home | Training | Match | Analysis; settings route hidden (header gear)
     training/           → stack: hub (index) + drill session
 screens/onboarding/     → HookBoard, StoryCheck, RewardPuzzle, FogReveal, MatchPrimer
 screens/home/           → HomeDashboard (closed-loop)

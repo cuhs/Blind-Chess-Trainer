@@ -202,7 +202,7 @@ Post-onboarding `/(main)/index`. Habit validation + fog heatmap + closed-loop CT
 | Hero board | `InteractiveHeatmap` (`showLabels={false}`) | Centered compact card with 8×8 fog grid |
 | Primary CTA | `DailyMatrixCard` | "Today's Matrix: N Positions" + peek loop badge; "Completed Today" when drill done |
 | Secondary CTA | `VoiceMatchCard` | "Start Blindfold Match" row + chevron |
-| Navigation | Expo tabs | Home · Training · Match · Settings (active tab green 3D pill) |
+| Navigation | Expo tabs | Home · Training · Match · Analysis (active tab green 3D pill); Settings via header gear |
 
 ---
 
@@ -299,7 +299,7 @@ Shared icons live in `components/ui/icons/`. Reuse — do not inline emoji as te
 | `ProgressBar` | 12px pill, green fill, white shine | — |
 | `Card` | White, 2pt `#e5e5e5` stroke, 16px radius, 4px offset | — |
 | `HeroCopy` | Title + optional subtitle; `display` (centered) / `section` (left) | Home, TrainingHub, FogReveal headers |
-| `PlaceholderScreen` | Centered mascot/icon + badge + copy | Settings stub |
+| `PlaceholderScreen` | Centered mascot/icon + badge + copy | Analysis + Settings stubs |
 | `ChessBoard` | Labels, 4px square radius, SVG mascot pieces | Visible: hook, replay, post-game only |
 | `InvisibleGrid` | Same geometry, fog/stone neutrals | No pieces |
 | `DisambiguationOverlay` | Black/minimal screen, large targets | Voice match only |
@@ -328,8 +328,8 @@ Shared icons live in `components/ui/icons/`. Reuse — do not inline emoji as te
 | `SquareTooltip` | Micro-tooltip on square tap | HomeDashboard |
 | `DailyMatrixCard` | Primary CTA + closed-loop badge; `completedToday` disables button | HomeDashboard + TrainingHub |
 | `VoiceMatchCard` | Blindfold match row + slashed-eye icon | HomeDashboard |
-| `BottomTabBar` | 4-tab nav: Home/Training/Match/Settings; active green pill + 4px extrusion | `(main)/_layout` |
-| Tab icons | `HomeTabIcon`, `TrainingTabIcon`, `MatchTabIcon` (blindfold), `SettingsTabIcon` | Bottom tab bar |
+| `BottomTabBar` | 4-tab nav: Home/Training/Match/Analysis; active green pill + 4px extrusion | `(main)/_layout` |
+| Tab icons | `HomeTabIcon`, `TrainingTabIcon`, `MatchTabIcon` (blindfold), `AnalysisTabIcon` | Bottom tab bar |
 | `BoltIcon` | Orange filled bolt for streak | `HabitHeader` |
 | `HeatmapStats` | CLARITY %, MASTERY count | FogReveal + heatmap |
 | `HeatmapLegend` | Three-state legend chips | FogReveal + heatmap |
