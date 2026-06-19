@@ -90,7 +90,8 @@ supabase/seed.sql     # Curated puzzle_bank seed rows
 | Main tabs | `/(main)/training/drill` | `DailyDrillScreen` |
 | Main tabs | `/(main)/match` | `MatchSetupScreen` |
 | Main tabs | `/(main)/match/play` | `VoiceMatchScreen` |
-| Main tabs | `/(main)/analysis` | `ReplayTimeline` stub (post-game review) |
+| Main tabs | `/(main)/analysis` | `MatchHistoryScreen` (saved matches list) |
+| Main tabs | `/(main)/analysis/[matchId]` | `ReplayScreen` (offline step-through replay) |
 | Settings (header only) | `/(main)/settings` | Settings stub — not in tab bar |
 
 ## Stitch → Screen Mapping
@@ -127,7 +128,8 @@ Post-onboarding `/(main)/index` — Stitch frame `b1eff5fd32e743e2a7f8a4b78a3403
    - Done: engine-backed prompts when top motif matches `expected_answer`; daily cap at 3 puzzles (`selectDailyPuzzles` + `useDailySession`); completion gate via `lastDrillCompletedDate`; home + hub `DailyMatrixCard`; 54 curated `puzzle_bank` seed rows
    - Next: Stitch polish on hub/drill
 3. Voice match — `MatchSetupScreen` (Elo slider) → `VoiceMatchScreen` (native Stockfish on iOS dev build)
-4. Post-game — `ReplayTimeline`, `CognitiveHeatmap`
+   - Done: `MatchRecorder` captures moves, peeks, illegal attempts, disambiguation, and resign; `useMatchSession` persists to `guestStore.matchHistory` (AsyncStorage) on finalize; Analysis tab lists saved games and replays offline (v1, no server)
+4. Post-game — Stitch polish on `ReplayScreen`, `CognitiveHeatmap`
 5. Infrastructure — Supabase, Express API (`apps/api/` — LLM templating when needed)
 
 ## Data Layer
@@ -142,7 +144,7 @@ Supabase schema lives in `supabase/migrations/`; seed rows live in `supabase/see
 
 Client table grants are minimal: `authenticated` only (no `anon`), select/insert on ledger, select on puzzles. Streak and daily-drill date keys use the device's local calendar day (`apps/mobile/lib/dateKey.ts`). The bolt streak bumps on daily matrix completion (`completeDailyDrill`) or finishing a voice match (`recordHabitActivity`), not on bare app launch.
 
-Mobile server state uses `@tanstack/react-query` and `apps/mobile/lib/supabase.ts`. `guestStore` remains the offline-first cache for heatmap aggregates and pending ledger inserts. Onboarding resume: `app/index.tsx` redirects to `currentOnboardingStep` (persisted in guest store) until `onboardingComplete`. Daily drill mid-session progress: `drillProgress` (`dateKey` + `completedPuzzleIds`) resumes via `useDrillSessionController` + `lib/drillBootstrap.ts`; cleared atomically on session end (`completeDailyDrill`). Match peeks append `match_peek` ledger rows on every peek; `peekEvents` dedupes by `positionKeyFromFen` (one stored event and one generated puzzle per position). `usePuzzleBank` loads all active `puzzle_bank` rows; `useDailySession` picks 3 per local calendar day via `lib/dailySession.ts` (up to 2 peek-generated from match events, remaining slots from the bank with prompt-category spread when possible; order shuffled by date) and gates re-entry with `lastDrillCompletedDate`. `useProfileSync` hydrates match Elo from `profiles`. `useResolvedPuzzle` overlays engine prompts when `analyzePosition` agrees with `expected_answer`. Validate seeds: `cd packages/chess-core && npm run validate:puzzles`. Skill: `training-flow`.
+Mobile server state uses `@tanstack/react-query` and `apps/mobile/lib/supabase.ts`. `guestStore` remains the offline-first cache for heatmap aggregates and pending ledger inserts. Onboarding resume: `app/index.tsx` redirects to `currentOnboardingStep` (persisted in guest store) until `onboardingComplete`. Daily drill mid-session progress: `drillProgress` (`dateKey` + `completedPuzzleIds`) resumes via `useDrillSessionController` + `lib/drillBootstrap.ts`; cleared atomically on session end (`completeDailyDrill`). Match peeks append `match_peek` ledger rows on every peek; `peekEvents` dedupes by `positionKeyFromFen` (one stored event and one generated puzzle per position). Finished matches append a `MatchRecord` to `guestStore.matchHistory` (capped at 50, persisted in AsyncStorage) synchronously when a game ends; Analysis tab + `ReplayScreen` consume this offline with no server round-trip. `usePuzzleBank` loads all active `puzzle_bank` rows; `useDailySession` picks 3 per local calendar day via `lib/dailySession.ts` (up to 2 peek-generated from match events, remaining slots from the bank with prompt-category spread when possible; order shuffled by date) and gates re-entry with `lastDrillCompletedDate`. `useProfileSync` hydrates match Elo from `profiles`. `useResolvedPuzzle` overlays engine prompts when `analyzePosition` agrees with `expected_answer`. Validate seeds: `cd packages/chess-core && npm run validate:puzzles`. Skill: `training-flow`.
 
 ## Agent Doc Maintenance
 

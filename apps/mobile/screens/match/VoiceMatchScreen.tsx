@@ -60,13 +60,15 @@ export function VoiceMatchScreen() {
     moveError,
     resigned,
     disambiguation,
+    completedMatchRecord,
     submitPlayerMove,
     chooseDisambiguation,
     cancelDisambiguation,
     resignMatch,
     clearMoveError,
+    recordPeek,
   } = useMatchSession(matchElo, matchPlayerColor);
-  const { peekVisible, onPeek } = useMatchPeek(fen);
+  const { peekVisible, onPeek } = useMatchPeek(fen, recordPeek);
   const [fullyCovered, setFullyCovered] = useState(false);
   const habitRecorded = useRef(false);
   const recordHabitActivity = useGuestStore((s) => s.recordHabitActivity);
@@ -130,11 +132,24 @@ export function VoiceMatchScreen() {
 
           {isGameOver ? (
             <View style={styles.gameOverActions}>
+              {completedMatchRecord ? (
+                <PrimaryButton
+                  accessibilityLabel="Review this game"
+                  label="Review game"
+                  onPress={() =>
+                    router.push(
+                      `/(main)/analysis/${completedMatchRecord.id}` as never,
+                    )
+                  }
+                  uppercase={false}
+                />
+              ) : null}
               <PrimaryButton
                 accessibilityLabel="New match"
                 label="New match"
                 onPress={handleNewMatch}
                 uppercase={false}
+                variant={completedMatchRecord ? 'secondary' : undefined}
               />
               <PrimaryButton
                 accessibilityLabel="Back to home"

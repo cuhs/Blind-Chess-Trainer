@@ -29,11 +29,13 @@ Reanimated for press animations. Stockfish WASM + STT off main thread.
 app/                    → Expo Router entry (`index` resumes onboarding at currentOnboardingStep)
   (onboarding)/         → linear flow, gestureEnabled: false
   (main)/               → tabs: Home | Training | Match | Analysis; settings route hidden (header gear)
+    analysis/           → stack: list (index) + replay ([matchId])
     training/           → stack: hub (index) + drill session
 screens/onboarding/     → HookBoard, StoryCheck, RewardPuzzle, FogReveal, MatchPrimer
 screens/home/           → HomeDashboard (closed-loop)
 screens/training/       → TrainingHub, DailyDrill
 screens/match/          → VoiceMatch
+screens/analysis/       → MatchHistory, Replay
 ```
 
 ## Structure
@@ -73,9 +75,10 @@ Skill: `training-flow`. No separate `StoryPuzzle` screen.
 
 | Hook | Role |
 |------|------|
-| `useMatchSession` | chess.js game state, player side, clock freeze, engine reply |
+| `useMatchSession` | chess.js game state, player side, clock freeze, engine reply; `MatchRecorder` event log; persists `MatchRecord` to guest store on finalize |
+| `useMatchHistory` | Hydrated `matchHistory` from guest store for offline replay list/detail |
 | `useMatchClock` | Countdown while player to move |
-| `useMatchPeek` | 2s board flash + `addPeekEvent` (one event per position) + `match_peek` ledger (every peek) |
+| `useMatchPeek` | 2s board flash + `recordPeek` on match log (every peek) + `addPeekEvent` (one event per position) + `match_peek` ledger (every peek) |
 
 Engine: `lib/engine/stockfishWorker.ts` — Stockfish 17 at 1320+; human fallback below. Skill: `voice-match`.
 

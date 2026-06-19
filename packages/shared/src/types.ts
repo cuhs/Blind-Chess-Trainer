@@ -34,6 +34,80 @@ export interface PeekEvent {
   timestamp: string;
 }
 
+export type MatchPlayerColor = 'w' | 'b';
+export type MatchResult = 'win' | 'loss' | 'draw';
+
+export type MatchMoveCandidate = {
+  san: string;
+  label: string;
+};
+
+export type MatchMoveEvent = {
+  kind: 'move';
+  ply: number;
+  color: MatchPlayerColor;
+  san: string;
+  fenAfter: string;
+  timestamp: string;
+};
+
+export type MatchPeekEvent = {
+  kind: 'peek';
+  fen: string;
+  square: Square;
+  timestamp: string;
+};
+
+export type MatchIllegalAttemptEvent = {
+  kind: 'illegal_attempt';
+  input: string;
+  reason: string;
+  fen: string;
+  timestamp: string;
+};
+
+export type MatchDisambiguationEvent = {
+  kind: 'disambiguation';
+  input: string;
+  prompt: string;
+  candidates: MatchMoveCandidate[];
+  fen: string;
+  timestamp: string;
+};
+
+export type MatchDisambiguationCancelledEvent = {
+  kind: 'disambiguation_cancelled';
+  fen: string;
+  timestamp: string;
+};
+
+export type MatchResignEvent = {
+  kind: 'resign';
+  fen: string;
+  timestamp: string;
+};
+
+export type MatchEvent =
+  | MatchMoveEvent
+  | MatchPeekEvent
+  | MatchIllegalAttemptEvent
+  | MatchDisambiguationEvent
+  | MatchDisambiguationCancelledEvent
+  | MatchResignEvent;
+
+export interface MatchRecord {
+  id: string;
+  startedAt: string;
+  finishedAt: string;
+  startFen: string;
+  finalFen: string;
+  playerColor: MatchPlayerColor;
+  engineElo: number;
+  result: MatchResult;
+  resigned: boolean;
+  events: MatchEvent[];
+}
+
 export interface HeatmapCell {
   square: Square;
   interactions: number;

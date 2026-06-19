@@ -1,7 +1,14 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { Chess } from 'chess.js';
-import { resolveMove, type MoveCandidate } from '@mindboard/chess-core';
+import {
+  createMatchRecorder,
+  resolveMove,
+  type MatchRecorder,
+  type MoveCandidate,
+} from '@mindboard/chess-core';
+import type { MatchRecord, Square } from '@mindboard/shared';
 import { getEngineMove, initEngine, disposeEngine } from '@/lib/engine/stockfishWorker';
+import { useGuestStore } from '@/stores/guestStore';
 
 import {
   MATCH_START_FEN,
@@ -22,8 +29,28 @@ function turnFromFen(fen: string): 'w' | 'b' {
   return fen.split(' ')[1] === 'b' ? 'b' : 'w';
 }
 
+function createRecorderId(): string {
+  return `match-${Date.now()}-${Math.random().toString(36).slice(2, 10)}`;
+}
+
+function createSessionRecorder(
+  matchElo: number,
+  playerColor: MatchPlayerColor,
+): MatchRecorder {
+  return createMatchRecorder({
+    id: createRecorderId(),
+    startedAt: new Date().toISOString(),
+    startFen: MATCH_START_FEN,
+    playerColor,
+    engineElo: matchElo,
+  });
+}
+
 export function useMatchSession(matchElo: number, playerColor: MatchPlayerColor) {
   const chessRef = useRef(new Chess(MATCH_START_FEN));
+  const recorderRef = useRef<MatchRecorder>(
+    createSessionRecorder(matchElo, playerColor),
+  );
   const [fen, setFen] = useState(MATCH_START_FEN);
   const [status, setStatus] = useState<MatchStatus>('playing');
   const [isThinking, setIsThinking] = useState(false);
@@ -35,6 +62,8 @@ export function useMatchSession(matchElo: number, playerColor: MatchPlayerColor)
   const [resigned, setResigned] = useState(false);
   const [disambiguation, setDisambiguation] =
     useState<MoveDisambiguationState | null>(null);
+  const [completedMatchRecord, setCompletedMatchRecord] =
+    useState<MatchRecord | null>(null);
   const openingMoveSentRef = useRef(false);
 
   const turn = turnFromFen(fen);
@@ -53,18 +82,45 @@ export function useMatchSession(matchElo: number, playerColor: MatchPlayerColor)
     setFen(chessRef.current.fen());
   }, []);
 
+  const finalizeMatch = useCallback(
+    (
+      nextResult: GameResult,
+      nextResigned: boolean,
+      options?: { recordResign?: boolean },
+    ) => {
+      if (recorderRef.current.isFinalized()) return;
+
+      const timestamp = new Date().toISOString();
+      if (options?.recordResign) {
+        recorderRef.current.recordResign(chessRef.current.fen(), timestamp);
+      }
+
+      const record = recorderRef.current.finalize({
+        result: nextResult,
+        resigned: nextResigned,
+        finalFen: chessRef.current.fen(),
+        finishedAt: timestamp,
+      });
+      setCompletedMatchRecord(record);
+      useGuestStore.getState().addMatchRecord(record);
+    },
+    [],
+  );
+
   const finishIfGameOver = useCallback((): boolean => {
     const chess = chessRef.current;
     if (!chess.isGameOver()) return false;
 
     setStatus('gameover');
-    if (chess.isCheckmate()) {
-      setResult(chess.turn() === playerColor ? 'loss' : 'win');
-    } else {
-      setResult('draw');
-    }
+    const nextResult: GameResult = chess.isCheckmate()
+      ? chess.turn() === playerColor
+        ? 'loss'
+        : 'win'
+      : 'draw';
+    setResult(nextResult);
+    finalizeMatch(nextResult, false);
     return true;
-  }, [playerColor]);
+  }, [playerColor, finalizeMatch]);
 
   const applyEngineMove = useCallback(async () => {
     if (turnFromFen(chessRef.current.fen()) === playerColor) return;
@@ -73,7 +129,14 @@ export function useMatchSession(matchElo: number, playerColor: MatchPlayerColor)
     try {
       const san = await getEngineMove(chessRef.current.fen(), matchElo);
       if (!san) return;
+      const movingColor = turnFromFen(chessRef.current.fen());
       chessRef.current.move(san);
+      recorderRef.current.recordMove(
+        san,
+        movingColor,
+        chessRef.current.fen(),
+        new Date().toISOString(),
+      );
       setLastMove(san);
       setLastEngineMove(san);
       syncFen();
@@ -99,7 +162,14 @@ export function useMatchSession(matchElo: number, playerColor: MatchPlayerColor)
     async (san: string): Promise<boolean> => {
       setMoveError(null);
       setDisambiguation(null);
+      const movingColor = turnFromFen(chessRef.current.fen());
       chessRef.current.move(san);
+      recorderRef.current.recordMove(
+        san,
+        movingColor,
+        chessRef.current.fen(),
+        new Date().toISOString(),
+      );
       setLastMove(san);
       setLastPlayerMove(san);
       syncFen();
@@ -116,13 +186,22 @@ export function useMatchSession(matchElo: number, playerColor: MatchPlayerColor)
     async (input: string): Promise<boolean> => {
       if (!isPlayerTurn) return false;
 
-      const resolution = resolveMove(chessRef.current.fen(), input);
+      const currentFen = chessRef.current.fen();
+      const resolution = resolveMove(currentFen, input);
       if (resolution.ok) {
         return applySan(resolution.san);
       }
 
+      const timestamp = new Date().toISOString();
       if ('ambiguous' in resolution && resolution.ambiguous) {
         setMoveError(null);
+        recorderRef.current.recordDisambiguation(
+          input,
+          resolution.prompt,
+          resolution.candidates,
+          currentFen,
+          timestamp,
+        );
         setDisambiguation({
           prompt: resolution.prompt,
           candidates: resolution.candidates,
@@ -131,6 +210,12 @@ export function useMatchSession(matchElo: number, playerColor: MatchPlayerColor)
       }
 
       setDisambiguation(null);
+      recorderRef.current.recordIllegalAttempt(
+        input,
+        resolution.reason,
+        currentFen,
+        timestamp,
+      );
       setMoveError(
         resolution.reason === 'Illegal move'
           ? 'Illegal move — choose a legal move'
@@ -150,12 +235,17 @@ export function useMatchSession(matchElo: number, playerColor: MatchPlayerColor)
   );
 
   const cancelDisambiguation = useCallback(() => {
+    recorderRef.current.recordDisambiguationCancelled(
+      chessRef.current.fen(),
+      new Date().toISOString(),
+    );
     setDisambiguation(null);
     setMoveError(null);
   }, []);
 
   const resetMatch = useCallback(() => {
     chessRef.current = new Chess(MATCH_START_FEN);
+    recorderRef.current = createSessionRecorder(matchElo, playerColor);
     openingMoveSentRef.current = false;
     setFen(MATCH_START_FEN);
     setStatus('playing');
@@ -167,7 +257,8 @@ export function useMatchSession(matchElo: number, playerColor: MatchPlayerColor)
     setMoveError(null);
     setResigned(false);
     setDisambiguation(null);
-  }, []);
+    setCompletedMatchRecord(null);
+  }, [matchElo, playerColor]);
 
   const resignMatch = useCallback(() => {
     if (status === 'gameover') return;
@@ -177,10 +268,20 @@ export function useMatchSession(matchElo: number, playerColor: MatchPlayerColor)
     setResult('loss');
     setMoveError(null);
     setDisambiguation(null);
-  }, [status]);
+    finalizeMatch('loss', true, { recordResign: true });
+  }, [status, finalizeMatch]);
 
   const clearMoveError = useCallback(() => {
     setMoveError(null);
+  }, []);
+
+  const recordPeek = useCallback((square: Square) => {
+    if (recorderRef.current.isFinalized()) return;
+    recorderRef.current.recordPeek(
+      chessRef.current.fen(),
+      square,
+      new Date().toISOString(),
+    );
   }, []);
 
   return {
@@ -198,11 +299,13 @@ export function useMatchSession(matchElo: number, playerColor: MatchPlayerColor)
     moveError,
     resigned,
     disambiguation,
+    completedMatchRecord,
     submitPlayerMove,
     chooseDisambiguation,
     cancelDisambiguation,
     resetMatch,
     resignMatch,
     clearMoveError,
+    recordPeek,
   };
 }

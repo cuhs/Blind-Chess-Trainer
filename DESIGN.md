@@ -333,10 +333,12 @@ Shared icons live in `components/ui/icons/`. Reuse — do not inline emoji as te
 | `BoltIcon` | Orange filled bolt for streak | `HabitHeader` |
 | `HeatmapStats` | CLARITY %, MASTERY count | FogReveal + heatmap |
 | `HeatmapLegend` | Three-state legend chips | FogReveal + heatmap |
+| `MatchSummaryCard` | Saved match row — date, result, move/peek counts | MatchHistoryScreen |
+| `ReplayControls` | Step title + previous/next for offline replay | ReplayScreen |
 
 File paths: `apps/mobile/components/{ui,chess,match,heatmap,replay,home,onboarding,training}/`
 
-Screens: `TrainingHubScreen` (`/(main)/training`), `DailyDrillScreen` (`/(main)/training/drill`), `VoiceMatchScreen` (`/(main)/match`).
+Screens: `TrainingHubScreen` (`/(main)/training`), `DailyDrillScreen` (`/(main)/training/drill`), `VoiceMatchScreen` (`/(main)/match`), `MatchHistoryScreen` (`/(main)/analysis`), `ReplayScreen` (`/(main)/analysis/[matchId]`).
 
 Icon assets: `components/ui/icons/`. Piece SVGs: `components/chess/pieces/`.
 

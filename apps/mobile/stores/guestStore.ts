@@ -1,8 +1,9 @@
 import { create } from 'zustand';
 import { persist, createJSONStorage } from 'zustand/middleware';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import { positionKeyFromFen } from '@mindboard/chess-core';
+import { appendMatchRecord, positionKeyFromFen } from '@mindboard/chess-core';
 import type {
+  MatchRecord,
   OnboardingAnswer,
   OnboardingStep,
   PeekEvent,
@@ -40,6 +41,7 @@ interface GuestState {
   lastDrillCompletedDate: string | null;
   drillProgress: DrillProgress | null;
   peekEvents: PeekEvent[];
+  matchHistory: MatchRecord[];
   matchElo: number;
   matchPlayerColor: 'w' | 'b';
   _hasHydrated: boolean;
@@ -61,6 +63,7 @@ interface GuestState {
   recordSquareInteractions: (squares: Square[]) => void;
   removePendingHeatmapInteractions: (ids: string[]) => void;
   addPeekEvent: (event: PeekEvent) => void;
+  addMatchRecord: (record: MatchRecord) => void;
   setStreakDays: (days: number) => void;
   setLastActiveDate: (date: string) => void;
   recordHabitActivity: (date?: string) => void;
@@ -88,6 +91,7 @@ export const useGuestStore = create<GuestState>()(
       lastDrillCompletedDate: null,
       drillProgress: null,
       peekEvents: [],
+      matchHistory: [],
       matchElo: 800,
       matchPlayerColor: 'w',
       _hasHydrated: false,
@@ -175,6 +179,16 @@ export const useGuestStore = create<GuestState>()(
           return { peekEvents: [...state.peekEvents, event] };
         }),
 
+      addMatchRecord: (record) =>
+        set((state) => {
+          if (state.matchHistory.some((existing) => existing.id === record.id)) {
+            return state;
+          }
+          return {
+            matchHistory: appendMatchRecord(state.matchHistory, record),
+          };
+        }),
+
       setStreakDays: (days) => set({ streakDays: days }),
 
       setLastActiveDate: (date) => set({ lastActiveDate: date }),
@@ -251,6 +265,7 @@ export const useGuestStore = create<GuestState>()(
         lastDrillCompletedDate: state.lastDrillCompletedDate,
         drillProgress: state.drillProgress,
         peekEvents: state.peekEvents,
+        matchHistory: state.matchHistory,
         matchElo: state.matchElo,
         matchPlayerColor: state.matchPlayerColor,
       }),

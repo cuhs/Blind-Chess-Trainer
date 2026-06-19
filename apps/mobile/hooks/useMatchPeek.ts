@@ -6,7 +6,10 @@ import { useGuestStore } from '@/stores/guestStore';
 
 const FALLBACK_SQUARE: Square = 'e4';
 
-export function useMatchPeek(fen: string) {
+export function useMatchPeek(
+  fen: string,
+  recordMatchPeek?: (square: Square) => void,
+) {
   const { peekVisible, triggerPeek } = useBlindfoldPeek();
   const addPeekEvent = useGuestStore((s) => s.addPeekEvent);
   const recordHeatmapInteractions = useGuestStore(
@@ -16,13 +19,20 @@ export function useMatchPeek(fen: string) {
   const onPeek = useCallback(() => {
     const timestamp = new Date().toISOString();
     const square = weaknessSquareFromFen(fen) ?? FALLBACK_SQUARE;
+    recordMatchPeek?.(square);
     addPeekEvent({ fen, square, timestamp });
     recordHeatmapInteractions([square], {
       isSuccess: false,
       interactionType: 'match_peek',
     });
     triggerPeek();
-  }, [fen, addPeekEvent, recordHeatmapInteractions, triggerPeek]);
+  }, [
+    fen,
+    recordMatchPeek,
+    addPeekEvent,
+    recordHeatmapInteractions,
+    triggerPeek,
+  ]);
 
   return { peekVisible, onPeek };
 }
