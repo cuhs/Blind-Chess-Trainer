@@ -1,81 +1,120 @@
-import { View, Text, StyleSheet } from 'react-native';
-import { PrimaryButton } from '@/components/ui/PrimaryButton';
-import { colors, spacing, typography } from '@/theme';
+import { useState, type ReactNode } from 'react';
+import { Pressable, StyleSheet, Text, View } from 'react-native';
+import { ChevronLeftIcon } from '@/components/ui/icons/ChevronLeftIcon';
+import { ChevronRightIcon } from '@/components/ui/icons/ChevronRightIcon';
+import { colors, radius, spacing, touch, typography } from '@/theme';
 
 interface ReplayControlsProps {
-  stepIndex: number;
-  stepCount: number;
-  stepTitle: string;
-  stepDetail?: string;
+  positionIndex: number;
+  positionCount: number;
   onPrevious: () => void;
   onNext: () => void;
 }
 
 export function ReplayControls({
-  stepIndex,
-  stepCount,
-  stepTitle,
-  stepDetail,
+  positionIndex,
+  positionCount,
   onPrevious,
   onNext,
 }: ReplayControlsProps) {
-  const atStart = stepIndex <= 0;
-  const atEnd = stepIndex >= stepCount - 1;
+  const atStart = positionIndex <= 0;
+  const atEnd = positionIndex >= positionCount - 1;
+  const moveLabel =
+    positionIndex === 0
+      ? 'Start position'
+      : `After move ${positionIndex} of ${positionCount - 1}`;
 
   return (
     <View style={styles.wrap}>
-      <Text accessibilityRole="header" style={styles.title}>
-        {stepTitle}
-      </Text>
-      {stepDetail ? (
-        <Text accessibilityLabel={stepDetail} style={styles.detail}>
-          {stepDetail}
-        </Text>
-      ) : null}
-      <Text style={styles.counter}>
-        Step {stepIndex + 1} of {stepCount}
+      <Text accessibilityRole="text" style={styles.label}>
+        {moveLabel}
       </Text>
       <View style={styles.buttons}>
-        <PrimaryButton
-          accessibilityLabel="Previous replay step"
+        <StepButton
+          accessibilityLabel="Previous position"
           disabled={atStart}
-          label="Previous"
+          icon={<ChevronLeftIcon color={colors.onTertiaryContainer} size={36} />}
           onPress={onPrevious}
-          uppercase={false}
-          variant="secondary"
         />
-        <PrimaryButton
-          accessibilityLabel="Next replay step"
+        <StepButton
+          accessibilityLabel="Next position"
           disabled={atEnd}
-          label="Next"
+          icon={<ChevronRightIcon color={colors.onTertiaryContainer} size={36} />}
           onPress={onNext}
-          uppercase={false}
         />
       </View>
     </View>
   );
 }
 
+interface StepButtonProps {
+  accessibilityLabel: string;
+  disabled: boolean;
+  icon: ReactNode;
+  onPress: () => void;
+}
+
+function StepButton({
+  accessibilityLabel,
+  disabled,
+  icon,
+  onPress,
+}: StepButtonProps) {
+  const [pressed, setPressed] = useState(false);
+
+  return (
+    <Pressable
+      accessibilityLabel={accessibilityLabel}
+      accessibilityRole="button"
+      accessibilityState={{ disabled }}
+      disabled={disabled}
+      onPress={onPress}
+      onPressIn={() => setPressed(true)}
+      onPressOut={() => setPressed(false)}
+      style={[
+        styles.stepButton,
+        disabled && styles.stepButtonDisabled,
+        {
+          transform: [{ translateY: pressed && !disabled ? touch.buttonOffset : 0 }],
+          marginBottom: pressed && !disabled ? 0 : touch.buttonOffset,
+        },
+      ]}
+    >
+      {icon}
+    </Pressable>
+  );
+}
+
+const STEP_BUTTON_SIZE = 80;
+
 const styles = StyleSheet.create({
   wrap: {
+    alignItems: 'center',
     gap: spacing.sm,
+    paddingHorizontal: spacing.marginMobile,
   },
-  title: {
-    ...typography.headlineMd,
-    color: colors.onSurface,
-    textAlign: 'center',
-  },
-  detail: {
-    ...typography.bodyMd,
-    color: colors.outline,
-    textAlign: 'center',
-  },
-  counter: {
+  label: {
     ...typography.labelBold,
     color: colors.outline,
     textAlign: 'center',
   },
   buttons: {
-    gap: spacing.sm,
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    gap: spacing.xl,
+  },
+  stepButton: {
+    width: STEP_BUTTON_SIZE,
+    height: STEP_BUTTON_SIZE,
+    alignItems: 'center',
+    justifyContent: 'center',
+    borderRadius: radius.lg,
+    borderWidth: touch.strokeWidth,
+    borderColor: colors.tertiary,
+    backgroundColor: colors.tertiaryContainer,
+  },
+  stepButtonDisabled: {
+    opacity: 0.4,
   },
 });

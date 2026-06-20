@@ -91,7 +91,7 @@ supabase/seed.sql     # Curated puzzle_bank seed rows
 | Main tabs | `/(main)/match` | `MatchSetupScreen` |
 | Main tabs | `/(main)/match/play` | `VoiceMatchScreen` |
 | Main tabs | `/(main)/analysis` | `MatchHistoryScreen` (saved matches list) |
-| Main tabs | `/(main)/analysis/[matchId]` | `ReplayScreen` (offline step-through replay) |
+| Main tabs | `/(main)/analysis/[matchId]` | `ReplayScreen` — board, stepper, move timeline (red dot on peek/illegal) |
 | Settings (header only) | `/(main)/settings` | Settings stub — not in tab bar |
 
 ## Stitch → Screen Mapping

@@ -2,6 +2,7 @@ import { describe, expect, it } from 'vitest';
 import type { MatchRecord } from '@mindboard/shared';
 import {
   buildMatchReplaySteps,
+  buildMoveReplayData,
   countMatchMoves,
   countMatchPeeks,
   findMatchRecord,
@@ -110,5 +111,66 @@ describe('match replay helpers', () => {
 
     expect(countMatchMoves(record)).toBe(1);
     expect(countMatchPeeks(record)).toBe(2);
+  });
+
+  it('should build move-centric replay positions and flag peek/illegal turns', () => {
+    const record = sampleRecord({
+      events: [
+        {
+          kind: 'move',
+          ply: 1,
+          color: 'w',
+          san: 'e4',
+          fenAfter: 'after-e4',
+          timestamp: 't1',
+        },
+        {
+          kind: 'peek',
+          fen: 'after-e4',
+          square: 'e4',
+          timestamp: 't2',
+        },
+        {
+          kind: 'illegal_attempt',
+          input: 'Qh9',
+          reason: 'Illegal move',
+          fen: 'after-e4',
+          timestamp: 't3',
+        },
+        {
+          kind: 'move',
+          ply: 2,
+          color: 'b',
+          san: 'e5',
+          fenAfter: 'after-e5',
+          timestamp: 't4',
+        },
+      ],
+    });
+
+    const replay = buildMoveReplayData(record);
+
+    expect(replay.positions.map((position) => position.fen)).toEqual([
+      START_FEN,
+      'after-e4',
+      'after-e5',
+    ]);
+    expect(replay.moves).toEqual([
+      {
+        moveNumber: 1,
+        ply: 1,
+        san: 'e4',
+        positionIndex: 1,
+        flagged: false,
+      },
+      {
+        moveNumber: 2,
+        ply: 2,
+        san: 'e5',
+        positionIndex: 2,
+        flagged: true,
+        turnFlags: { hadPeek: true, hadIllegal: true },
+      },
+    ]);
   });
 });

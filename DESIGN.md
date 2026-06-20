@@ -103,7 +103,7 @@ No soft drop shadows. Use **tonal offsets and 3D extrusions**:
 | Animated Match Engine | `2cbaa7be4acd4190a3f95dae66d1b0bc` | Phase 3 | `VoiceMatch` |
 | Animated Cognitive Heatmap Dashboard | `61ce6c33f6fe4350b176eb6cd2ddace6` | Phase 4 / onboarding fog | `CognitiveHeatmap` / `FogRevealScreen` |
 | MindBoard Home (Enhanced Loop) | `b1eff5fd32e743e2a7f8a4b78a340318` | Phase 1 exit | `HomeDashboard` |
-| Populated Game Analysis & Review | `48bde48ed59748cba0907d6a02705475` | Phase 4 | `ReplayTimeline` |
+| Populated Game Analysis & Review | `48bde48ed59748cba0907d6a02705475` | Phase 4 | `ReplayScreen` (`ReplayMoveTimeline` + `ReplayControls`) |
 | Product Strategy & Screen Plan | `48eea1d4614941f3b6c927d368d8b1f0` | Reference only | — |
 | Mascot logo | `b6e58aa5efdd4cd994cd1d6a03da943a` | Brand asset (legacy) | — |
 | MindBoard Standalone Icon | `4709d4e8656e42bebf74af7b36e3821a` | App / header icon | `MascotAvatar` |
@@ -334,7 +334,10 @@ Shared icons live in `components/ui/icons/`. Reuse — do not inline emoji as te
 | `HeatmapStats` | CLARITY %, MASTERY count | FogReveal + heatmap |
 | `HeatmapLegend` | Three-state legend chips | FogReveal + heatmap |
 | `MatchSummaryCard` | Saved match row — date, result, move/peek counts | MatchHistoryScreen |
-| `ReplayControls` | Step title + previous/next for offline replay | ReplayScreen |
+| `ReplayControls` | Thumb-friendly previous/next stepper below board | ReplayScreen |
+| `ReplayMoveTimeline` | Horizontal move chips; red dot on peek/illegal turns | ReplayScreen |
+| `ReplayTurnNotice` | Error-styled banner when replaying a flagged move | ReplayScreen |
+| `ReplayBackLink` | Chevron back to match list | ReplayScreen |
 
 File paths: `apps/mobile/components/{ui,chess,match,heatmap,replay,home,onboarding,training}/`
 
