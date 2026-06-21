@@ -313,8 +313,8 @@ Shared icons live in `components/ui/icons/`. Reuse — do not inline emoji as te
 | `BoardCover` | Solid panel hiding grid and coordinate labels | `BlindfoldBoard` when fully covered |
 | `MatchSecondaryActions` | Resign text action | `VoiceMatchScreen` (untimed match) |
 | `MoveDisambiguation` | Ambiguous move picker (SAN + label) | `VoiceMatchScreen` |
-| `MatchMovePanel` | Recessed card: engine row + voice move prompt grouped together | `VoiceMatchScreen` |
-| `VoiceMovePrompt` | Listening state + heard transcript for voice moves | `MatchMovePanel` |
+| `MatchMovePanel` | Recessed card: engine row + unified move input | `VoiceMatchScreen` |
+| `MatchMoveInput` | Single SAN field — type or speak into the same box; Play submits | `MatchMovePanel` |
 | `PeekButton` | Yellow chip, `LightbulbIcon` (SVG) + label — no emoji | Rendered by `PuzzleSessionLayout` under the board (answer phase); reveal lands where the user taps |
 | `ProgressChrome` | Level/position label + percent + `ProgressBar` | Onboarding flow + DailyDrill (merged chrome) |
 | `PuzzleSessionLayout` | SafeArea + scroll + header + memorize-prompt + board + controls slot; owns `ScrollAnswerCue` + `PeekButton` placement (`onPeek` prop) | Shared shell: Hook/Story/Reward + DailyDrill |

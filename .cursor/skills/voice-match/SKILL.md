@@ -48,7 +48,7 @@ Expo Go does **not** include this native module.
 
 ## UI (current)
 
-- `VoiceMovePrompt` — heard transcript + listening state in `MatchMovePanel`
+- `MatchMoveInput` — one SAN field for typed and voice moves; interim speech fills the same box; mic in `MatchControlBar`
 - `MatchControlBar` — mic toggle (`Start voice input` / `Stop listening`)
 - `MoveDisambiguation` — tap targets; mic still active for verbal clarification
 

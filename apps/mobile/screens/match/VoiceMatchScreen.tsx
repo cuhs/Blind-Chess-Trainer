@@ -1,6 +1,13 @@
 // TODO(stitch): Animated Match Engine frame 2cbaa7be4acd4190a3f95dae66d1b0bc
 import { useState, useEffect, useRef, useCallback } from 'react';
-import { View, Text, StyleSheet, ScrollView } from 'react-native';
+import {
+  View,
+  Text,
+  StyleSheet,
+  ScrollView,
+  KeyboardAvoidingView,
+  Platform,
+} from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useRouter } from 'expo-router';
 import { colors, layout, spacing, typography } from '@/theme';
@@ -19,6 +26,7 @@ import { useMatchSession } from '@/hooks/useMatchSession';
 import { useMatchPeek } from '@/hooks/useMatchPeek';
 import { useMatchSpeech } from '@/hooks/useMatchSpeech';
 import { useGuestStore } from '@/stores/guestStore';
+import { prepareMoveTranscript } from '@mindboard/voice-pipeline';
 
 /** Shrinks the board so status, move panel, and controls fit without overlap. */
 const BOARD_EXTRA_INSET = spacing.marginMobile * 2 + spacing.xl * 2;
@@ -68,21 +76,34 @@ export function VoiceMatchScreen() {
   const recordHabitActivity = useGuestStore((s) => s.recordHabitActivity);
 
   const voiceEnabled = isPlayerTurn && !isThinking && !isGameOver;
+  const [moveDraft, setMoveDraft] = useState('');
+
+  const handleSubmitMove = useCallback(
+    async (move: string) => {
+      const trimmed = prepareMoveTranscript(move);
+      if (!trimmed) return;
+      clearMoveError();
+      const applied = await submitPlayerMove(trimmed);
+      if (applied) {
+        setMoveDraft('');
+      }
+    },
+    [clearMoveError, submitPlayerMove],
+  );
 
   const handleVoiceTranscript = useCallback(
     (transcript: string) => {
       if (!transcript.trim()) return;
-      clearMoveError();
-      void submitPlayerMove(transcript);
+      setMoveDraft(transcript);
+      void handleSubmitMove(transcript);
     },
-    [clearMoveError, submitPlayerMove],
+    [handleSubmitMove],
   );
 
   const {
     status: speechStatus,
     isListening,
     interimTranscript,
-    lastTranscript,
     speechError,
     toggleListening,
     clearSpeechError,
@@ -90,6 +111,26 @@ export function VoiceMatchScreen() {
     enabled: voiceEnabled,
     onTranscript: handleVoiceTranscript,
   });
+
+  const submitMoveFromPanel = useCallback(
+    (move: string) => {
+      clearSpeechError();
+      void handleSubmitMove(move);
+    },
+    [clearSpeechError, handleSubmitMove],
+  );
+
+  useEffect(() => {
+    if (isListening && interimTranscript) {
+      setMoveDraft(interimTranscript);
+    }
+  }, [isListening, interimTranscript]);
+
+  useEffect(() => {
+    if (!voiceEnabled) {
+      setMoveDraft('');
+    }
+  }, [voiceEnabled]);
 
   useEffect(() => {
     if (!isGameOver || habitRecorded.current) return;
@@ -125,8 +166,14 @@ export function VoiceMatchScreen() {
         bordered
         onSettingsPress={() => router.push('/(main)/settings' as never)}
       />
+      <KeyboardAvoidingView
+        behavior={Platform.OS === 'ios' ? 'padding' : undefined}
+        keyboardVerticalOffset={Platform.OS === 'ios' ? 8 : 0}
+        style={styles.flex}
+      >
       <ScrollView
         contentContainerStyle={styles.content}
+        keyboardShouldPersistTaps="always"
         showsVerticalScrollIndicator={false}
       >
           <MatchStatusBar
@@ -187,12 +234,17 @@ export function VoiceMatchScreen() {
               ) : (
                 <MatchMovePanel
                   inputDisabled={!voiceEnabled}
-                  interimTranscript={interimTranscript}
                   isThinking={isThinking}
                   lastEngineMove={lastEngineMove}
                   lastPlayerMove={lastPlayerMove}
-                  lastTranscript={lastTranscript}
+                  moveDraft={moveDraft}
                   moveError={moveError}
+                  onClearError={() => {
+                    clearMoveError();
+                    clearSpeechError();
+                  }}
+                  onMoveDraftChange={setMoveDraft}
+                  onSubmit={submitMoveFromPanel}
                   speechError={speechError}
                   speechStatus={speechStatus}
                 />
@@ -220,6 +272,7 @@ export function VoiceMatchScreen() {
             </>
           )}
         </ScrollView>
+      </KeyboardAvoidingView>
     </SafeAreaView>
   );
 }
@@ -228,6 +281,9 @@ const styles = StyleSheet.create({
   safe: {
     flex: 1,
     backgroundColor: colors.background,
+  },
+  flex: {
+    flex: 1,
   },
   content: {
     paddingHorizontal: spacing.marginMobile,

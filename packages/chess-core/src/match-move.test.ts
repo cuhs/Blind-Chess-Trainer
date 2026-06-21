@@ -39,6 +39,20 @@ describe('normalizeMove', () => {
   it('rejects empty input', () => {
     expect(normalizeMove('')).toEqual({ ok: false });
   });
+
+  it('uppercases spoken piece shorthand', () => {
+    expect(normalizeMove('rb2')).toEqual({ ok: true, value: 'Rb2' });
+    expect(normalizeMove('nf3')).toEqual({ ok: true, value: 'Nf3' });
+  });
+
+  it('accepts piece to square phrasing', () => {
+    expect(normalizeMove('rook to b2')).toEqual({ ok: true, value: 'Rb2' });
+    expect(normalizeMove('rook b two')).toEqual({ ok: true, value: 'Rb2' });
+  });
+
+  it('accepts rook homophones', () => {
+    expect(normalizeMove('are b2')).toEqual({ ok: true, value: 'Rb2' });
+  });
 });
 
 describe('resolveMove', () => {
@@ -90,6 +104,12 @@ describe('resolveMove', () => {
   it('accepts numeric castling notation', () => {
     const fen = 'r3k2r/8/8/8/8/8/8/R3K2R w KQkq - 0 1';
     expect(resolveMove(fen, '0-0')).toEqual({ ok: true, san: 'O-O' });
+  });
+
+  it('resolves spoken rook shorthand on a legal rook move', () => {
+    const fen = '4k3/8/8/8/8/8/4R3/4K3 w - - 0 1';
+    expect(resolveMove(fen, 'rb2')).toEqual({ ok: true, san: 'Rb2' });
+    expect(resolveMove(fen, 'rook to b2')).toEqual({ ok: true, san: 'Rb2' });
   });
 });
 

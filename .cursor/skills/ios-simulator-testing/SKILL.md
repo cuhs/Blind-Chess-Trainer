@@ -114,7 +114,7 @@ For fresh onboarding: clear guest storage or reinstall — onboarding only shows
 | 10 | Daily drill | 5s board → invisible grid → keypad answer; progress chrome updates |
 | 10b | Drill resume | Complete 1 of 3 → leave drill → re-enter | Resumes at position 2 of 3 |
 | 11 | Match setup | Tab Match → scroll to `Start blindfold match` → tap |
-| 12 | Match play | Tap `Start voice input` → grant mic + speech permissions → `Listening — say your move`; peek + cover controls |
+| 12 | Match play | Type in `Enter move in SAN` + `Submit move`; or tap mic → heard text appears in same field → auto-submits on final; peek + cover controls |
 
 ### Search strings (accessibility)
 
@@ -123,7 +123,7 @@ Use labels defined in components — grep `accessibilityLabel` before testing:
 - `"Chess board"`, `"Invisible grid"`
 - `"Submit Answer"`, `"Continue"` (match `PrimaryButton` labels)
 - Keypad keys: `"File A"`–`"File H"`, `"Rank 1"`–`"Rank 8"`; yes-no halves: `"Yes"`, `"No"`
-- Match: `"Start voice input"`, `"Stop listening"`, `"Peek at board"`, `"Cover board completely"`
+- Match: `"Enter move in SAN"`, `"Submit move"`, `"Start voice input"`, `"Stop listening"`, `"Peek at board"`, `"Cover board completely"`
 - Tab labels: `"Home"`, `"Training"`, `"Match"`, `"Settings"`
 
 If `ui_find_element` fails, fix missing `accessibilityLabel` — do not rely on pixel-only taps.

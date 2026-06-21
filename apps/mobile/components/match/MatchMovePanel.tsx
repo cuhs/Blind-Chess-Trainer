@@ -1,6 +1,6 @@
 import { View, Text, StyleSheet } from 'react-native';
 import { colors, radius, spacing, touch, typography } from '@/theme';
-import { VoiceMovePrompt } from './VoiceMovePrompt';
+import { MatchMoveInput } from './MatchMoveInput';
 import type { MatchSpeechStatus } from '@/hooks/useMatchSpeech';
 
 interface MatchMovePanelProps {
@@ -8,9 +8,11 @@ interface MatchMovePanelProps {
   lastPlayerMove: string | null;
   isThinking: boolean;
   inputDisabled: boolean;
+  moveDraft: string;
+  onMoveDraftChange: (value: string) => void;
   moveError: string | null;
-  interimTranscript: string;
-  lastTranscript: string;
+  onSubmit: (move: string) => void;
+  onClearError: () => void;
   speechError: string | null;
   speechStatus: MatchSpeechStatus;
 }
@@ -42,13 +44,16 @@ export function MatchMovePanel({
   lastPlayerMove,
   isThinking,
   inputDisabled,
+  moveDraft,
+  onMoveDraftChange,
   moveError,
-  interimTranscript,
-  lastTranscript,
+  onSubmit,
+  onClearError,
   speechError,
   speechStatus,
 }: MatchMovePanelProps) {
   const showEngineRow = lastEngineMove !== null || isThinking;
+  const showInput = !inputDisabled;
 
   return (
     <View style={styles.card}>
@@ -63,14 +68,25 @@ export function MatchMovePanel({
         ) : null}
         <View style={styles.inputRow}>
           <Text style={styles.inputSideLabel}>You</Text>
-          <VoiceMovePrompt
-            disabled={inputDisabled}
-            error={moveError}
-            interimTranscript={interimTranscript}
-            lastTranscript={lastTranscript}
-            speechError={speechError}
-            status={speechStatus}
-          />
+          {showInput ? (
+            <MatchMoveInput
+              disabled={inputDisabled}
+              moveError={moveError}
+              onChange={onMoveDraftChange}
+              onClearError={onClearError}
+              onSubmit={onSubmit}
+              speechError={speechError}
+              speechStatus={speechStatus}
+              value={moveDraft}
+            />
+          ) : (
+            <Text
+              accessibilityLabel={`Your move ${lastPlayerMove ?? 'none'}`}
+              style={styles.rowMove}
+            >
+              {lastPlayerMove ?? '—'}
+            </Text>
+          )}
         </View>
         {!inputDisabled && lastPlayerMove ? (
           <Text
@@ -112,6 +128,7 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'flex-start',
     gap: spacing.sm,
+    minHeight: 48,
   },
   sideLabel: {
     ...typography.labelBold,
