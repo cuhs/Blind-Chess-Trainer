@@ -17,7 +17,9 @@
       "infoPlist": {
         "NSAppTransportSecurity": {
           "NSAllowsLocalNetworking": true
-        }
+        },
+        "NSMicrophoneUsageDescription": "MindBoard uses the microphone for voice chess moves during blindfold matches.",
+        "NSSpeechRecognitionUsageDescription": "MindBoard uses on-device speech recognition to understand your chess moves."
       }
     },
     "android": {
@@ -26,7 +28,19 @@
       },
       "package": "com.mindboard.app"
     },
-    "plugins": ["expo-dev-client", "expo-router", "expo-font", "expo-audio"],
+    "plugins": [
+      "expo-dev-client",
+      "expo-router",
+      "expo-font",
+      "expo-audio",
+      [
+        "expo-speech-recognition",
+        {
+          "microphonePermission": "MindBoard uses the microphone for voice chess moves during blindfold matches.",
+          "speechRecognitionPermission": "MindBoard uses on-device speech recognition to understand your chess moves."
+        }
+      ]
+    ],
     "experiments": {
       "typedRoutes": true,
       "autolinkingModuleResolution": true

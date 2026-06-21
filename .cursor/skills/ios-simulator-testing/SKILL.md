@@ -113,8 +113,8 @@ For fresh onboarding: clear guest storage or reinstall — onboarding only shows
 | 9 | Training hub | Tab Training → `DailyMatrixCard` visible; Start navigates to drill |
 | 10 | Daily drill | 5s board → invisible grid → keypad answer; progress chrome updates |
 | 10b | Drill resume | Complete 1 of 3 → leave drill → re-enter | Resumes at position 2 of 3 |
-| 11 | Match setup | Tab Match → Elo slider (default 800) → Start match loads Stockfish |
-| 12 | Match play | Dev move → engine reply <1s; peek + cover controls |
+| 11 | Match setup | Tab Match → scroll to `Start blindfold match` → tap |
+| 12 | Match play | Tap `Start voice input` → grant mic + speech permissions → `Listening — say your move`; peek + cover controls |
 
 ### Search strings (accessibility)
 
@@ -123,7 +123,7 @@ Use labels defined in components — grep `accessibilityLabel` before testing:
 - `"Chess board"`, `"Invisible grid"`
 - `"Submit Answer"`, `"Continue"` (match `PrimaryButton` labels)
 - Keypad keys: `"File A"`–`"File H"`, `"Rank 1"`–`"Rank 8"`; yes-no halves: `"Yes"`, `"No"`
-- Match: `"Peek at board"`, `"Pause match"`, `"Submit move"`, `"Enter move in SAN"`
+- Match: `"Start voice input"`, `"Stop listening"`, `"Peek at board"`, `"Cover board completely"`
 - Tab labels: `"Home"`, `"Training"`, `"Match"`, `"Settings"`
 
 If `ui_find_element` fails, fix missing `accessibilityLabel` — do not rely on pixel-only taps.

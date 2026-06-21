@@ -7,23 +7,23 @@ alwaysApply: false
 # Voice Pipeline
 
 ```
-STT → Normalizer → Legality (chess.js) → Apply
-         ↑              ↓
-    Disambiguation ← ambiguous/illegal
+STT (mobile: expo-speech-recognition)
+  → prepareMoveTranscript
+  → normalizeMove / resolveMove (chess-core)
+  → Apply | Disambiguation
 ```
 
 ## Rules
 
-- On-device STT primary; cloud fallback only
-- `normalizeMove` is a pure, table-tested function
+- On-device STT primary (`requiresOnDeviceRecognition` when supported)
+- `normalizeMove` is a pure, table-tested function in chess-core
 - Disambiguation responses re-enter the **same** pipeline — no shortcut
-- Ambiguous/illegal input routes to disambiguation before applying a move
 - Stockfish WASM off main thread
 
 ## Homophones
 
-night→N, rook→R, bishop→B, queen→Q, king→K
+night→N, rook→R, bishop→B, queen→Q, king→K (handled in `chess-core` `match-move.ts`)
 
-## UI
+## Mobile wiring
 
-Disambiguation overlay: black screen, ≥80pt targets — see `DESIGN.md`.
+`useMatchSpeech` → `submitPlayerMove` in `useMatchSession`. See `voice-match` skill.

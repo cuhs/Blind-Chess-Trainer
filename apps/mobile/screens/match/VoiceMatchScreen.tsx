@@ -1,13 +1,6 @@
 // TODO(stitch): Animated Match Engine frame 2cbaa7be4acd4190a3f95dae66d1b0bc
-import { useState, useEffect, useRef } from 'react';
-import {
-  View,
-  Text,
-  StyleSheet,
-  ScrollView,
-  KeyboardAvoidingView,
-  Platform,
-} from 'react-native';
+import { useState, useEffect, useRef, useCallback } from 'react';
+import { View, Text, StyleSheet, ScrollView } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useRouter } from 'expo-router';
 import { colors, layout, spacing, typography } from '@/theme';
@@ -24,6 +17,7 @@ import { MatchMovePanel } from '@/components/match/MatchMovePanel';
 import { MoveDisambiguation } from '@/components/match/MoveDisambiguation';
 import { useMatchSession } from '@/hooks/useMatchSession';
 import { useMatchPeek } from '@/hooks/useMatchPeek';
+import { useMatchSpeech } from '@/hooks/useMatchSpeech';
 import { useGuestStore } from '@/stores/guestStore';
 
 /** Shrinks the board so status, move panel, and controls fit without overlap. */
@@ -73,6 +67,30 @@ export function VoiceMatchScreen() {
   const habitRecorded = useRef(false);
   const recordHabitActivity = useGuestStore((s) => s.recordHabitActivity);
 
+  const voiceEnabled = isPlayerTurn && !isThinking && !isGameOver;
+
+  const handleVoiceTranscript = useCallback(
+    (transcript: string) => {
+      if (!transcript.trim()) return;
+      clearMoveError();
+      void submitPlayerMove(transcript);
+    },
+    [clearMoveError, submitPlayerMove],
+  );
+
+  const {
+    status: speechStatus,
+    isListening,
+    interimTranscript,
+    lastTranscript,
+    speechError,
+    toggleListening,
+    clearSpeechError,
+  } = useMatchSpeech({
+    enabled: voiceEnabled,
+    onTranscript: handleVoiceTranscript,
+  });
+
   useEffect(() => {
     if (!isGameOver || habitRecorded.current) return;
     habitRecorded.current = true;
@@ -90,8 +108,10 @@ export function VoiceMatchScreen() {
           ? { text: 'Engine thinking…', tone: 'neutral' }
           : { text: `Your move — you play ${colorLabel}`, tone: 'action' };
 
-  const handleSubmitMove = (move: string) => {
-    void submitPlayerMove(move);
+  const handleMicPress = () => {
+    clearMoveError();
+    clearSpeechError();
+    void toggleListening();
   };
 
   const handleNewMatch = () => {
@@ -105,16 +125,10 @@ export function VoiceMatchScreen() {
         bordered
         onSettingsPress={() => router.push('/(main)/settings' as never)}
       />
-      <KeyboardAvoidingView
-        behavior={Platform.OS === 'ios' ? 'padding' : undefined}
-        keyboardVerticalOffset={Platform.OS === 'ios' ? 8 : 0}
-        style={styles.flex}
+      <ScrollView
+        contentContainerStyle={styles.content}
+        showsVerticalScrollIndicator={false}
       >
-        <ScrollView
-          contentContainerStyle={styles.content}
-          keyboardShouldPersistTaps="handled"
-          showsVerticalScrollIndicator={false}
-        >
           <MatchStatusBar
             elo={matchElo}
             statusText={matchStatus.text}
@@ -172,19 +186,23 @@ export function VoiceMatchScreen() {
                 />
               ) : (
                 <MatchMovePanel
-                  error={moveError}
-                  inputDisabled={!isPlayerTurn || isThinking}
+                  inputDisabled={!voiceEnabled}
+                  interimTranscript={interimTranscript}
                   isThinking={isThinking}
                   lastEngineMove={lastEngineMove}
                   lastPlayerMove={lastPlayerMove}
-                  onClearError={clearMoveError}
-                  onSubmit={handleSubmitMove}
+                  lastTranscript={lastTranscript}
+                  moveError={moveError}
+                  speechError={speechError}
+                  speechStatus={speechStatus}
                 />
               )}
               <MatchControlBar
                 covered={fullyCovered}
-                micDisabled
+                micActive={isListening}
+                micDisabled={!voiceEnabled}
                 onCoverPress={() => setFullyCovered((value) => !value)}
+                onMicPress={handleMicPress}
                 onPeekPress={onPeek}
               />
               <View style={styles.footerRow}>
@@ -202,7 +220,6 @@ export function VoiceMatchScreen() {
             </>
           )}
         </ScrollView>
-      </KeyboardAvoidingView>
     </SafeAreaView>
   );
 }
@@ -211,9 +228,6 @@ const styles = StyleSheet.create({
   safe: {
     flex: 1,
     backgroundColor: colors.background,
-  },
-  flex: {
-    flex: 1,
   },
   content: {
     paddingHorizontal: spacing.marginMobile,

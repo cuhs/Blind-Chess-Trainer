@@ -6,7 +6,8 @@
       "@/*": ["./*"],
       "@mindboard/shared": ["../../packages/shared/src"],
       "@mindboard/chess-core": ["../../packages/chess-core/src"],
-      "@mindboard/heatmap": ["../../packages/heatmap/src"]
+      "@mindboard/heatmap": ["../../packages/heatmap/src"],
+      "@mindboard/voice-pipeline": ["../../packages/voice-pipeline/src"]
     }
   },
   "include": ["**/*.ts", "**/*.tsx", ".expo/types/**/*.ts", "expo-env.d.ts"]

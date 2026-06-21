@@ -1,15 +1,18 @@
 import { View, Text, StyleSheet } from 'react-native';
 import { colors, radius, spacing, touch, typography } from '@/theme';
-import { DevMoveInput } from './DevMoveInput';
+import { VoiceMovePrompt } from './VoiceMovePrompt';
+import type { MatchSpeechStatus } from '@/hooks/useMatchSpeech';
 
 interface MatchMovePanelProps {
   lastEngineMove: string | null;
   lastPlayerMove: string | null;
   isThinking: boolean;
   inputDisabled: boolean;
-  error: string | null;
-  onSubmit: (move: string) => void;
-  onClearError: () => void;
+  moveError: string | null;
+  interimTranscript: string;
+  lastTranscript: string;
+  speechError: string | null;
+  speechStatus: MatchSpeechStatus;
 }
 
 function MoveRow({
@@ -39,12 +42,13 @@ export function MatchMovePanel({
   lastPlayerMove,
   isThinking,
   inputDisabled,
-  error,
-  onSubmit,
-  onClearError,
+  moveError,
+  interimTranscript,
+  lastTranscript,
+  speechError,
+  speechStatus,
 }: MatchMovePanelProps) {
   const showEngineRow = lastEngineMove !== null || isThinking;
-  const showInput = !inputDisabled;
 
   return (
     <View style={styles.card}>
@@ -59,25 +63,23 @@ export function MatchMovePanel({
         ) : null}
         <View style={styles.inputRow}>
           <Text style={styles.inputSideLabel}>You</Text>
-          {showInput ? (
-            <View style={styles.inputSlot}>
-              <DevMoveInput
-                disabled={inputDisabled}
-                error={error}
-                onClearError={onClearError}
-                onSubmit={onSubmit}
-                variant="embedded"
-              />
-            </View>
-          ) : (
-            <Text
-              accessibilityLabel={`Your move ${lastPlayerMove ?? 'none'}`}
-              style={styles.rowMove}
-            >
-              {lastPlayerMove ?? '—'}
-            </Text>
-          )}
+          <VoiceMovePrompt
+            disabled={inputDisabled}
+            error={moveError}
+            interimTranscript={interimTranscript}
+            lastTranscript={lastTranscript}
+            speechError={speechError}
+            status={speechStatus}
+          />
         </View>
+        {!inputDisabled && lastPlayerMove ? (
+          <Text
+            accessibilityLabel={`Your last move ${lastPlayerMove}`}
+            style={styles.lastMove}
+          >
+            Last played: {lastPlayerMove}
+          </Text>
+        ) : null}
       </View>
     </View>
   );
@@ -108,9 +110,8 @@ const styles = StyleSheet.create({
   },
   inputRow: {
     flexDirection: 'row',
-    alignItems: 'center',
+    alignItems: 'flex-start',
     gap: spacing.sm,
-    minHeight: 48,
   },
   sideLabel: {
     ...typography.labelBold,
@@ -131,7 +132,8 @@ const styles = StyleSheet.create({
   rowMovePending: {
     color: colors.onSurfaceVariant,
   },
-  inputSlot: {
-    flex: 1,
+  lastMove: {
+    ...typography.bodyMd,
+    color: colors.onSurfaceVariant,
   },
 });

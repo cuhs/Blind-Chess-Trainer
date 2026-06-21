@@ -40,6 +40,12 @@ export function MoveDisambiguation({
       >
         <Text style={styles.cancelText}>Cancel</Text>
       </Pressable>
+      <Text
+        accessibilityLabel="You can also answer by voice using the microphone"
+        style={styles.voiceHint}
+      >
+        Or answer by voice with the mic below
+      </Text>
     </View>
   );
 }
@@ -88,5 +94,10 @@ const styles = StyleSheet.create({
   cancelText: {
     ...typography.labelBold,
     color: colors.onSurfaceVariant,
+  },
+  voiceHint: {
+    ...typography.bodyMd,
+    color: colors.onSurfaceVariant,
+    textAlign: 'center',
   },
 });

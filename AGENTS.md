@@ -51,7 +51,7 @@ Closed-loop system: text training → voice matches → failures → custom puzz
 | Engine | Stockfish 17 native C++ on iOS (`@og-nav/expo-stockfish`); WASM in Vitest only |
 | Backend | Supabase + Express.js |
 | Motifs | Deterministic TypeScript microservice |
-| Voice | On-device STT → regex normalizer → legality filter |
+| Voice | On-device STT (`expo-speech-recognition`) → `@mindboard/voice-pipeline` → `resolveMove` in chess-core |
 | LLM | Templating only (JSON → questions) |
 | Designs | Google Stitch → `apps/mobile/theme/tokens.ts` (**synced**) |
 
@@ -68,7 +68,7 @@ apps/mobile/
   stores/             # Zustand + AsyncStorage (guest session)
 apps/api/             # Express gateway
 packages/chess-core/        # includes src/motifs/ (deterministic motif engine)
-packages/voice-pipeline/
+packages/voice-pipeline/    # STT transcript prep + chess contextual strings; re-exports match-move
 packages/heatmap/
 packages/shared/
 supabase/migrations/
@@ -128,7 +128,7 @@ Post-onboarding `/(main)/index` — Stitch frame `b1eff5fd32e743e2a7f8a4b78a3403
    - Done: engine-backed prompts when top motif matches `expected_answer`; daily cap at 3 puzzles (`selectDailyPuzzles` + `useDailySession`); completion gate via `lastDrillCompletedDate`; home + hub `DailyMatrixCard`; 54 curated `puzzle_bank` seed rows
    - Next: Stitch polish on hub/drill
 3. Voice match — `MatchSetupScreen` (Elo slider) → `VoiceMatchScreen` (native Stockfish on iOS dev build)
-   - Done: `MatchRecorder` captures moves, peeks, illegal attempts, disambiguation, and resign; `useMatchSession` persists to `guestStore.matchHistory` (AsyncStorage) on finalize; Analysis tab lists saved games and replays offline (v1, no server)
+   - Done: `MatchRecorder` captures moves, peeks, illegal attempts, disambiguation, and resign; `useMatchSession` persists to `guestStore.matchHistory` (AsyncStorage) on finalize; Analysis tab lists saved games and replays offline (v1, no server); on-device STT via `useMatchSpeech` + `expo-speech-recognition` (requires dev build rebuild after native dep change)
 4. Post-game — Stitch polish on `ReplayScreen`, `CognitiveHeatmap`
 5. Infrastructure — Supabase, Express API (`apps/api/` — LLM templating when needed)
 

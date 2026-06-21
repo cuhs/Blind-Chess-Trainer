@@ -10,6 +10,7 @@ interface MatchControlBarProps {
   onCoverPress: () => void;
   covered: boolean;
   micDisabled?: boolean;
+  micActive?: boolean;
 }
 
 export function MatchControlBar({
@@ -17,17 +18,22 @@ export function MatchControlBar({
   onPeekPress,
   onCoverPress,
   covered,
-  micDisabled = true,
+  micDisabled = false,
+  micActive = false,
 }: MatchControlBarProps) {
   return (
     <View style={styles.row}>
       <Pressable
-        accessibilityLabel="Voice input"
+        accessibilityLabel={micActive ? 'Stop listening' : 'Start voice input'}
         accessibilityRole="button"
-        accessibilityState={{ disabled: micDisabled }}
+        accessibilityState={{ disabled: micDisabled, selected: micActive }}
         disabled={micDisabled}
         onPress={onMicPress}
-        style={[styles.control, micDisabled && styles.controlDisabled]}
+        style={[
+          styles.control,
+          micDisabled && styles.controlDisabled,
+          micActive && styles.controlActive,
+        ]}
       >
         <MicIcon color={colors.onSecondaryContainer} size={22} />
       </Pressable>

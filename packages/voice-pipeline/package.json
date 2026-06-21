@@ -1,0 +1,16 @@
+{
+  "name": "@mindboard/voice-pipeline",
+  "version": "0.0.1",
+  "private": true,
+  "main": "src/index.ts",
+  "types": "src/index.ts",
+  "scripts": {
+    "test": "vitest run"
+  },
+  "dependencies": {
+    "@mindboard/chess-core": "*"
+  },
+  "devDependencies": {
+    "vitest": "^3.0.5"
+  }
+}
