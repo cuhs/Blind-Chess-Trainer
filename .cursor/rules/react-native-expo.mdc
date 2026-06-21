@@ -75,9 +75,8 @@ Skill: `training-flow`. No separate `StoryPuzzle` screen.
 
 | Hook | Role |
 |------|------|
-| `useMatchSession` | chess.js game state, player side, clock freeze, engine reply; `MatchRecorder` event log; persists `MatchRecord` to guest store on finalize |
+| `useMatchSession` | chess.js game state, player side, disambiguation, engine reply; `MatchRecorder` event log; persists `MatchRecord` to guest store on finalize |
 | `useMatchHistory` | Hydrated `matchHistory` from guest store for offline replay list/detail |
-| `useMatchClock` | Countdown while player to move |
 | `useMatchPeek` | 2s board flash + `recordPeek` on match log (every peek) + `addPeekEvent` (one event per position) + `match_peek` ledger (every peek) |
 
 Engine: `lib/engine/stockfishWorker.ts` — Stockfish 17 at 1320+; human fallback below. Skill: `voice-match`.

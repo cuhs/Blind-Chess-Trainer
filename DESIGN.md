@@ -117,7 +117,7 @@ No soft drop shadows. Use **tonal offsets and 3D extrusions**:
 | `RewardPuzzle` | rapid puzzle ×2 |
 | `MatchPrimer` | expectation copy → unlock HomeDashboard |
 | `DisambiguationOverlay` | black screen, two massive targets |
-| `VoiceMatch` | clock-frozen state (Stitch shows this) |
+| `VoiceMatch` | disambiguation prompt state |
 
 ### Screens without a Stitch frame (infer — do not invent)
 
@@ -162,7 +162,6 @@ When a screen or state has no Stitch frame (new screen, blueprint-only flow, or 
 |---------|------|
 | Hook subtitle | "Memorize the positions before the fog rolls in." |
 | Peek affordance | "I forgot... need a peek?" |
-| Clock frozen | "CLOCK FROZEN" |
 | Voice prompt | "Your Move:" |
 | Training header | "Story of the Position" |
 | Mascot tip pattern | "Look at the long diagonal from a4! Imagine the lines of force." |
@@ -182,8 +181,7 @@ These override Stitch visuals where they conflict:
 |---------|------|
 | Invisible Grid | Board vanishes; no pieces after hook timer |
 | Training | Tactile manual input — no voice. `SquareKeypad` (A–H / 1–8) for squares; `YesNoZone` (swipe/tap halves) for yes-no |
-| Voice match | Voice-first; peek always available |
-| Clock freeze | Instant pause on ambiguous/illegal voice input |
+| Voice match | Voice-first; peek always available; no match clock |
 | Disambiguation | Black screen, massive touch targets, voice OR tap |
 | Fog math | `opacity = 1 - (interactions / threshold)` — center 15, edge 10, corner 5 |
 | Onboarding fog | ~99% obscured after 4 questions |
@@ -280,7 +278,7 @@ Reuse `BoardGrid` for any 8×8 UI — do not duplicate grid loops.
 |------|-------------|
 | Lightbulb (tip) | `LightbulbIcon` in `components/ui/icons/` |
 | Peek / visibility | `PeekIcon` (SVG) |
-| Mic, pause, timer | SVG icons via `react-native-svg` or `@expo/vector-icons` |
+| Mic, pause | SVG icons via `react-native-svg` or `@expo/vector-icons` |
 | Chess pieces | `components/chess/pieces/*.tsx` |
 
 Shared icons live in `components/ui/icons/`. Reuse — do not inline emoji as temporary icons.
@@ -373,7 +371,7 @@ Icon assets: `components/ui/icons/`. Piece SVGs: `components/chess/pieces/`.
 
 - WCAG 2.2 AA — Stitch uses `#4b4b4b` ink on colored surfaces
 - Touch targets ≥44pt; inputs 56px height (fat-finger)
-- Do not convey state by color alone — pair with text/icons (e.g. "CLOCK FROZEN")
+- Do not convey state by color alone — pair with text/icons (e.g. disambiguation prompt copy)
 - VoiceOver/TalkBack on all interactives
 - Support Reduce Motion: instant cut instead of board vanish animation
 - Support Dynamic Type up to 1.3×

@@ -23,7 +23,7 @@ import { colors, spacing, typography, touch, radius } from '@/theme';
 
 - Invisible Grid: no pieces after vanish
 - Training: tactile input (`SquareKeypad` / `YesNoZone`, no native keyboard); matches: voice-first
-- Clock freeze on parser failure; disambiguation: massive targets
+- Disambiguation on parser failure: massive touch targets
 - Fog: `1 - (interactions / threshold)`
 
 ## Components — Reuse First

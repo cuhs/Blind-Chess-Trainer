@@ -25,8 +25,8 @@ The Fault-Tolerant Voice Pipeline:
 On-Device STT Fallback: To mitigate the fragility and latency of external cloud APIs, the STT layer prioritizes lightweight on-device ML models (e.g., local Whisper instances via React Native).
 Regex Normalizer: Strips filler and maps homophones ("night" $\rightarrow$ N).
 Legality Filter: Checks the parsed string against chess.js.
-The Clock Freeze & Adaptive Disambiguation:
-If the voice parser detects an ambiguous or illegal move, the match clock instantly pauses. The user is never penalized for the app's need to clarify.
+Adaptive Disambiguation:
+If the voice parser detects an ambiguous or illegal move, the app prompts for clarification before applying a move.
 Voice or Haptic Response: The user can respond to the prompt ("Which rook, a-file or f-file?") verbally by saying "a-file" OR by tapping the corresponding massive touch target rendered on the black screen.
 Pipeline Integrity: Verbal disambiguation responses are not treated as a special shortcut case. The response routes back through the exact same Regex Normalizer and Legality Filter to ensure a misheard clarification doesn't introduce a state corruption edge case.
 Phase 4: Post-Game & The Closed Retention Loop
@@ -37,7 +37,7 @@ The Proportional Fog of War: The central analytics dashboard tracking spatial me
 Soft Reveal: Instead of a binary "fog or clear" threshold, the fog lifts proportionally. If a square needs 15 interactions to clear, and the user has 5, the fog opacity sits at roughly 66%.
 Adaptive Thresholds: High-traffic central squares require 15 interactions to clear. Edges require 10. Rare corners (a1, h8) require only 5. This prevents uneven progression and ensures the board clears smoothly as the user improves.
 Phase 5: Technical Architecture
-Frontend Mobile Framework: React Native with Expo. Concurrent rendering ensures haptics, timer countdowns, and on-device STT audio buffers run fluidly without freezing the JavaScript thread.
+Frontend Mobile Framework: React Native with Expo. Concurrent rendering ensures haptics and on-device STT audio buffers run fluidly without freezing the JavaScript thread.
 State Machine: chess.js handles all underlying FEN validation, move generation, and legality boundaries.
 Backend Ecosystem: Supabase (PostgreSQL) handles user authentication, puzzle bank storage, and longitudinal Peek/Heatmap analytics. An Express.js API gateway manages the heavy lifting for the deterministic motif detection and LLM formatting.
 

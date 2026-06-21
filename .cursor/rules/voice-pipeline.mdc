@@ -1,5 +1,5 @@
 ---
-description: Voice match pipeline — STT, normalizer, clock freeze, integrity
+description: Voice match pipeline — STT, normalizer, disambiguation, integrity
 globs: "packages/voice-pipeline/**"
 alwaysApply: false
 ---
@@ -9,7 +9,7 @@ alwaysApply: false
 ```
 STT → Normalizer → Legality (chess.js) → Apply
          ↑              ↓
-    Disambiguation ← Clock Freeze
+    Disambiguation ← ambiguous/illegal
 ```
 
 ## Rules
@@ -17,7 +17,7 @@ STT → Normalizer → Legality (chess.js) → Apply
 - On-device STT primary; cloud fallback only
 - `normalizeMove` is a pure, table-tested function
 - Disambiguation responses re-enter the **same** pipeline — no shortcut
-- Clock freezes instantly on ambiguous/illegal input
+- Ambiguous/illegal input routes to disambiguation before applying a move
 - Stockfish WASM off main thread
 
 ## Homophones

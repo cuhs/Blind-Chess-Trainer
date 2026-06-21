@@ -40,7 +40,7 @@ MCP (`.cursor/mcp.json`):
 
 ## Core Philosophy
 
-Closed-loop system: text training → voice matches → failures → custom puzzles → heatmap clears → repeat. No gatekeeping — peek, clock freeze, and haptic fallback are features.
+Closed-loop system: text training → voice matches → failures → custom puzzles → heatmap clears → repeat. No gatekeeping — peek and haptic fallback are features.
 
 ## Tech Stack
 
@@ -170,7 +170,7 @@ Verify `AGENTS.md` rules/skills tables match files in `.cursor/rules/` and `.cur
 | `onboarding-flow` | Phase 1 screens |
 | `training-flow` | TrainingHub, DailyDrill, puzzle_bank, narration phases |
 | `motif-engine` | Tactical detection + tests |
-| `voice-match` | STT pipeline, clock freeze |
+| `voice-match` | STT pipeline, disambiguation |
 | `heatmap-analytics` | Fog, peek, replay, drilling |
 | `chess-ui` | Board rendering, labels, SVG pieces, grid geometry |
 | `ios-simulator-testing` | Verify mobile UI flows via iOS Simulator MCP |
@@ -196,7 +196,7 @@ Verify `AGENTS.md` rules/skills tables match files in `.cursor/rules/` and `.cur
 ## Non-Negotiable Constraints
 
 - **Motifs:** TypeScript on chess.js → JSON. LLM templates questions only.
-- **Voice:** Clock freezes on ambiguous/illegal input. Disambiguation re-enters same pipeline.
+- **Voice:** Ambiguous/illegal input triggers disambiguation; responses re-enter the same pipeline.
 - **Training:** tactile manual input — `SquareKeypad` (A–H / 1–8) for squares, `YesNoZone` (swipe / tap halves) for yes-no. No native keyboard, no voice. **Matches:** voice-first.
 - **Fog:** `opacity = 1 - (interactions / threshold)` — center 15, edge 10, corner 5.
 - **Design:** Import tokens from `@/theme` — no inline hex. Blueprint wins on interaction; Stitch wins on visuals.
