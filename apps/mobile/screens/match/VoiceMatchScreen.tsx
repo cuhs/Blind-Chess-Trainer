@@ -26,7 +26,11 @@ import { useMatchSession } from '@/hooks/useMatchSession';
 import { useMatchPeek } from '@/hooks/useMatchPeek';
 import { useMatchSpeech } from '@/hooks/useMatchSpeech';
 import { useGuestStore } from '@/stores/guestStore';
-import { normalizeSpokenMove } from '@mindboard/voice-pipeline';
+import {
+  HIGH_CONFIDENCE,
+  normalizeSpokenMove,
+  type VoiceResolveResult,
+} from '@mindboard/voice-pipeline';
 
 /** Shrinks the board so status, move panel, and controls fit without overlap. */
 const BOARD_EXTRA_INSET = spacing.marginMobile * 2 + spacing.xl * 2;
@@ -94,11 +98,22 @@ export function VoiceMatchScreen() {
     [clearMoveError, submitPlayerMove],
   );
 
+  const [voiceHint, setVoiceHint] = useState<string | null>(null);
+
   const handleVoiceTranscript = useCallback(
-    (transcript: string) => {
-      if (!transcript.trim()) return;
-      setMoveDraft(transcript);
-      void handleSubmitMove(transcript);
+    (result: VoiceResolveResult) => {
+      if (!result.displayText.trim()) return;
+      setMoveDraft(result.displayText);
+      if (result.matched && result.confidence >= HIGH_CONFIDENCE) {
+        setVoiceHint(null);
+        void handleSubmitMove(result.submitText);
+        return;
+      }
+      if (result.illegal) {
+        setVoiceHint('Illegal move');
+        return;
+      }
+      setVoiceHint('Check move and tap Play');
     },
     [handleSubmitMove],
   );
@@ -124,6 +139,7 @@ export function VoiceMatchScreen() {
   const submitMoveFromPanel = useCallback(
     (move: string) => {
       clearSpeechError();
+      setVoiceHint(null);
       void handleSubmitMove(move);
     },
     [clearSpeechError, handleSubmitMove],
@@ -295,6 +311,7 @@ export function VoiceMatchScreen() {
                   onMoveDraftChange={setMoveDraft}
                   onSubmit={submitMoveFromPanel}
                   speechError={speechError}
+                  voiceHint={voiceHint}
                   speechStatus={speechStatus}
                 />
               ) : null}
@@ -343,6 +360,7 @@ export function VoiceMatchScreen() {
         prompt={disambiguation?.prompt ?? ''}
         speechError={speechError}
         speechStatus={speechStatus}
+        voiceHint={voiceHint}
         visible={Boolean(disambiguation)}
       />
     </SafeAreaView>

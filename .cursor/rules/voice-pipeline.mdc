@@ -8,23 +8,22 @@ alwaysApply: false
 
 ```
 STT (mobile: expo-speech-recognition)
-  → normalizeSpokenMove / pickBestTranscript
-  → buildContextualStrings (position + disambiguation bias)
-  → resolveMove | resolveDisambiguationVoice (chess-core)
-  → Apply | DisambiguationOverlay
+  → resolveVoiceTranscript (voice-pipeline)
+      → normalizeSpokenMove
+      → resolveMove | resolveDisambiguationVoice fast path
+      → resolveNoisyTranscript (chess-core voice/)
+  → buildContextualStrings (≤100 iOS strings, spoken phrases prioritized)
+  → submitPlayerMove → resolveMove legality gate
 ```
 
 ## Rules
 
 - On-device STT primary (`requiresOnDeviceRecognition` when supported)
-- `normalizeMove` is a pure, table-tested function in chess-core
-- Disambiguation voice: `resolveDisambiguationVoice` first; tap uses `chooseDisambiguation`; failed voice falls through to `resolveMove`
-- Stockfish WASM off main thread
-
-## Homophones
-
-night→N, rook→R, bishop→B, queen→Q, king→K (handled in `chess-core` `match-move.ts`)
+- Fuzzy matching lives in `chess-core/src/voice/` — not in typed SAN `resolveMove`
+- `normalizeMove` remains pure + table-tested in chess-core
+- Disambiguation voice: `resolveDisambiguationVoice` first; tap uses `chooseDisambiguation`
+- Auto-submit only on high-confidence voice resolve (`HIGH_CONFIDENCE`)
 
 ## Mobile wiring
 
-`useMatchSpeech` → `submitPlayerMove` in `useMatchSession`. See `voice-match` skill.
+`useMatchSpeech` → `resolveVoiceTranscript` → `submitPlayerMove` in `useMatchSession`. See `voice-match` skill.

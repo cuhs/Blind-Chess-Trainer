@@ -30,6 +30,13 @@ Position → analyzePosition() → Motif | null → buildPuzzleFromMotif() (dete
 
 See `.cursor/skills/chess-ui/notation.md` for grid index correlation.
 
+## Voice move matching (`packages/chess-core/src/voice/`)
+
+- `generateSpokenVariants` — spoken/STT phrases per legal move
+- `resolveNoisyTranscript` — Levenshtein match against legal moves for current FEN
+- **Short-string trap:** confidence is ratio-based (`1 - edits/maxLen`), not raw edit count. Short squares (`e3`, `a 3`) use a stricter ratio cap; reject when two legal moves tie on ratio (e.g. `"ate three"` → e3 vs a3). Wrong move is worse than no match.
+- Voice-only: typed SAN still uses `resolveMove` / `normalizeMove` (no fuzzy correction)
+
 ## Training Input
 
 Tactile, not voice. `SquareKeypad` assembles a coordinate (`e4`); `YesNoZone` emits `yes`/`no`. Both feed the same `normalizeSquare`/`normalizeYesNo` + `validateAnswer` path — normalize before legality check.

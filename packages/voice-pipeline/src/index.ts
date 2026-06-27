@@ -2,10 +2,12 @@ export {
   normalizeMove,
   resolveMove,
   resolveDisambiguationVoice,
+  resolveNoisyTranscript,
   validateMove,
 } from '@mindboard/chess-core';
 export type {
   MoveCandidate,
+  NoisyMatchResult,
   ResolveDisambiguationResult,
   ResolveMoveResult,
 } from '@mindboard/chess-core';
@@ -15,4 +17,8 @@ export {
 } from './transcript';
 export { CHESS_MOVE_CONTEXTUAL_STRINGS } from './contextual-strings';
 export { buildContextualStrings } from './build-contextual-strings';
-export { pickBestTranscript } from './pick-transcript';
+export {
+  HIGH_CONFIDENCE,
+  resolveVoiceTranscript,
+  type VoiceResolveResult,
+} from './resolve-voice-transcript';

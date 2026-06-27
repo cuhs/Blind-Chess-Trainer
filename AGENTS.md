@@ -51,7 +51,7 @@ Closed-loop system: text training → voice matches → failures → custom puzz
 | Engine | Stockfish 17 native C++ on iOS (`@og-nav/expo-stockfish`); WASM in Vitest only |
 | Backend | Supabase + Express.js |
 | Motifs | Deterministic TypeScript microservice |
-| Voice | On-device STT (`expo-speech-recognition`) → `@mindboard/voice-pipeline` → `resolveMove` in chess-core |
+| Voice | On-device STT → `resolveVoiceTranscript` (voice-pipeline) → `resolveNoisyTranscript` (chess-core `voice/`) → `resolveMove` legality gate |
 | LLM | Templating only (JSON → questions) |
 | Designs | Google Stitch → `apps/mobile/theme/tokens.ts` (**synced**) |
 
@@ -68,7 +68,7 @@ apps/mobile/
   stores/             # Zustand + AsyncStorage (guest session)
 apps/api/             # Express gateway
 packages/chess-core/        # includes src/motifs/ (deterministic motif engine)
-packages/voice-pipeline/    # STT transcript prep + chess contextual strings; re-exports match-move
+packages/voice-pipeline/    # STT orchestration (`resolveVoiceTranscript`), contextual strings; re-exports match-move + voice resolver
 packages/heatmap/
 packages/shared/
 supabase/migrations/

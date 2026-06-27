@@ -314,7 +314,7 @@ Shared icons live in `components/ui/icons/`. Reuse — do not inline emoji as te
 | `MatchSecondaryActions` | Resign text action | `VoiceMatchScreen` (untimed match) |
 | `DisambiguationOverlay` | Fullscreen modal: large tap targets + voice input row | `VoiceMatchScreen` |
 | `MatchMovePanel` | Recessed card: engine row + unified move input | `VoiceMatchScreen` |
-| `MatchMoveInput` | SAN field + mic (tap/hold) + Play in one row | `MatchMovePanel`, `DisambiguationOverlay` |
+| `MatchMoveInput` | SAN field + mic (tap/hold) + Play; voice fills field; auto-plays only on high-confidence fuzzy match | `MatchMovePanel`, `DisambiguationOverlay` |
 | `PeekButton` | Yellow chip, `LightbulbIcon` (SVG) + label — no emoji | Rendered by `PuzzleSessionLayout` under the board (answer phase); reveal lands where the user taps |
 | `ProgressChrome` | Level/position label + percent + `ProgressBar` | Onboarding flow + DailyDrill (merged chrome) |
 | `PuzzleSessionLayout` | SafeArea + scroll + header + memorize-prompt + board + controls slot; owns `ScrollAnswerCue` + `PeekButton` placement (`onPeek` prop) | Shared shell: Hook/Story/Reward + DailyDrill |

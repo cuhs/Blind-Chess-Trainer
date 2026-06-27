@@ -5,9 +5,9 @@ import {
 } from 'expo-speech-recognition';
 import {
   buildContextualStrings,
-  normalizeSpokenMove,
-  pickBestTranscript,
+  resolveVoiceTranscript,
   type MoveCandidate,
+  type VoiceResolveResult,
 } from '@mindboard/voice-pipeline';
 import { ensureMatchAudioMode } from '@/lib/matchAudio';
 import type { VoiceListenMode } from '@/stores/guestStore';
@@ -25,7 +25,7 @@ interface UseMatchSpeechOptions {
   fen: string;
   listenMode: VoiceListenMode;
   disambiguation?: { candidates: MoveCandidate[] } | null;
-  onTranscript: (transcript: string) => void;
+  onTranscript: (result: VoiceResolveResult) => void;
 }
 
 function transcriptsFromResults(
@@ -46,7 +46,8 @@ export function useMatchSpeech({
 }: UseMatchSpeechOptions) {
   const [status, setStatus] = useState<MatchSpeechStatus>('idle');
   const [interimTranscript, setInterimTranscript] = useState('');
-  const [lastTranscript, setLastTranscript] = useState('');
+  const [lastResolveResult, setLastResolveResult] =
+    useState<VoiceResolveResult | null>(null);
   const [speechError, setSpeechError] = useState<string | null>(null);
   const [permissionDenied, setPermissionDenied] = useState(false);
   const [listeningSource, setListeningSource] = useState<ListeningSource>(null);
@@ -56,7 +57,7 @@ export function useMatchSpeech({
   const fenRef = useRef(fen);
   const disambiguationRef = useRef(disambiguation);
   const submitOnStopRef = useRef(false);
-  const pendingTranscriptRef = useRef<string | null>(null);
+  const pendingResultRef = useRef<VoiceResolveResult | null>(null);
   const listeningSourceRef = useRef<ListeningSource>(null);
 
   useEffect(() => {
@@ -93,12 +94,12 @@ export function useMatchSpeech({
     };
   }, []);
 
-  const submitPendingTranscript = useCallback(() => {
-    const transcript = pendingTranscriptRef.current;
-    pendingTranscriptRef.current = null;
-    if (!transcript) return;
-    setLastTranscript(transcript);
-    onTranscriptRef.current(transcript);
+  const submitPendingResult = useCallback(() => {
+    const result = pendingResultRef.current;
+    pendingResultRef.current = null;
+    if (!result) return;
+    setLastResolveResult(result);
+    onTranscriptRef.current(result);
   }, []);
 
   const stopListening = useCallback(
@@ -107,8 +108,8 @@ export function useMatchSpeech({
       try {
         ExpoSpeechRecognitionModule.stop();
       } catch {
-        if (submit && pendingTranscriptRef.current) {
-          submitPendingTranscript();
+        if (submit && pendingResultRef.current) {
+          submitPendingResult();
         }
         setStatus('idle');
         setListeningSource(null);
@@ -116,19 +117,19 @@ export function useMatchSpeech({
       }
       setStatus((current) => (current === 'listening' ? 'processing' : current));
     },
-    [submitPendingTranscript],
+    [submitPendingResult],
   );
 
   useSpeechRecognitionEvent('start', () => {
     setStatus('listening');
     setSpeechError(null);
     setInterimTranscript('');
-    pendingTranscriptRef.current = null;
+    pendingResultRef.current = null;
   });
 
   useSpeechRecognitionEvent('end', () => {
     if (submitOnStopRef.current) {
-      submitPendingTranscript();
+      submitPendingResult();
     }
     submitOnStopRef.current = false;
     setStatus('idle');
@@ -141,26 +142,26 @@ export function useMatchSpeech({
     const alternatives = transcriptsFromResults(event.results);
     if (!alternatives.length) return;
 
-    const prepared = pickBestTranscript(
-      alternatives.map((alt) => normalizeSpokenMove(alt)),
+    const resolved = resolveVoiceTranscript(
+      alternatives,
       fenRef.current,
       disambiguationRef.current,
     );
 
     if (event.isFinal) {
-      pendingTranscriptRef.current = prepared;
+      pendingResultRef.current = resolved;
       setInterimTranscript('');
       if (
         !submitOnStopRef.current &&
         listeningSourceRef.current !== 'hold'
       ) {
-        submitPendingTranscript();
+        submitPendingResult();
       }
       return;
     }
 
-    setInterimTranscript(prepared);
-    pendingTranscriptRef.current = prepared;
+    setInterimTranscript(resolved.displayText);
+    pendingResultRef.current = resolved;
   });
 
   useSpeechRecognitionEvent('error', (event) => {
@@ -169,7 +170,7 @@ export function useMatchSpeech({
     listeningSourceRef.current = null;
     setInterimTranscript('');
     submitOnStopRef.current = false;
-    pendingTranscriptRef.current = null;
+    pendingResultRef.current = null;
 
     if (event.error === 'aborted') {
       return;
@@ -229,7 +230,7 @@ export function useMatchSpeech({
       }
 
       setInterimTranscript('');
-      pendingTranscriptRef.current = null;
+      pendingResultRef.current = null;
       submitOnStopRef.current = false;
 
       try {
@@ -295,7 +296,7 @@ export function useMatchSpeech({
     listeningSource,
     listenMode,
     interimTranscript,
-    lastTranscript,
+    lastResolveResult,
     speechError,
     permissionDenied,
     startListening,

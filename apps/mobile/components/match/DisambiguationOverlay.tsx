@@ -24,6 +24,7 @@ interface DisambiguationOverlayProps {
   onMicTap: () => void;
   onMicHoldStart: () => void;
   onMicHoldEnd: () => void;
+  voiceHint?: string | null;
 }
 
 function spokenLabel(candidate: MoveCandidate): string {
@@ -53,6 +54,7 @@ export function DisambiguationOverlay({
   onMicTap,
   onMicHoldStart,
   onMicHoldEnd,
+  voiceHint,
 }: DisambiguationOverlayProps) {
   return (
     <Modal
@@ -99,6 +101,7 @@ export function DisambiguationOverlay({
               speechError={speechError}
               speechStatus={speechStatus}
               value={moveDraft}
+              voiceHint={voiceHint}
             />
           </View>
 

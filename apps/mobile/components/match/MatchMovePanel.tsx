@@ -20,6 +20,7 @@ interface MatchMovePanelProps {
   onMicTap: () => void;
   onMicHoldStart: () => void;
   onMicHoldEnd: () => void;
+  voiceHint?: string | null;
 }
 
 function MoveRow({
@@ -61,6 +62,7 @@ export function MatchMovePanel({
   onMicTap,
   onMicHoldStart,
   onMicHoldEnd,
+  voiceHint,
 }: MatchMovePanelProps) {
   const showEngineRow = lastEngineMove !== null || isThinking;
   const showInput = !inputDisabled;
@@ -93,6 +95,7 @@ export function MatchMovePanel({
               speechError={speechError}
               speechStatus={speechStatus}
               value={moveDraft}
+              voiceHint={voiceHint}
             />
           ) : (
             <Text

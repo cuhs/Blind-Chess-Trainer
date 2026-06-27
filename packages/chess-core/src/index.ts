@@ -6,3 +6,4 @@ export * from './match-recorder';
 export * from './match-replay';
 export * from './types/motifs';
 export * from './motifs';
+export * from './voice/index';

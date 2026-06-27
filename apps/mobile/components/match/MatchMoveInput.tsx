@@ -27,6 +27,7 @@ interface MatchMoveInputProps {
   onMicTap: () => void;
   onMicHoldStart: () => void;
   onMicHoldEnd: () => void;
+  voiceHint?: string | null;
 }
 
 function hintLabel(
@@ -63,6 +64,7 @@ export function MatchMoveInput({
   onMicTap,
   onMicHoldStart,
   onMicHoldEnd,
+  voiceHint,
 }: MatchMoveInputProps) {
   const canSubmit = !disabled && value.trim().length > 0;
   const listening = speechStatus === 'listening';
@@ -166,6 +168,11 @@ export function MatchMoveInput({
       {hint ? (
         <Text accessibilityLabel={`Voice status: ${hint}`} style={styles.hint}>
           {hint}
+        </Text>
+      ) : null}
+      {!hint && voiceHint ? (
+        <Text accessibilityLabel={`Voice hint: ${voiceHint}`} style={styles.hint}>
+          {voiceHint}
         </Text>
       ) : null}
       {speechError ? <Text style={styles.error}>{speechError}</Text> : null}
