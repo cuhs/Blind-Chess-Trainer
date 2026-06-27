@@ -2,6 +2,7 @@ import { useCallback, useEffect, useRef, useState } from 'react';
 import { Chess } from 'chess.js';
 import {
   createMatchRecorder,
+  resolveDisambiguationVoice,
   resolveMove,
   type MatchRecorder,
   type MoveCandidate,
@@ -187,6 +188,18 @@ export function useMatchSession(matchElo: number, playerColor: MatchPlayerColor)
       if (!isPlayerTurn) return false;
 
       const currentFen = chessRef.current.fen();
+
+      if (disambiguation) {
+        const voiceResolution = resolveDisambiguationVoice(
+          currentFen,
+          disambiguation.candidates,
+          input,
+        );
+        if (voiceResolution.ok) {
+          return applySan(voiceResolution.san);
+        }
+      }
+
       const resolution = resolveMove(currentFen, input);
       if (resolution.ok) {
         return applySan(resolution.san);
@@ -210,20 +223,22 @@ export function useMatchSession(matchElo: number, playerColor: MatchPlayerColor)
       }
 
       setDisambiguation(null);
+      const reason =
+        'reason' in resolution ? resolution.reason : 'Could not parse move';
       recorderRef.current.recordIllegalAttempt(
         input,
-        resolution.reason,
+        reason,
         currentFen,
         timestamp,
       );
       setMoveError(
-        resolution.reason === 'Illegal move'
+        reason === 'Illegal move'
           ? 'Illegal move — choose a legal move'
-          : resolution.reason,
+          : reason,
       );
       return false;
     },
-    [isPlayerTurn, applySan],
+    [isPlayerTurn, disambiguation, applySan],
   );
 
   const chooseDisambiguation = useCallback(

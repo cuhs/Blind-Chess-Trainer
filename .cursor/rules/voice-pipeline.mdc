@@ -8,16 +8,17 @@ alwaysApply: false
 
 ```
 STT (mobile: expo-speech-recognition)
-  → prepareMoveTranscript
-  → normalizeMove / resolveMove (chess-core)
-  → Apply | Disambiguation
+  → normalizeSpokenMove / pickBestTranscript
+  → buildContextualStrings (position + disambiguation bias)
+  → resolveMove | resolveDisambiguationVoice (chess-core)
+  → Apply | DisambiguationOverlay
 ```
 
 ## Rules
 
 - On-device STT primary (`requiresOnDeviceRecognition` when supported)
 - `normalizeMove` is a pure, table-tested function in chess-core
-- Disambiguation responses re-enter the **same** pipeline — no shortcut
+- Disambiguation voice: `resolveDisambiguationVoice` first; tap uses `chooseDisambiguation`; failed voice falls through to `resolveMove`
 - Stockfish WASM off main thread
 
 ## Homophones

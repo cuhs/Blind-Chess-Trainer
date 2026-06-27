@@ -16,8 +16,8 @@ disable-model-invocation: false
 
 ```
 Mic → expo-speech-recognition (on-device when supported)
-  → prepareMoveTranscript (@mindboard/voice-pipeline)
-  → resolveMove (chess-core) → apply | disambiguate
+  → normalizeSpokenMove + pickBestTranscript (@mindboard/voice-pipeline)
+  → resolveMove | resolveDisambiguationVoice (chess-core) → apply | disambiguate
 ```
 
 ## Packages & hooks
@@ -25,11 +25,11 @@ Mic → expo-speech-recognition (on-device when supported)
 | Piece | Location |
 |-------|----------|
 | STT adapter | `apps/mobile/hooks/useMatchSpeech.ts` |
-| Transcript prep + chess vocabulary bias | `packages/voice-pipeline` |
+| Transcript prep, dynamic STT bias, alternative scoring | `packages/voice-pipeline` |
 | Move normalizer / legality | `packages/chess-core` (`match-move.ts`) |
 | Session orchestration | `useMatchSession` → `submitPlayerMove` |
 
-`useMatchSpeech` requests microphone permission, prefers `requiresOnDeviceRecognition` when the device supports it, and submits **final** transcripts to `submitPlayerMove`. Disambiguation responses (tap or voice) re-enter the same `resolveMove` path.
+`useMatchSpeech` requests microphone permission, prefers `requiresOnDeviceRecognition` when supported, uses `buildContextualStrings(fen, disambiguation)` and `maxAlternatives: 5`, and submits final transcripts to `submitPlayerMove`. Disambiguation voice tries `resolveDisambiguationVoice` first, then falls through to `resolveMove`.
 
 ## Native dependency
 
@@ -48,9 +48,15 @@ Expo Go does **not** include this native module.
 
 ## UI (current)
 
-- `MatchMoveInput` — one SAN field for typed and voice moves; interim speech fills the same box; mic in `MatchControlBar`
-- `MatchControlBar` — mic toggle (`Start voice input` / `Stop listening`)
-- `MoveDisambiguation` — tap targets; mic still active for verbal clarification
+- `MatchMoveInput` — unified row: SAN field + mic (tap toggle / hold-to-speak) + Play
+- `MatchControlBar` — Peek + Cover only (no mic)
+- `DisambiguationOverlay` — fullscreen modal, large tap targets, live voice input + errors
+- `voiceListenMode` in guest store (`auto` default, `manual` in Settings)
+
+Listen modes:
+- **auto** — mic arms on your turn; tap mic to cancel/re-arm
+- **manual** — tap mic to arm/disarm
+- **hold** — press and hold mic (any mode) to speak, release to submit
 
 ## Checklist
 

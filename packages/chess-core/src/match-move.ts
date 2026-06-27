@@ -6,13 +6,12 @@ const PIECE_ALIASES: Record<string, string> = {
   horse: 'n',
   bishop: 'b',
   rook: 'r',
-  are: 'r',
-  hour: 'r',
-  our: 'r',
   queen: 'q',
   king: 'k',
   pawn: '',
 };
+
+const ROOK_HOMOPHONES = new Set(['rook', 'are', 'hour', 'our']);
 
 const SPOKEN_RANKS: Record<string, string> = {
   one: '1',
@@ -80,6 +79,17 @@ function piecePrefix(piece: string): string {
   return piece === '' ? '' : piece.toUpperCase();
 }
 
+function pieceAliasForWord(word: string): string | undefined {
+  const lower = word.toLowerCase();
+  if (PIECE_ALIASES[lower] !== undefined) {
+    return PIECE_ALIASES[lower];
+  }
+  if (ROOK_HOMOPHONES.has(lower)) {
+    return 'r';
+  }
+  return undefined;
+}
+
 function normalizeSanCompact(compact: string): string {
   if (/^[nbrqk]/i.test(compact)) {
     return compact[0].toUpperCase() + compact.slice(1);
@@ -88,14 +98,35 @@ function normalizeSanCompact(compact: string): string {
 }
 
 function pieceDestFromAlias(pieceWord: string, destToken: string): string | null {
-  if (PIECE_ALIASES[pieceWord] === undefined) return null;
+  const alias = pieceAliasForWord(pieceWord);
+  if (alias === undefined) return null;
   const dest = parseSquareToken(destToken);
   if (!dest) return null;
-  return `${piecePrefix(PIECE_ALIASES[pieceWord])}${dest}`;
+  return `${piecePrefix(alias)}${dest}`;
 }
 
 function isCapture(flags: string): boolean {
   return flags.includes('c') || flags.includes('e');
+}
+
+export type ResolveDisambiguationResult =
+  | { ok: true; san: string }
+  | { ok: false };
+
+function normalizeCastlingPhrase(lower: string): string | null {
+  if (/^(?:castle|castles?)\s+(?:king\s*side|kingside)$/.test(lower)) {
+    return 'O-O';
+  }
+  if (/^(?:castle|castles?)\s+(?:queen\s*side|queenside)$/.test(lower)) {
+    return 'O-O-O';
+  }
+  if (/^(?:king\s*side|kingside)$/.test(lower)) {
+    return 'O-O';
+  }
+  if (/^(?:queen\s*side|queenside)$/.test(lower)) {
+    return 'O-O-O';
+  }
+  return null;
 }
 
 export function normalizeMove(
@@ -103,6 +134,12 @@ export function normalizeMove(
 ): { ok: true; value: string } | { ok: false } {
   const trimmed = input.trim();
   if (!trimmed) return { ok: false };
+
+  const lower = trimmed.toLowerCase();
+  const castling = normalizeCastlingPhrase(lower);
+  if (castling) {
+    return { ok: true, value: castling };
+  }
 
   const compact = stripCheckMate(trimmed.replace(/\s+/g, ''));
 
@@ -130,7 +167,6 @@ export function normalizeMove(
     };
   }
 
-  const lower = trimmed.toLowerCase();
   const parts = lower.split(/\s+/);
 
   if (parts.length === 3 && parts[1] === 'to') {
@@ -144,10 +180,19 @@ export function normalizeMove(
     if (spoken) return { ok: true, value: spoken };
   }
 
+  if (parts.length === 3 && parts[1] === 'file') {
+    const spoken = pieceDestFromAlias(parts[2], parts[0]);
+    if (spoken) return { ok: true, value: spoken };
+  }
+
   if (parts.length === 2) {
-    if (PIECE_ALIASES[parts[0]] !== undefined) {
+    if (pieceAliasForWord(parts[0]) !== undefined) {
       const spoken = pieceDestFromAlias(parts[0], parts[1]);
       if (spoken) return { ok: true, value: spoken };
+    }
+
+    if (parts[1] === 'file' && /^[a-h]$/.test(parts[0])) {
+      return { ok: false };
     }
 
     if (parts[0] === 'takes' || parts[0] === 'capture' || parts[0] === 'captures') {
@@ -301,6 +346,77 @@ export function resolveMove(fen: string, input: string): ResolveMoveResult {
   return { ok: false, reason: 'Illegal move' };
 }
 
+function sanTokenMatches(candidateSan: string, token: string): boolean {
+  return (
+    stripCheckMate(candidateSan).toLowerCase() ===
+    stripCheckMate(token).toLowerCase()
+  );
+}
+
+function extractFileHint(input: string): string | null {
+  const trimmed = input.trim().toLowerCase();
+  const exact = /^(?:the\s+)?([a-h])(?:\s*-?\s*file)?$/.exec(trimmed);
+  if (exact) return exact[1];
+
+  const embedded = /\b([a-h])\s*-?\s*file\b/.exec(trimmed);
+  return embedded?.[1] ?? null;
+}
+
+function extractOriginSquare(input: string): string | null {
+  const match = /\b([a-h][1-8])\b/i.exec(input);
+  return match?.[1].toLowerCase() ?? null;
+}
+
+export function resolveDisambiguationVoice(
+  fen: string,
+  candidates: MoveCandidate[],
+  input: string,
+): ResolveDisambiguationResult {
+  if (!candidates.length) return { ok: false };
+
+  const chess = new Chess(fen);
+  const verboseBySan = new Map(
+    chess
+      .moves({ verbose: true })
+      .filter((move) => candidates.some((candidate) => candidate.san === move.san))
+      .map((move) => [move.san, move]),
+  );
+
+  const normalized = normalizeMove(input);
+  if (normalized.ok) {
+    const direct = candidates.filter((candidate) =>
+      sanTokenMatches(candidate.san, normalized.value),
+    );
+    if (direct.length === 1) {
+      return { ok: true, san: direct[0].san };
+    }
+  }
+
+  const fileHint = extractFileHint(input);
+  if (fileHint) {
+    const matches = candidates.filter((candidate) => {
+      const move = verboseBySan.get(candidate.san);
+      return move?.from[0] === fileHint;
+    });
+    if (matches.length === 1) {
+      return { ok: true, san: matches[0].san };
+    }
+  }
+
+  const originSquare = extractOriginSquare(input);
+  if (originSquare) {
+    const matches = candidates.filter((candidate) => {
+      const move = verboseBySan.get(candidate.san);
+      return move?.from === originSquare;
+    });
+    if (matches.length === 1) {
+      return { ok: true, san: matches[0].san };
+    }
+  }
+
+  return { ok: false };
+}
+
 export function validateMove(
   fen: string,
   input: string,
@@ -312,5 +428,8 @@ export function validateMove(
   if ('ambiguous' in result && result.ambiguous) {
     return { ok: false, reason: result.prompt };
   }
-  return { ok: false, reason: result.reason };
+  return {
+    ok: false,
+    reason: 'reason' in result ? result.reason : 'Could not parse move',
+  };
 }

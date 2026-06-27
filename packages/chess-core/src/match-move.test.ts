@@ -1,5 +1,10 @@
 import { describe, expect, it } from 'vitest';
-import { normalizeMove, resolveMove, validateMove } from './match-move';
+import {
+  normalizeMove,
+  resolveDisambiguationVoice,
+  resolveMove,
+  validateMove,
+} from './match-move';
 
 const START =
   'rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1';
@@ -52,6 +57,15 @@ describe('normalizeMove', () => {
 
   it('accepts rook homophones', () => {
     expect(normalizeMove('are b2')).toEqual({ ok: true, value: 'Rb2' });
+  });
+
+  it('accepts spoken castling', () => {
+    expect(normalizeMove('castle kingside')).toEqual({ ok: true, value: 'O-O' });
+    expect(normalizeMove('castle queenside')).toEqual({ ok: true, value: 'O-O-O' });
+  });
+
+  it('accepts spoken rank in pawn moves', () => {
+    expect(normalizeMove('e 2')).toEqual({ ok: true, value: 'e2' });
   });
 });
 
@@ -110,6 +124,38 @@ describe('resolveMove', () => {
     const fen = '4k3/8/8/8/8/8/4R3/4K3 w - - 0 1';
     expect(resolveMove(fen, 'rb2')).toEqual({ ok: true, san: 'Rb2' });
     expect(resolveMove(fen, 'rook to b2')).toEqual({ ok: true, san: 'Rb2' });
+  });
+});
+
+describe('resolveDisambiguationVoice', () => {
+  it('resolves file answers for ambiguous knights', () => {
+    const fen = 'k7/8/8/8/8/5N2/8/1N4K1 w - - 0 1';
+    const candidates = [
+      { san: 'Nbd2', label: 'Knight on b1 to d2' },
+      { san: 'Nfd2', label: 'Knight on f1 to d2' },
+    ];
+
+    expect(resolveDisambiguationVoice(fen, candidates, 'b-file')).toEqual({
+      ok: true,
+      san: 'Nbd2',
+    });
+    expect(resolveDisambiguationVoice(fen, candidates, 'the f file')).toEqual({
+      ok: true,
+      san: 'Nfd2',
+    });
+  });
+
+  it('resolves origin square answers', () => {
+    const fen = 'k7/8/8/8/8/5N2/8/1N4K1 w - - 0 1';
+    const candidates = [
+      { san: 'Nbd2', label: 'Knight on b1 to d2' },
+      { san: 'Nfd2', label: 'Knight on f1 to d2' },
+    ];
+
+    expect(resolveDisambiguationVoice(fen, candidates, 'knight b1')).toEqual({
+      ok: true,
+      san: 'Nbd2',
+    });
   });
 });
 

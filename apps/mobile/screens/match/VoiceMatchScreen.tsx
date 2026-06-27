@@ -21,12 +21,12 @@ import {
 import { MatchControlBar } from '@/components/match/MatchControlBar';
 import { MatchSecondaryActions } from '@/components/match/MatchSecondaryActions';
 import { MatchMovePanel } from '@/components/match/MatchMovePanel';
-import { MoveDisambiguation } from '@/components/match/MoveDisambiguation';
+import { DisambiguationOverlay } from '@/components/match/DisambiguationOverlay';
 import { useMatchSession } from '@/hooks/useMatchSession';
 import { useMatchPeek } from '@/hooks/useMatchPeek';
 import { useMatchSpeech } from '@/hooks/useMatchSpeech';
 import { useGuestStore } from '@/stores/guestStore';
-import { prepareMoveTranscript } from '@mindboard/voice-pipeline';
+import { normalizeSpokenMove } from '@mindboard/voice-pipeline';
 
 /** Shrinks the board so status, move panel, and controls fit without overlap. */
 const BOARD_EXTRA_INSET = spacing.marginMobile * 2 + spacing.xl * 2;
@@ -50,6 +50,7 @@ export function VoiceMatchScreen() {
   const router = useRouter();
   const matchElo = useGuestStore((s) => s.matchElo);
   const matchPlayerColor = useGuestStore((s) => s.matchPlayerColor);
+  const voiceListenMode = useGuestStore((s) => s.voiceListenMode);
   const {
     fen,
     isPlayerTurn,
@@ -74,13 +75,15 @@ export function VoiceMatchScreen() {
   const [fullyCovered, setFullyCovered] = useState(false);
   const habitRecorded = useRef(false);
   const recordHabitActivity = useGuestStore((s) => s.recordHabitActivity);
+  const prevVoiceEnabledRef = useRef(false);
+  const autoStartedRef = useRef(false);
 
   const voiceEnabled = isPlayerTurn && !isThinking && !isGameOver;
   const [moveDraft, setMoveDraft] = useState('');
 
   const handleSubmitMove = useCallback(
     async (move: string) => {
-      const trimmed = prepareMoveTranscript(move);
+      const trimmed = normalizeSpokenMove(move);
       if (!trimmed) return;
       clearMoveError();
       const applied = await submitPlayerMove(trimmed);
@@ -103,12 +106,18 @@ export function VoiceMatchScreen() {
   const {
     status: speechStatus,
     isListening,
+    listeningSource,
     interimTranscript,
     speechError,
+    startListening,
+    stopListening,
     toggleListening,
     clearSpeechError,
   } = useMatchSpeech({
     enabled: voiceEnabled,
+    fen,
+    listenMode: voiceListenMode,
+    disambiguation,
     onTranscript: handleVoiceTranscript,
   });
 
@@ -129,8 +138,26 @@ export function VoiceMatchScreen() {
   useEffect(() => {
     if (!voiceEnabled) {
       setMoveDraft('');
+      autoStartedRef.current = false;
     }
   }, [voiceEnabled]);
+
+  useEffect(() => {
+    const becameEnabled = voiceEnabled && !prevVoiceEnabledRef.current;
+    prevVoiceEnabledRef.current = voiceEnabled;
+
+    if (!becameEnabled || voiceListenMode !== 'auto') return;
+    if (autoStartedRef.current) return;
+
+    autoStartedRef.current = true;
+    void startListening('auto');
+  }, [voiceEnabled, voiceListenMode, startListening]);
+
+  useEffect(() => {
+    if (!disambiguation || voiceListenMode !== 'auto' || !voiceEnabled) return;
+    if (isListening) return;
+    void startListening('auto');
+  }, [disambiguation, voiceListenMode, voiceEnabled, isListening, startListening]);
 
   useEffect(() => {
     if (!isGameOver || habitRecorded.current) return;
@@ -149,11 +176,37 @@ export function VoiceMatchScreen() {
           ? { text: 'Engine thinking…', tone: 'neutral' }
           : { text: `Your move — you play ${colorLabel}`, tone: 'action' };
 
-  const handleMicPress = () => {
+  const handleMicTap = useCallback(() => {
     clearMoveError();
     clearSpeechError();
+    if (voiceListenMode === 'auto') {
+      if (isListening) {
+        void stopListening({ submit: false });
+      } else {
+        void startListening('manual');
+      }
+      return;
+    }
     void toggleListening();
-  };
+  }, [
+    clearMoveError,
+    clearSpeechError,
+    isListening,
+    startListening,
+    stopListening,
+    toggleListening,
+    voiceListenMode,
+  ]);
+
+  const handleMicHoldStart = useCallback(() => {
+    clearMoveError();
+    clearSpeechError();
+    void startListening('hold');
+  }, [clearMoveError, clearSpeechError, startListening]);
+
+  const handleMicHoldEnd = useCallback(() => {
+    void stopListening({ submit: true });
+  }, [stopListening]);
 
   const handleNewMatch = () => {
     setFullyCovered(false);
@@ -171,11 +224,11 @@ export function VoiceMatchScreen() {
         keyboardVerticalOffset={Platform.OS === 'ios' ? 8 : 0}
         style={styles.flex}
       >
-      <ScrollView
-        contentContainerStyle={styles.content}
-        keyboardShouldPersistTaps="always"
-        showsVerticalScrollIndicator={false}
-      >
+        <ScrollView
+          contentContainerStyle={styles.content}
+          keyboardShouldPersistTaps="always"
+          showsVerticalScrollIndicator={false}
+        >
           <MatchStatusBar
             elo={matchElo}
             statusText={matchStatus.text}
@@ -222,39 +275,32 @@ export function VoiceMatchScreen() {
             </View>
           ) : (
             <>
-              {disambiguation ? (
-                <MoveDisambiguation
-                  candidates={disambiguation.candidates}
-                  onCancel={cancelDisambiguation}
-                  onSelect={(san) => {
-                    void chooseDisambiguation(san);
-                  }}
-                  prompt={disambiguation.prompt}
-                />
-              ) : (
+              {!disambiguation ? (
                 <MatchMovePanel
                   inputDisabled={!voiceEnabled}
+                  isListening={isListening}
                   isThinking={isThinking}
                   lastEngineMove={lastEngineMove}
                   lastPlayerMove={lastPlayerMove}
+                  listeningSource={listeningSource}
                   moveDraft={moveDraft}
                   moveError={moveError}
                   onClearError={() => {
                     clearMoveError();
                     clearSpeechError();
                   }}
+                  onMicHoldEnd={handleMicHoldEnd}
+                  onMicHoldStart={handleMicHoldStart}
+                  onMicTap={handleMicTap}
                   onMoveDraftChange={setMoveDraft}
                   onSubmit={submitMoveFromPanel}
                   speechError={speechError}
                   speechStatus={speechStatus}
                 />
-              )}
+              ) : null}
               <MatchControlBar
                 covered={fullyCovered}
-                micActive={isListening}
-                micDisabled={!voiceEnabled}
                 onCoverPress={() => setFullyCovered((value) => !value)}
-                onMicPress={handleMicPress}
                 onPeekPress={onPeek}
               />
               <View style={styles.footerRow}>
@@ -273,6 +319,32 @@ export function VoiceMatchScreen() {
           )}
         </ScrollView>
       </KeyboardAvoidingView>
+
+      <DisambiguationOverlay
+        candidates={disambiguation?.candidates ?? []}
+        inputDisabled={!voiceEnabled}
+        isListening={isListening}
+        listeningSource={listeningSource}
+        moveDraft={moveDraft}
+        moveError={moveError}
+        onCancel={cancelDisambiguation}
+        onClearError={() => {
+          clearMoveError();
+          clearSpeechError();
+        }}
+        onMicHoldEnd={handleMicHoldEnd}
+        onMicHoldStart={handleMicHoldStart}
+        onMicTap={handleMicTap}
+        onMoveDraftChange={setMoveDraft}
+        onSelect={(san) => {
+          void chooseDisambiguation(san);
+        }}
+        onSubmit={submitMoveFromPanel}
+        prompt={disambiguation?.prompt ?? ''}
+        speechError={speechError}
+        speechStatus={speechStatus}
+        visible={Boolean(disambiguation)}
+      />
     </SafeAreaView>
   );
 }

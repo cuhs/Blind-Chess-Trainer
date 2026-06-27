@@ -19,6 +19,9 @@ import { nextStreakDays } from '@/lib/streak';
 
 export type HeatmapInteractionType = 'puzzle' | 'match_peek';
 
+/** Auto-arms mic on your turn; manual requires tap to arm. Hold-to-speak works in both. */
+export type VoiceListenMode = 'auto' | 'manual';
+
 export interface PendingHeatmapInteraction {
   id: string;
   originSquare: Square | null;
@@ -44,6 +47,7 @@ interface GuestState {
   matchHistory: MatchRecord[];
   matchElo: number;
   matchPlayerColor: 'w' | 'b';
+  voiceListenMode: VoiceListenMode;
   _hasHydrated: boolean;
 
   setOnboardingComplete: (complete: boolean) => void;
@@ -73,6 +77,7 @@ interface GuestState {
   clearDrillProgress: () => void;
   setMatchElo: (elo: number) => void;
   setMatchPlayerColor: (color: 'w' | 'b') => void;
+  setVoiceListenMode: (mode: VoiceListenMode) => void;
   setHasHydrated: (hydrated: boolean) => void;
 }
 
@@ -94,6 +99,7 @@ export const useGuestStore = create<GuestState>()(
       matchHistory: [],
       matchElo: 800,
       matchPlayerColor: 'w',
+      voiceListenMode: 'auto',
       _hasHydrated: false,
 
       setOnboardingComplete: (complete) =>
@@ -244,6 +250,8 @@ export const useGuestStore = create<GuestState>()(
 
       setMatchPlayerColor: (color) => set({ matchPlayerColor: color }),
 
+      setVoiceListenMode: (mode) => set({ voiceListenMode: mode }),
+
       setHasHydrated: (hydrated) => set({ _hasHydrated: hydrated }),
     }),
     {
@@ -268,6 +276,7 @@ export const useGuestStore = create<GuestState>()(
         matchHistory: state.matchHistory,
         matchElo: state.matchElo,
         matchPlayerColor: state.matchPlayerColor,
+        voiceListenMode: state.voiceListenMode,
       }),
     },
   ),

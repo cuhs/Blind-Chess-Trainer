@@ -1,43 +1,21 @@
 import { Pressable, View, StyleSheet } from 'react-native';
 import { colors, radius, spacing, touch } from '@/theme';
-import { MicIcon } from '@/components/ui/icons/MicIcon';
 import { PeekIcon } from '@/components/ui/icons/PeekIcon';
 import { EyeOffIcon } from '@/components/ui/icons/EyeOffIcon';
 
 interface MatchControlBarProps {
-  onMicPress?: () => void;
   onPeekPress: () => void;
   onCoverPress: () => void;
   covered: boolean;
-  micDisabled?: boolean;
-  micActive?: boolean;
 }
 
 export function MatchControlBar({
-  onMicPress,
   onPeekPress,
   onCoverPress,
   covered,
-  micDisabled = false,
-  micActive = false,
 }: MatchControlBarProps) {
   return (
     <View style={styles.row}>
-      <Pressable
-        accessibilityLabel={micActive ? 'Stop listening' : 'Start voice input'}
-        accessibilityRole="button"
-        accessibilityState={{ disabled: micDisabled, selected: micActive }}
-        disabled={micDisabled}
-        onPress={onMicPress}
-        style={[
-          styles.control,
-          micDisabled && styles.controlDisabled,
-          micActive && styles.controlActive,
-        ]}
-      >
-        <MicIcon color={colors.onSecondaryContainer} size={22} />
-      </Pressable>
-
       <Pressable
         accessibilityLabel="Peek at board"
         accessibilityRole="button"
@@ -77,9 +55,6 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
     marginBottom: touch.buttonOffset,
-  },
-  controlDisabled: {
-    opacity: 0.45,
   },
   controlActive: {
     borderColor: colors.tertiary,

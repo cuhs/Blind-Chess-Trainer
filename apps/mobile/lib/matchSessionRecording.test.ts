@@ -49,7 +49,7 @@ describe('match session recording flow', () => {
       }
       recorder.recordIllegalAttempt(
         input,
-        resolution.reason,
+        'reason' in resolution ? resolution.reason : 'Could not parse move',
         fen,
         `illegal-${input}`,
       );

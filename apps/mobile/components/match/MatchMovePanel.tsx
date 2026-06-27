@@ -1,7 +1,7 @@
 import { View, Text, StyleSheet } from 'react-native';
 import { colors, radius, spacing, touch, typography } from '@/theme';
 import { MatchMoveInput } from './MatchMoveInput';
-import type { MatchSpeechStatus } from '@/hooks/useMatchSpeech';
+import type { ListeningSource, MatchSpeechStatus } from '@/hooks/useMatchSpeech';
 
 interface MatchMovePanelProps {
   lastEngineMove: string | null;
@@ -15,6 +15,11 @@ interface MatchMovePanelProps {
   onClearError: () => void;
   speechError: string | null;
   speechStatus: MatchSpeechStatus;
+  listeningSource: ListeningSource;
+  isListening: boolean;
+  onMicTap: () => void;
+  onMicHoldStart: () => void;
+  onMicHoldEnd: () => void;
 }
 
 function MoveRow({
@@ -51,6 +56,11 @@ export function MatchMovePanel({
   onClearError,
   speechError,
   speechStatus,
+  listeningSource,
+  isListening,
+  onMicTap,
+  onMicHoldStart,
+  onMicHoldEnd,
 }: MatchMovePanelProps) {
   const showEngineRow = lastEngineMove !== null || isThinking;
   const showInput = !inputDisabled;
@@ -71,9 +81,14 @@ export function MatchMovePanel({
           {showInput ? (
             <MatchMoveInput
               disabled={inputDisabled}
+              isListening={isListening}
+              listeningSource={listeningSource}
               moveError={moveError}
               onChange={onMoveDraftChange}
               onClearError={onClearError}
+              onMicHoldEnd={onMicHoldEnd}
+              onMicHoldStart={onMicHoldStart}
+              onMicTap={onMicTap}
               onSubmit={onSubmit}
               speechError={speechError}
               speechStatus={speechStatus}

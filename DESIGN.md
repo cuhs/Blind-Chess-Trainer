@@ -309,12 +309,12 @@ Shared icons live in `components/ui/icons/`. Reuse — do not inline emoji as te
 | `MatchSetupHero` | Fog grid + blindfold icon hero | `MatchSetupScreen` |
 | `MatchSetupScreen` | Blindfold match prep — covered board preview, Elo slider, Start | `/(main)/match` |
 | `MatchStatusBar` | Card: VS ENGINE + Elo, one-line status (your move / thinking / illegal move / result) | `VoiceMatchScreen`; status tone: neutral/action/alert/success |
-| `MatchControlBar` | Mic + Peek + Cover (slashed-eye) circular controls | `VoiceMatchScreen` |
+| `MatchControlBar` | Peek + Cover (slashed-eye) circular controls | `VoiceMatchScreen` |
 | `BoardCover` | Solid panel hiding grid and coordinate labels | `BlindfoldBoard` when fully covered |
 | `MatchSecondaryActions` | Resign text action | `VoiceMatchScreen` (untimed match) |
-| `MoveDisambiguation` | Ambiguous move picker (SAN + label) | `VoiceMatchScreen` |
+| `DisambiguationOverlay` | Fullscreen modal: large tap targets + voice input row | `VoiceMatchScreen` |
 | `MatchMovePanel` | Recessed card: engine row + unified move input | `VoiceMatchScreen` |
-| `MatchMoveInput` | Single SAN field — type or speak into the same box; Play submits | `MatchMovePanel` |
+| `MatchMoveInput` | SAN field + mic (tap/hold) + Play in one row | `MatchMovePanel`, `DisambiguationOverlay` |
 | `PeekButton` | Yellow chip, `LightbulbIcon` (SVG) + label — no emoji | Rendered by `PuzzleSessionLayout` under the board (answer phase); reveal lands where the user taps |
 | `ProgressChrome` | Level/position label + percent + `ProgressBar` | Onboarding flow + DailyDrill (merged chrome) |
 | `PuzzleSessionLayout` | SafeArea + scroll + header + memorize-prompt + board + controls slot; owns `ScrollAnswerCue` + `PeekButton` placement (`onPeek` prop) | Shared shell: Hook/Story/Reward + DailyDrill |
