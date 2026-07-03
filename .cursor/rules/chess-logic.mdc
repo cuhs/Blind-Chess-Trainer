@@ -34,7 +34,8 @@ See `.cursor/skills/chess-ui/notation.md` for grid index correlation.
 
 - `generateSpokenVariants` — spoken/STT phrases per legal move
 - `resolveNoisyTranscript` — Levenshtein match against legal moves for current FEN
-- **Short-string trap:** confidence is ratio-based (`1 - edits/maxLen`), not raw edit count. Short squares (`e3`, `a 3`) use a stricter ratio cap; reject when two legal moves tie on ratio (e.g. `"ate three"` → e3 vs a3). Wrong move is worse than no match.
+- **Short-string trap:** confidence is ratio-based (`1 - edits/maxLen`), not raw edit count. Short squares (`e3`, `a 3`) use a stricter ratio cap; reject when two legal moves tie on ratio (e.g. `"ate three"` → e3 vs a3). Same-destination piece ties return `buildMoveCandidates` for disambiguation overlay — never pick first in array.
+- `minConfidenceForTranscript` — length-scaled bar (90% / 80%) against premature STT finals
 - Voice-only: typed SAN still uses `resolveMove` / `normalizeMove` (no fuzzy correction)
 
 ## Training Input

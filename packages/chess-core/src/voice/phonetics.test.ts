@@ -82,8 +82,11 @@ describe('generateSpokenVariants', () => {
     expect(generateSpokenVariants('   ')).toEqual([]);
   });
 
-  it('should return san-only variants when move is omitted', () => {
-    const variants = generateSpokenVariants('Nf3');
-    expect(variants).toContain('nf3');
+  it('should include check spoken suffixes for checking moves', () => {
+    const checkFen = 'rnbqkbnr/pppp1ppp/8/4p2Q/4P3/8/PPPP1PPP/RNB1KBNR w KQkq - 0 2';
+    const move = verboseMove(checkFen, 'Qxf7+');
+    const variants = generateSpokenVariants('Qxf7+', move);
+    expect(variants).toContain('queen takes f7 check');
+    expect(variants).toContain('qxf7 check');
   });
 });

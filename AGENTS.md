@@ -128,7 +128,7 @@ Post-onboarding `/(main)/index` — Stitch frame `b1eff5fd32e743e2a7f8a4b78a3403
    - Done: engine-backed prompts when top motif matches `expected_answer`; daily cap at 3 puzzles (`selectDailyPuzzles` + `useDailySession`); completion gate via `lastDrillCompletedDate`; home + hub `DailyMatrixCard`; 54 curated `puzzle_bank` seed rows
    - Next: Stitch polish on hub/drill
 3. Voice match — `MatchSetupScreen` (Elo slider) → `VoiceMatchScreen` (native Stockfish on iOS dev build)
-   - Done: `MatchRecorder` captures moves, peeks, illegal attempts, disambiguation, and resign; `useMatchSession` persists to `guestStore.matchHistory` (AsyncStorage) on finalize; Analysis tab lists saved games and replays offline (v1, no server); on-device STT via `useMatchSpeech` + `expo-speech-recognition` (requires dev build rebuild after native dep change)
+   - Done: `MatchRecorder` captures moves, peeks, illegal attempts, disambiguation, and resign; fuzzy voice resolver with piece-intent guards, length-scaled auto-submit confidence, and voice-triggered disambiguation overlay; engine-wait UI (spinner + "Move sent"); on-device STT via `useMatchSpeech` + `expo-speech-recognition` (requires dev build rebuild after native dep change)
 4. Post-game — Stitch polish on `ReplayScreen`, `CognitiveHeatmap`
 5. Infrastructure — Supabase, Express API (`apps/api/` — LLM templating when needed)
 

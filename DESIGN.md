@@ -308,13 +308,13 @@ Shared icons live in `components/ui/icons/`. Reuse — do not inline emoji as te
 | `MatchColorPicker` | White / Black segmented choice | `MatchSetupScreen` |
 | `MatchSetupHero` | Fog grid + blindfold icon hero | `MatchSetupScreen` |
 | `MatchSetupScreen` | Blindfold match prep — covered board preview, Elo slider, Start | `/(main)/match` |
-| `MatchStatusBar` | Card: VS ENGINE + Elo, one-line status (your move / thinking / illegal move / result) | `VoiceMatchScreen`; status tone: neutral/action/alert/success |
+| `MatchStatusBar` | Card: VS ENGINE + Elo, one-line status with optional spinner (sending move / engine thinking / your move / result) | `VoiceMatchScreen`; status tone: neutral/action/alert/success |
 | `MatchControlBar` | Peek + Cover (slashed-eye) circular controls | `VoiceMatchScreen` |
 | `BoardCover` | Solid panel hiding grid and coordinate labels | `BlindfoldBoard` when fully covered |
 | `MatchSecondaryActions` | Resign text action | `VoiceMatchScreen` (untimed match) |
 | `DisambiguationOverlay` | Fullscreen modal: large tap targets + voice input row | `VoiceMatchScreen` |
-| `MatchMovePanel` | Recessed card: engine row + unified move input | `VoiceMatchScreen` |
-| `MatchMoveInput` | SAN field + mic (tap/hold) + Play; voice fills field; auto-plays only on high-confidence fuzzy match | `MatchMovePanel`, `DisambiguationOverlay` |
+| `MatchMovePanel` | Recessed card: engine row (spinner while thinking) + move input; after submit shows "Move sent" + your SAN | `VoiceMatchScreen` |
+| `MatchMoveInput` | SAN field + mic (tap/hold) + Play; Play shows spinner while sending; auto-plays only when `minAutoSubmitConfidence` met | `MatchMovePanel`, `DisambiguationOverlay` |
 | `PeekButton` | Yellow chip, `LightbulbIcon` (SVG) + label — no emoji | Rendered by `PuzzleSessionLayout` under the board (answer phase); reveal lands where the user taps |
 | `ProgressChrome` | Level/position label + percent + `ProgressBar` | Onboarding flow + DailyDrill (merged chrome) |
 | `PuzzleSessionLayout` | SafeArea + scroll + header + memorize-prompt + board + controls slot; owns `ScrollAnswerCue` + `PeekButton` placement (`onPeek` prop) | Shared shell: Hook/Story/Reward + DailyDrill |

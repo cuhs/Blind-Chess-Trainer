@@ -6,6 +6,8 @@ export {
 export {
   AMBIGUITY_MARGIN,
   MAX_DISTANCE_RATIO,
+  minConfidenceForTranscript,
+  matchConfidence,
   resolveNoisyTranscript,
   type NoisyMatchResult,
 } from './resolver';

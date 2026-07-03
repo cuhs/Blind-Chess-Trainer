@@ -81,6 +81,9 @@ function piecePrefix(piece: string): string {
 
 function pieceAliasForWord(word: string): string | undefined {
   const lower = word.toLowerCase();
+  if (/^[nbrqk]$/.test(lower)) {
+    return lower;
+  }
   if (PIECE_ALIASES[lower] !== undefined) {
     return PIECE_ALIASES[lower];
   }
@@ -88,6 +91,15 @@ function pieceAliasForWord(word: string): string | undefined {
     return 'r';
   }
   return undefined;
+}
+
+function stripSpokenCheckMate(text: string): string {
+  return text
+    .replace(/\b(?:checkmate)\b/g, ' ')
+    .replace(/\bmate\b/g, ' ')
+    .replace(/\bcheck\b/g, ' ')
+    .replace(/\s+/g, ' ')
+    .trim();
 }
 
 function normalizeSanCompact(compact: string): string {
@@ -135,13 +147,13 @@ export function normalizeMove(
   const trimmed = input.trim();
   if (!trimmed) return { ok: false };
 
-  const lower = trimmed.toLowerCase();
+  const lower = stripSpokenCheckMate(trimmed.toLowerCase());
   const castling = normalizeCastlingPhrase(lower);
   if (castling) {
     return { ok: true, value: castling };
   }
 
-  const compact = stripCheckMate(trimmed.replace(/\s+/g, ''));
+  const compact = stripCheckMate(lower.replace(/\s+/g, ''));
 
   if (/^0-0(-0)?$/i.test(compact)) {
     return { ok: true, value: compact.replace(/0/g, 'O') };
@@ -172,6 +184,25 @@ export function normalizeMove(
   if (parts.length === 3 && parts[1] === 'to') {
     const spoken = pieceDestFromAlias(parts[0], parts[2]);
     if (spoken) return { ok: true, value: spoken };
+  }
+
+  if (
+    parts.length === 3 &&
+    (parts[1] === 'takes' || parts[1] === 'capture' || parts[1] === 'captures')
+  ) {
+    const alias = pieceAliasForWord(parts[0]);
+    const dest = parseSquareToken(parts[2]);
+    if (alias !== undefined && dest) {
+      return { ok: true, value: `${piecePrefix(alias)}x${dest}` };
+    }
+  }
+
+  if (parts.length === 3 && /^[nbrqk]$/i.test(parts[0]) && /^[a-h]$/.test(parts[1])) {
+    const rank = spokenRank(parts[2]);
+    const dest = `${parts[1]}${rank}`;
+    if (/^[a-h][1-8]$/.test(dest)) {
+      return { ok: true, value: `${parts[0].toUpperCase()}${dest}` };
+    }
   }
 
   if (parts.length === 3 && /^[a-h]$/.test(parts[1])) {
@@ -415,6 +446,28 @@ export function resolveDisambiguationVoice(
   }
 
   return { ok: false };
+}
+
+/** Build disambiguation UI options for a set of legal SANs in one position. */
+export function buildMoveCandidates(
+  fen: string,
+  sans: string[],
+): { prompt: string; candidates: MoveCandidate[] } {
+  const chess = new Chess(fen);
+  const bySan = new Map(
+    chess.moves({ verbose: true }).map((move) => [move.san, move]),
+  );
+  const moves = sans
+    .map((san) => bySan.get(san))
+    .filter((move): move is Move => Boolean(move));
+
+  return {
+    prompt: moves.length ? ambiguousPrompt(moves) : 'Which move?',
+    candidates: moves.map((move) => ({
+      san: move.san,
+      label: candidateLabel(move),
+    })),
+  };
 }
 
 export function validateMove(

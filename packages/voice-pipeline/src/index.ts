@@ -19,6 +19,7 @@ export { CHESS_MOVE_CONTEXTUAL_STRINGS } from './contextual-strings';
 export { buildContextualStrings } from './build-contextual-strings';
 export {
   HIGH_CONFIDENCE,
+  minAutoSubmitConfidence,
   resolveVoiceTranscript,
   type VoiceResolveResult,
 } from './resolve-voice-transcript';

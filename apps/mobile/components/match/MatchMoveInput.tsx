@@ -1,5 +1,6 @@
 import { useRef } from 'react';
 import {
+  ActivityIndicator,
   Pressable,
   Text,
   TextInput,
@@ -28,6 +29,7 @@ interface MatchMoveInputProps {
   onMicHoldStart: () => void;
   onMicHoldEnd: () => void;
   voiceHint?: string | null;
+  submitting?: boolean;
 }
 
 function hintLabel(
@@ -65,8 +67,10 @@ export function MatchMoveInput({
   onMicHoldStart,
   onMicHoldEnd,
   voiceHint,
+  submitting = false,
 }: MatchMoveInputProps) {
-  const canSubmit = !disabled && value.trim().length > 0;
+  const canSubmit = !disabled && !submitting && value.trim().length > 0;
+  const controlsLocked = disabled || submitting;
   const listening = speechStatus === 'listening';
   const hint = hintLabel(speechStatus, listeningSource, disabled);
   const holdTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
@@ -77,6 +81,8 @@ export function MatchMoveInput({
     if (!canSubmit) return;
     onSubmit(value);
   };
+
+  const showSubmittingHint = submitting;
 
   const clearHoldTimer = () => {
     if (holdTimerRef.current) {
@@ -123,7 +129,7 @@ export function MatchMoveInput({
           }
           autoCapitalize="none"
           autoCorrect={false}
-          editable={!disabled}
+          editable={!controlsLocked}
           onChangeText={(text) => {
             if (moveError || speechError) onClearError();
             onChange(text);
@@ -141,36 +147,45 @@ export function MatchMoveInput({
             isListening ? 'Stop listening' : 'Hold to speak or tap to toggle microphone'
           }
           accessibilityRole="button"
-          accessibilityState={{ disabled, selected: isListening }}
-          disabled={disabled}
+          accessibilityState={{ disabled: controlsLocked, selected: isListening }}
+          disabled={controlsLocked}
           onPress={handleMicPress}
           onPressIn={handleMicPressIn}
           onPressOut={handleMicPressOut}
           style={[
             styles.mic,
             disabled && styles.micDisabled,
+            submitting && styles.micDisabled,
             isListening && styles.micActive,
           ]}
         >
           <MicIcon color={colors.onTertiaryContainer} size={20} />
         </Pressable>
         <Pressable
-          accessibilityLabel="Submit move"
+          accessibilityLabel={submitting ? 'Sending move' : 'Submit move'}
           accessibilityRole="button"
-          accessibilityState={{ disabled: !canSubmit }}
+          accessibilityState={{ disabled: !canSubmit, busy: submitting }}
           disabled={!canSubmit}
           onPress={submit}
           style={[styles.submit, !canSubmit && styles.submitDisabled]}
         >
-          <Text style={styles.submitText}>Play</Text>
+          {submitting ? (
+            <ActivityIndicator color={colors.onTertiaryContainer} size="small" />
+          ) : (
+            <Text style={styles.submitText}>Play</Text>
+          )}
         </Pressable>
       </View>
-      {hint ? (
+      {showSubmittingHint ? (
+        <Text accessibilityLabel="Move status: sending move" style={styles.hint}>
+          Sending move…
+        </Text>
+      ) : hint ? (
         <Text accessibilityLabel={`Voice status: ${hint}`} style={styles.hint}>
           {hint}
         </Text>
       ) : null}
-      {!hint && voiceHint ? (
+      {!showSubmittingHint && !hint && voiceHint ? (
         <Text accessibilityLabel={`Voice hint: ${voiceHint}`} style={styles.hint}>
           {voiceHint}
         </Text>

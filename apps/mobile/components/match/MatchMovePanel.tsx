@@ -1,4 +1,4 @@
-import { View, Text, StyleSheet } from 'react-native';
+import { ActivityIndicator, View, Text, StyleSheet } from 'react-native';
 import { colors, radius, spacing, touch, typography } from '@/theme';
 import { MatchMoveInput } from './MatchMoveInput';
 import type { ListeningSource, MatchSpeechStatus } from '@/hooks/useMatchSpeech';
@@ -6,7 +6,9 @@ import type { ListeningSource, MatchSpeechStatus } from '@/hooks/useMatchSpeech'
 interface MatchMovePanelProps {
   lastEngineMove: string | null;
   lastPlayerMove: string | null;
-  isThinking: boolean;
+  waitingForEngine: boolean;
+  isSubmittingMove: boolean;
+  showMoveInput: boolean;
   inputDisabled: boolean;
   moveDraft: string;
   onMoveDraftChange: (value: string) => void;
@@ -27,20 +29,38 @@ function MoveRow({
   label,
   move,
   pending = false,
+  pendingLabel = '…',
 }: {
   label: string;
   move: string | null;
   pending?: boolean;
+  pendingLabel?: string;
 }) {
   return (
     <View style={styles.row}>
       <Text style={styles.sideLabel}>{label}</Text>
-      <Text
-        accessibilityLabel={`${label} move ${pending ? 'pending' : move ?? 'none'}`}
-        style={[styles.rowMove, pending && styles.rowMovePending]}
-      >
-        {pending ? '…' : move ?? '—'}
-      </Text>
+      {pending ? (
+        <View style={styles.pendingRow}>
+          <ActivityIndicator
+            accessibilityLabel={`${label} pending`}
+            color={colors.tertiary}
+            size="small"
+          />
+          <Text
+            accessibilityLabel={`${label} ${pendingLabel}`}
+            style={styles.rowMovePending}
+          >
+            {pendingLabel}
+          </Text>
+        </View>
+      ) : (
+        <Text
+          accessibilityLabel={`${label} move ${move ?? 'none'}`}
+          style={styles.rowMove}
+        >
+          {move ?? '—'}
+        </Text>
+      )}
     </View>
   );
 }
@@ -48,7 +68,9 @@ function MoveRow({
 export function MatchMovePanel({
   lastEngineMove,
   lastPlayerMove,
-  isThinking,
+  waitingForEngine,
+  isSubmittingMove,
+  showMoveInput,
   inputDisabled,
   moveDraft,
   onMoveDraftChange,
@@ -64,8 +86,9 @@ export function MatchMovePanel({
   onMicHoldEnd,
   voiceHint,
 }: MatchMovePanelProps) {
-  const showEngineRow = lastEngineMove !== null || isThinking;
-  const showInput = !inputDisabled;
+  const submittedMove = lastPlayerMove ?? (isSubmittingMove ? moveDraft.trim() : '');
+  const showEngineRow = lastEngineMove !== null || waitingForEngine;
+  const showInput = showMoveInput;
 
   return (
     <View style={styles.card}>
@@ -74,8 +97,9 @@ export function MatchMovePanel({
         {showEngineRow ? (
           <MoveRow
             label="Engine"
-            move={lastEngineMove}
-            pending={isThinking}
+            move={waitingForEngine ? null : lastEngineMove}
+            pending={waitingForEngine}
+            pendingLabel="Thinking…"
           />
         ) : null}
         <View style={styles.inputRow}>
@@ -94,26 +118,24 @@ export function MatchMovePanel({
               onSubmit={onSubmit}
               speechError={speechError}
               speechStatus={speechStatus}
+              submitting={isSubmittingMove}
               value={moveDraft}
               voiceHint={voiceHint}
             />
           ) : (
-            <Text
-              accessibilityLabel={`Your move ${lastPlayerMove ?? 'none'}`}
-              style={styles.rowMove}
-            >
-              {lastPlayerMove ?? '—'}
-            </Text>
+            <View style={styles.submittedWrap}>
+              <Text
+                accessibilityLabel={`Your move ${submittedMove || 'none'}`}
+                style={styles.submittedMove}
+              >
+                {submittedMove || '—'}
+              </Text>
+              {waitingForEngine ? (
+                <Text style={styles.submittedHint}>Move sent</Text>
+              ) : null}
+            </View>
           )}
         </View>
-        {!inputDisabled && lastPlayerMove ? (
-          <Text
-            accessibilityLabel={`Your last move ${lastPlayerMove}`}
-            style={styles.lastMove}
-          >
-            Last played: {lastPlayerMove}
-          </Text>
-        ) : null}
       </View>
     </View>
   );
@@ -142,6 +164,12 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     gap: spacing.sm,
   },
+  pendingRow: {
+    flex: 1,
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: spacing.sm,
+  },
   inputRow: {
     flexDirection: 'row',
     alignItems: 'flex-start',
@@ -165,10 +193,22 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   rowMovePending: {
+    ...typography.headlineMd,
     color: colors.onSurfaceVariant,
+    flex: 1,
   },
-  lastMove: {
+  submittedWrap: {
+    flex: 1,
+    justifyContent: 'center',
+    gap: 2,
+    minHeight: 48,
+  },
+  submittedMove: {
+    ...typography.headlineMd,
+    color: colors.onSurface,
+  },
+  submittedHint: {
     ...typography.bodyMd,
-    color: colors.onSurfaceVariant,
+    color: colors.tertiary,
   },
 });

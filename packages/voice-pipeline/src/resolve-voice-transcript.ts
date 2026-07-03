@@ -3,11 +3,16 @@ import {
   resolveMove,
   resolveNoisyTranscript,
   normalizeMove,
+  minConfidenceForTranscript,
   type MoveCandidate,
 } from '@mindboard/chess-core';
 import { normalizeSpokenMove } from './transcript';
 
 export const HIGH_CONFIDENCE = 0.72;
+
+export function minAutoSubmitConfidence(transcriptLength: number): number {
+  return Math.max(HIGH_CONFIDENCE, minConfidenceForTranscript(transcriptLength));
+}
 
 export type VoiceResolveResult = {
   displayText: string;
@@ -17,6 +22,10 @@ export type VoiceResolveResult = {
   san?: string;
   /** Set when the utterance parses to a specific move that is not legal. */
   illegal?: boolean;
+  /** Fuzzy tie between legal moves — show disambiguation overlay. */
+  ambiguous?: boolean;
+  prompt?: string;
+  candidates?: MoveCandidate[];
 };
 
 function resolvesMove(
@@ -79,6 +88,18 @@ function scoreAlternative(
       confidence: noisy.confidence,
       matched: true,
       san: noisy.san,
+    };
+  }
+
+  if ('ambiguous' in noisy && noisy.ambiguous) {
+    return {
+      displayText: prepared,
+      submitText: prepared,
+      confidence: 0,
+      matched: false,
+      ambiguous: true,
+      prompt: noisy.prompt,
+      candidates: noisy.candidates,
     };
   }
 

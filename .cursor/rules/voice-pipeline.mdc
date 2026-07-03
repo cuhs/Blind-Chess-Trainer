@@ -22,7 +22,8 @@ STT (mobile: expo-speech-recognition)
 - Fuzzy matching lives in `chess-core/src/voice/` — not in typed SAN `resolveMove`
 - `normalizeMove` remains pure + table-tested in chess-core
 - Disambiguation voice: `resolveDisambiguationVoice` first; tap uses `chooseDisambiguation`
-- Auto-submit only on high-confidence voice resolve (`HIGH_CONFIDENCE`)
+- Auto-submit only when `confidence >= minAutoSubmitConfidence(length)` (90% / 80% / 72% tiers)
+- Fuzzy ties on same-destination piece moves return disambiguation candidates for the overlay
 
 ## Mobile wiring
 

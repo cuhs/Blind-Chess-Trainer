@@ -26,7 +26,7 @@ export function normalizeTranscriptForMatch(transcript: string): string {
     .replace(/\s+/g, ' ')
     .trim();
 
-  text = text.replace(/\b(to|takes|capture|captures|on)\b/g, ' ');
+  text = text.replace(/\b(to|takes|capture|captures|on|check|mate|checkmate)\b/g, ' ');
 
   const tokens = text.split(/\s+/).filter(Boolean);
   const normalized = tokens

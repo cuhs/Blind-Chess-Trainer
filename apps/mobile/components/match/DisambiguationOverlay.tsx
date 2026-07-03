@@ -100,6 +100,7 @@ export function DisambiguationOverlay({
               onSubmit={onSubmit}
               speechError={speechError}
               speechStatus={speechStatus}
+              submitting={false}
               value={moveDraft}
               voiceHint={voiceHint}
             />

@@ -1,5 +1,8 @@
 import { distance } from 'fastest-levenshtein';
-import type { MoveCandidate } from '../match-move';
+import {
+  buildMoveCandidates,
+  type MoveCandidate,
+} from '../match-move';
 import { normalizeTranscriptForMatch } from './normalize-transcript';
 import {
   extractPieceIntent,
@@ -8,13 +11,25 @@ import {
 import { spokenVariantsForPosition } from './variants-for-position';
 
 export const MAX_DISTANCE_RATIO = 0.4;
-export const AMBIGUITY_MARGIN = 0.06;
+/** Reject or disambiguate when two legal moves score within this ratio band. */
+export const AMBIGUITY_MARGIN = 0.05;
 /** Tighter ratio cap when the winning phrase is a short square (e3, a 3). */
 export const SHORT_PHRASE_MAX_LEN = 4;
 export const SHORT_PHRASE_MAX_DISTANCE_RATIO = 0.25;
+/** Short STT fragments need a higher match quality bar (premature finalization). */
+export const SHORT_TRANSCRIPT_MAX_LEN = 8;
+export const SHORT_TRANSCRIPT_MIN_CONFIDENCE = 0.9;
+export const MEDIUM_TRANSCRIPT_MAX_LEN = 12;
+export const MEDIUM_TRANSCRIPT_MIN_CONFIDENCE = 0.8;
 
 export type NoisyMatchResult =
   | { matched: true; san: string; distance: number; confidence: number }
+  | {
+      matched: false;
+      ambiguous: true;
+      prompt: string;
+      candidates: MoveCandidate[];
+    }
   | { matched: false };
 
 type RankedMatch = {
@@ -35,6 +50,17 @@ export function matchConfidence(transcript: string, phrase: string): {
   const maxLen = Math.max(transcript.length, phrase.length, 1);
   const ratio = editDistance / maxLen;
   return { distance: editDistance, confidence: 1 - ratio, ratio };
+}
+
+/** Minimum fuzzy confidence required to trust a transcript of this length. */
+export function minConfidenceForTranscript(transcriptLength: number): number {
+  if (transcriptLength <= SHORT_TRANSCRIPT_MAX_LEN) {
+    return SHORT_TRANSCRIPT_MIN_CONFIDENCE;
+  }
+  if (transcriptLength <= MEDIUM_TRANSCRIPT_MAX_LEN) {
+    return MEDIUM_TRANSCRIPT_MIN_CONFIDENCE;
+  }
+  return 1 - MAX_DISTANCE_RATIO;
 }
 
 function distanceBetween(a: string, b: string): number {
@@ -69,32 +95,17 @@ function rankMatches(
   });
 }
 
-function isAmbiguous(
+function tiedContenders(
   best: RankedMatch,
-  second: RankedMatch,
-  transcript: string,
-): boolean {
-  if (best.san === second.san) {
-    return false;
-  }
+  contenders: RankedMatch[],
+): RankedMatch[] {
+  return contenders.filter(
+    (entry) => Math.abs(entry.ratio - best.ratio) < AMBIGUITY_MARGIN,
+  );
+}
 
-  // Ratio tie: two different legal moves equally plausible — reject (wrong move > no move).
-  if (Math.abs(second.ratio - best.ratio) < AMBIGUITY_MARGIN) {
-    return true;
-  }
-
-  const separation = second.distance - best.distance;
-  if (separation >= 2) {
-    return false;
-  }
-
-  if (separation === 0) {
-    return true;
-  }
-
-  const margin =
-    separation / Math.max(transcript.length, best.phrase.length, 1);
-  return separation <= 1 && margin < AMBIGUITY_MARGIN;
+function uniqueSans(matches: RankedMatch[]): string[] {
+  return [...new Set(matches.map((entry) => entry.san))];
 }
 
 export function resolveNoisyTranscript(
@@ -134,8 +145,19 @@ export function resolveNoisyTranscript(
   const contenders = ranked.filter(
     (entry) => entry.ratio <= effectiveMaxRatio(entry.phrase),
   );
-  const second = contenders.find((entry) => entry.san !== best.san);
-  if (second && isAmbiguous(best, second, normalized)) {
+  const tied = tiedContenders(best, contenders);
+  const tiedSans = uniqueSans(tied);
+
+  if (tiedSans.length > 1) {
+    const { prompt, candidates } = buildMoveCandidates(fen, tiedSans);
+    // Same-destination piece ties only — not "e3 vs a3" style collisions.
+    if (candidates.length > 1 && prompt !== 'Which move?') {
+      return { matched: false, ambiguous: true, prompt, candidates };
+    }
+    return { matched: false };
+  }
+
+  if (best.confidence < minConfidenceForTranscript(normalized.length)) {
     return { matched: false };
   }
 

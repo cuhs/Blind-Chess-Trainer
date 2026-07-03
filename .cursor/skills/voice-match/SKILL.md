@@ -28,10 +28,14 @@ Levenshtein on short strings is dangerous (`"eight three"` can sit near both `e3
 
 - Scores with **ratio** `edits / maxLen`, not raw edit count; confidence = `1 - ratio`
 - Rejects when two different legal moves have near-identical ratios (wrong move > no match)
+- Same-destination piece ties (e.g. two rooks to e1) return **disambiguation candidates** for the existing overlay — not a blind pick
 - Applies a **stricter ratio cap** (0.25) when the winning phrase is ≤4 chars (`e3`, `a 3`)
-- Mobile adds a second gate: auto-submit only when `confidence >= HIGH_CONFIDENCE` (0.72)
+- Short transcripts (≤8 chars) require **90%** fuzzy confidence before auto-submit; ≤12 chars require **80%**
+- Mobile adds a second gate: auto-submit only when `confidence >= minAutoSubmitConfidence(length)`
 
 Regression tests: `packages/chess-core/src/voice/resolver.test.ts` → `short-string collisions`.
+
+**Not using Double Metaphone (yet):** STT errors on chess moves are mostly homophones + dropped words, handled by bounded `normalizeTranscriptForMatch` + ratio scoring against **position-specific** legal phrases. General phonetic libraries add weight and still miss single-letter files (`a` vs `e`). Revisit if real-device STT logs show systematic misses after normalization.
 
 ## Packages & hooks
 

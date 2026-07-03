@@ -28,6 +28,7 @@ import { useMatchSpeech } from '@/hooks/useMatchSpeech';
 import { useGuestStore } from '@/stores/guestStore';
 import {
   HIGH_CONFIDENCE,
+  minAutoSubmitConfidence,
   normalizeSpokenMove,
   type VoiceResolveResult,
 } from '@mindboard/voice-pipeline';
@@ -68,9 +69,11 @@ export function VoiceMatchScreen() {
     resigned,
     disambiguation,
     completedMatchRecord,
+    status,
     submitPlayerMove,
     chooseDisambiguation,
     cancelDisambiguation,
+    presentVoiceDisambiguation,
     resignMatch,
     clearMoveError,
     recordPeek,
@@ -82,29 +85,66 @@ export function VoiceMatchScreen() {
   const prevVoiceEnabledRef = useRef(false);
   const autoStartedRef = useRef(false);
 
-  const voiceEnabled = isPlayerTurn && !isThinking && !isGameOver;
   const [moveDraft, setMoveDraft] = useState('');
+  const [isSubmittingMove, setIsSubmittingMove] = useState(false);
+  const [voiceHint, setVoiceHint] = useState<string | null>(null);
 
-  const handleSubmitMove = useCallback(
-    async (move: string) => {
-      const trimmed = normalizeSpokenMove(move);
-      if (!trimmed) return;
+  const voiceEnabled =
+    isPlayerTurn && !isThinking && !isGameOver && !isSubmittingMove;
+
+  const waitingForEngine =
+    !isGameOver &&
+    !disambiguation &&
+    (isThinking || (!isPlayerTurn && status === 'playing'));
+
+  const showMoveInput =
+    !waitingForEngine && (isPlayerTurn || isSubmittingMove);
+
+  const applyMoveWithFeedback = useCallback(
+    (apply: () => boolean) => {
+      if (isSubmittingMove) return;
+      setIsSubmittingMove(true);
       clearMoveError();
-      const applied = await submitPlayerMove(trimmed);
-      if (applied) {
-        setMoveDraft('');
-      }
+      // Defer apply until after paint so "Sending…" appears immediately.
+      requestAnimationFrame(() => {
+        try {
+          const applied = apply();
+          if (applied) {
+            setMoveDraft('');
+            setVoiceHint(null);
+          }
+        } finally {
+          setIsSubmittingMove(false);
+        }
+      });
     },
-    [clearMoveError, submitPlayerMove],
+    [clearMoveError, isSubmittingMove],
   );
 
-  const [voiceHint, setVoiceHint] = useState<string | null>(null);
+  const handleSubmitMove = useCallback(
+    (move: string) => {
+      const trimmed = normalizeSpokenMove(move);
+      if (!trimmed) return;
+      applyMoveWithFeedback(() => submitPlayerMove(trimmed));
+    },
+    [applyMoveWithFeedback, submitPlayerMove],
+  );
 
   const handleVoiceTranscript = useCallback(
     (result: VoiceResolveResult) => {
       if (!result.displayText.trim()) return;
       setMoveDraft(result.displayText);
-      if (result.matched && result.confidence >= HIGH_CONFIDENCE) {
+      if (result.ambiguous && result.prompt && result.candidates?.length) {
+        setVoiceHint(null);
+        presentVoiceDisambiguation(
+          result.submitText,
+          result.prompt,
+          result.candidates,
+        );
+        return;
+      }
+      const minConfidence = minAutoSubmitConfidence(result.submitText.length);
+      if (result.matched && result.confidence >= minConfidence) {
         setVoiceHint(null);
         void handleSubmitMove(result.submitText);
         return;
@@ -115,7 +155,7 @@ export function VoiceMatchScreen() {
       }
       setVoiceHint('Check move and tap Play');
     },
-    [handleSubmitMove],
+    [handleSubmitMove, presentVoiceDisambiguation],
   );
 
   const {
@@ -188,9 +228,11 @@ export function VoiceMatchScreen() {
       ? resultStatus(result, resigned)
       : disambiguation
         ? { text: disambiguation.prompt, tone: 'action' }
-        : isThinking
-          ? { text: 'Engine thinking…', tone: 'neutral' }
-          : { text: `Your move — you play ${colorLabel}`, tone: 'action' };
+        : isSubmittingMove
+          ? { text: 'Sending your move…', tone: 'action' }
+          : waitingForEngine
+            ? { text: 'Engine thinking…', tone: 'action' }
+            : { text: `Your move — you play ${colorLabel}`, tone: 'action' };
 
   const handleMicTap = useCallback(() => {
     clearMoveError();
@@ -247,6 +289,7 @@ export function VoiceMatchScreen() {
         >
           <MatchStatusBar
             elo={matchElo}
+            loading={isSubmittingMove || waitingForEngine}
             statusText={matchStatus.text}
             statusTone={matchStatus.tone}
           />
@@ -293,9 +336,10 @@ export function VoiceMatchScreen() {
             <>
               {!disambiguation ? (
                 <MatchMovePanel
-                  inputDisabled={!voiceEnabled}
+                  inputDisabled={!voiceEnabled || waitingForEngine}
+                  showMoveInput={showMoveInput}
                   isListening={isListening}
-                  isThinking={isThinking}
+                  isSubmittingMove={isSubmittingMove}
                   lastEngineMove={lastEngineMove}
                   lastPlayerMove={lastPlayerMove}
                   listeningSource={listeningSource}
@@ -313,6 +357,7 @@ export function VoiceMatchScreen() {
                   speechError={speechError}
                   voiceHint={voiceHint}
                   speechStatus={speechStatus}
+                  waitingForEngine={waitingForEngine}
                 />
               ) : null}
               <MatchControlBar
@@ -339,7 +384,7 @@ export function VoiceMatchScreen() {
 
       <DisambiguationOverlay
         candidates={disambiguation?.candidates ?? []}
-        inputDisabled={!voiceEnabled}
+        inputDisabled={!voiceEnabled || isSubmittingMove}
         isListening={isListening}
         listeningSource={listeningSource}
         moveDraft={moveDraft}
@@ -354,7 +399,7 @@ export function VoiceMatchScreen() {
         onMicTap={handleMicTap}
         onMoveDraftChange={setMoveDraft}
         onSelect={(san) => {
-          void chooseDisambiguation(san);
+          applyMoveWithFeedback(() => chooseDisambiguation(san));
         }}
         onSubmit={submitMoveFromPanel}
         prompt={disambiguation?.prompt ?? ''}

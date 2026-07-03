@@ -5,8 +5,10 @@ import {
   AMBIGUITY_MARGIN,
   MAX_DISTANCE_RATIO,
   matchConfidence,
+  minConfidenceForTranscript,
   resolveNoisyTranscript,
   SHORT_PHRASE_MAX_DISTANCE_RATIO,
+  SHORT_TRANSCRIPT_MIN_CONFIDENCE,
 } from './resolver';
 
 const START =
@@ -17,6 +19,7 @@ const NXH6 = '4k3/8/8/7p/6N1/8/8/4K3 w - - 0 1';
 const BA5 = '4k3/8/8/8/1B6/8/8/4K3 w - - 0 1';
 const CASTLE = 'r3k2r/8/8/8/8/8/8/R3K2R w KQkq - 0 1';
 const AMBIGUOUS_KNIGHTS = 'k7/8/8/8/8/5N2/8/1N4K1 w - - 0 1';
+const AMBIGUOUS_ROOKS_E1 = '4k3/8/8/8/8/8/8/R4R1K w - - 0 1';
 
 describe('resolveNoisyTranscript', () => {
   it.each([
@@ -63,15 +66,33 @@ describe('resolveNoisyTranscript', () => {
     expect(resolveNoisyTranscript(transcript, fen)).toEqual({ matched: false });
   });
 
-  it('should reject when top matches are too close', () => {
+  it('should return ambiguous candidates when tied rooks match the same score', () => {
+    expect(new Chess(AMBIGUOUS_ROOKS_E1).moves()).toEqual(
+      expect.arrayContaining(['Rae1+', 'Rfe1+']),
+    );
+    const result = resolveNoisyTranscript('rook e one', AMBIGUOUS_ROOKS_E1);
+    expect(result.matched).toBe(false);
+    if (result.matched || !('ambiguous' in result) || !result.ambiguous) {
+      throw new Error(`expected ambiguous result, got ${JSON.stringify(result)}`);
+    }
+    expect(result.prompt).toBe('Which rook?');
+    expect(result.candidates.map((c) => c.san).sort()).toEqual(['Rae1+', 'Rfe1+']);
+  });
+
+  it('should return ambiguous candidates when tied knights match the same score', () => {
     const result = resolveNoisyTranscript('knight d2', AMBIGUOUS_KNIGHTS);
     expect(result.matched).toBe(false);
+    if (result.matched || !('ambiguous' in result) || !result.ambiguous) {
+      throw new Error('expected ambiguous result');
+    }
+    expect(result.prompt).toBe('Which knight?');
+    expect(result.candidates.map((c) => c.san).sort()).toEqual(['Nbd2', 'Nfd2']);
   });
 
   it('should expose threshold constants', () => {
     expect(MAX_DISTANCE_RATIO).toBe(0.4);
     expect(SHORT_PHRASE_MAX_DISTANCE_RATIO).toBe(0.25);
-    expect(AMBIGUITY_MARGIN).toBeGreaterThan(0);
+    expect(AMBIGUITY_MARGIN).toBe(0.05);
   });
 
   it('matchConfidence uses percentage of maxLen, not flat edit count', () => {
@@ -80,6 +101,17 @@ describe('resolveNoisyTranscript', () => {
     expect(tight.confidence).toBe(1);
     expect(loose.confidence).toBe(1 - 1 / 3);
     expect(loose.distance).toBe(1);
+  });
+
+  it('should require higher confidence for short transcripts', () => {
+    expect(minConfidenceForTranscript(6)).toBe(SHORT_TRANSCRIPT_MIN_CONFIDENCE);
+    expect(minConfidenceForTranscript(20)).toBe(1 - MAX_DISTANCE_RATIO);
+  });
+
+  it('should reject short premature STT fragments below the length bar', () => {
+    expect(resolveNoisyTranscript('night two', AMBIGUOUS_KNIGHTS)).toEqual({
+      matched: false,
+    });
   });
 
   it('should produce lower confidence for noisier matches', () => {
@@ -97,9 +129,11 @@ describe('resolveNoisyTranscript', () => {
       { transcript: 'eight three', reason: 'multiple knights tie on ratio' },
       { transcript: 'hey three', reason: 'e3 and h3 tie on ratio' },
     ])('should reject ambiguous "$transcript" ($reason)', ({ transcript }) => {
-      expect(resolveNoisyTranscript(transcript, START)).toEqual({
-        matched: false,
-      });
+      const result = resolveNoisyTranscript(transcript, START);
+      expect(result.matched).toBe(false);
+      if ('ambiguous' in result) {
+        expect(result.ambiguous).toBeFalsy();
+      }
     });
 
     it.each([
@@ -127,7 +161,6 @@ describe('resolveNoisyTranscript', () => {
     });
 
     it('should reject fuzzy match to short square when ratio exceeds strict cap', () => {
-      // "ate 3" is a weak fuzzy hit on the 2-char phrase "e3" — too loose to trust.
       expect(resolveNoisyTranscript('ate 3', START)).toEqual({ matched: false });
     });
 

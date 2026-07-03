@@ -34,6 +34,22 @@ function addVariants(target: Set<string>, phrases: string[]): void {
   }
 }
 
+function addCheckSpokenSuffixes(target: Set<string>, san: string): void {
+  const extras: string[] = [];
+  if (san.endsWith('#')) {
+    extras.push('checkmate', 'mate');
+  } else if (san.endsWith('+')) {
+    extras.push('check');
+  }
+  if (!extras.length) return;
+
+  for (const phrase of [...target]) {
+    for (const suffix of extras) {
+      target.add(`${phrase} ${suffix}`);
+    }
+  }
+}
+
 function squareSpokenForms(square: string): string[] {
   const file = square[0];
   const rank = square[1];
@@ -96,6 +112,7 @@ export function generateSpokenVariants(san: string, move?: Move): string[] {
 
   if (/^O-O(-O)?$/i.test(san.replace(/0/g, 'O'))) {
     addVariants(variants, castlingVariants(san.replace(/0/g, 'O')));
+    addCheckSpokenSuffixes(variants, san);
     return [...variants];
   }
 
@@ -123,6 +140,7 @@ export function generateSpokenVariants(san: string, move?: Move): string[] {
         addVariants(variants, [`takes ${dest}`, `captures ${dest}`]);
       }
     }
+    addCheckSpokenSuffixes(variants, san);
     return [...variants];
   }
 
@@ -158,5 +176,6 @@ export function generateSpokenVariants(san: string, move?: Move): string[] {
     ]);
   }
 
+  addCheckSpokenSuffixes(variants, san);
   return [...variants];
 }

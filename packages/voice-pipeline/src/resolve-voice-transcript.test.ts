@@ -1,5 +1,8 @@
 import { describe, expect, it } from 'vitest';
-import { resolveVoiceTranscript } from './resolve-voice-transcript';
+import {
+  minAutoSubmitConfidence,
+  resolveVoiceTranscript,
+} from './resolve-voice-transcript';
 
 const START =
   'rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1';
@@ -54,5 +57,28 @@ describe('resolveVoiceTranscript', () => {
     expect(result.displayText).toBe('Re4');
     expect(result.submitText).toBe('Re4');
     expect(result.illegal).toBe(true);
+  });
+
+  it('should surface fuzzy ties as disambiguation candidates', () => {
+    const FEN = '4k3/8/8/8/8/8/8/R4R1K w - - 0 1';
+    const result = resolveVoiceTranscript(['rook e one'], FEN);
+    expect(result.matched).toBe(false);
+    expect(result.ambiguous).toBe(true);
+    expect(result.prompt).toBe('Which rook?');
+    expect(result.candidates?.map((c) => c.san).sort()).toEqual(['Rae1+', 'Rfe1+']);
+  });
+});
+
+describe('minAutoSubmitConfidence', () => {
+  it('should require 90% for very short transcripts', () => {
+    expect(minAutoSubmitConfidence(6)).toBe(0.9);
+  });
+
+  it('should require 80% for medium transcripts', () => {
+    expect(minAutoSubmitConfidence(10)).toBe(0.8);
+  });
+
+  it('should use the baseline gate for longer phrases', () => {
+    expect(minAutoSubmitConfidence(20)).toBe(0.72);
   });
 });

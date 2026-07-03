@@ -123,9 +123,16 @@ export function useMatchSession(matchElo: number, playerColor: MatchPlayerColor)
     return true;
   }, [playerColor, finalizeMatch]);
 
-  const applyEngineMove = useCallback(async () => {
-    if (turnFromFen(chessRef.current.fen()) === playerColor) return;
+  const engineInFlightRef = useRef(false);
 
+  const applyEngineMove = useCallback(async () => {
+    if (turnFromFen(chessRef.current.fen()) === playerColor) {
+      setIsThinking(false);
+      return;
+    }
+    if (engineInFlightRef.current) return;
+
+    engineInFlightRef.current = true;
     setIsThinking(true);
     try {
       const san = await getEngineMove(chessRef.current.fen(), matchElo);
@@ -145,6 +152,7 @@ export function useMatchSession(matchElo: number, playerColor: MatchPlayerColor)
     } catch {
       setMoveError('Engine failed to respond');
     } finally {
+      engineInFlightRef.current = false;
       setIsThinking(false);
     }
   }, [matchElo, playerColor, syncFen, finishIfGameOver]);
@@ -160,7 +168,7 @@ export function useMatchSession(matchElo: number, playerColor: MatchPlayerColor)
   }, [playerColor, status, applyEngineMove]);
 
   const applySan = useCallback(
-    async (san: string): Promise<boolean> => {
+    (san: string): boolean => {
       setMoveError(null);
       setDisambiguation(null);
       const movingColor = turnFromFen(chessRef.current.fen());
@@ -177,14 +185,16 @@ export function useMatchSession(matchElo: number, playerColor: MatchPlayerColor)
 
       if (finishIfGameOver()) return true;
 
-      await applyEngineMove();
+      // Flip thinking UI immediately; engine runs in the background.
+      setIsThinking(true);
+      void applyEngineMove();
       return true;
     },
     [syncFen, finishIfGameOver, applyEngineMove],
   );
 
   const submitPlayerMove = useCallback(
-    async (input: string): Promise<boolean> => {
+    (input: string): boolean => {
       if (!isPlayerTurn) return false;
 
       const currentFen = chessRef.current.fen();
@@ -242,7 +252,7 @@ export function useMatchSession(matchElo: number, playerColor: MatchPlayerColor)
   );
 
   const chooseDisambiguation = useCallback(
-    async (san: string): Promise<boolean> => {
+    (san: string): boolean => {
       if (!isPlayerTurn || !disambiguation) return false;
       return applySan(san);
     },
@@ -257,6 +267,26 @@ export function useMatchSession(matchElo: number, playerColor: MatchPlayerColor)
     setDisambiguation(null);
     setMoveError(null);
   }, []);
+
+  const presentVoiceDisambiguation = useCallback(
+    (
+      input: string,
+      prompt: string,
+      candidates: MoveCandidate[],
+    ) => {
+      const currentFen = chessRef.current.fen();
+      recorderRef.current.recordDisambiguation(
+        input,
+        prompt,
+        candidates,
+        currentFen,
+        new Date().toISOString(),
+      );
+      setMoveError(null);
+      setDisambiguation({ prompt, candidates });
+    },
+    [],
+  );
 
   const resetMatch = useCallback(() => {
     chessRef.current = new Chess(MATCH_START_FEN);
@@ -318,6 +348,7 @@ export function useMatchSession(matchElo: number, playerColor: MatchPlayerColor)
     submitPlayerMove,
     chooseDisambiguation,
     cancelDisambiguation,
+    presentVoiceDisambiguation,
     resetMatch,
     resignMatch,
     clearMoveError,
