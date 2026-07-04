@@ -8,6 +8,7 @@ import { SquareKeypad } from '@/components/training/SquareKeypad';
 import { YesNoZone } from '@/components/training/YesNoZone';
 import { PrimaryButton } from '@/components/ui/PrimaryButton';
 import { ProgressChrome } from '@/components/ui/ProgressChrome';
+import { MatchPeekBadge } from '@/components/training/MatchPeekBadge';
 import { PuzzleSessionLayout } from '@/components/training/PuzzleSessionLayout';
 import { useTrainingAnswer } from '@/hooks/useTrainingAnswer';
 import { usePuzzleSessionPhase } from '@/hooks/usePuzzleSessionPhase';
@@ -125,16 +126,21 @@ function ActiveDrillSession({
   return (
     <PuzzleSessionLayout
       chrome={
-        <ProgressChrome
-          accessibilityLabel={`Training progress: ${progressLabel}`}
-          label={progressLabel}
-          percent={progressPercent}
-        />
+        <>
+          {puzzle.source === 'peek' ? <MatchPeekBadge /> : null}
+          <ProgressChrome
+            accessibilityLabel={`Training progress: ${progressLabel}`}
+            label={progressLabel}
+            percent={progressPercent}
+          />
+        </>
       }
       isListening={isListening}
       isMemorizing={isMemorizing}
       prompt={resolvedPrompt}
-      memorizeSubtitle={puzzle.subtitle}
+      memorizeSubtitle={
+        puzzle.source === 'peek' ? 'From your match' : puzzle.subtitle
+      }
       board={{
         boardKey: resolvedPuzzle.id,
         // Memorize shows the base FEN; peek shows the position after moves[].

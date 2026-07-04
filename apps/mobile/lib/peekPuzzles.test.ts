@@ -58,7 +58,7 @@ describe('trainingPuzzlesFromPeekEvents', () => {
     expect(puzzles).toHaveLength(1);
     expect(puzzles[0].source).toBe('peek');
     expect(puzzles[0].expected).toBe('d5');
-    expect(puzzles[0].subtitle).toBe('From your blindfold match');
+    expect(puzzles[0].subtitle).toBe('From your match');
   });
 
   it('dedupes repeated peeks on the same FEN', () => {

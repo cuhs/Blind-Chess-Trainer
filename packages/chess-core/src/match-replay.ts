@@ -1,4 +1,4 @@
-import type { MatchEvent, MatchRecord } from '@mindboard/shared';
+import type { MatchEvent, MatchRecord, Square } from '@mindboard/shared';
 
 export type ReplayStepKind = 'start' | MatchEvent['kind'];
 
@@ -9,6 +9,9 @@ export interface ReplayStep {
   title: string;
   detail?: string;
   timestamp?: string;
+  /** Peek or illegal — show mental-map-break overlay at this exact position */
+  mentalMapBreak?: boolean;
+  weaknessSquares?: Square[];
 }
 
 export function findMatchRecord(
@@ -75,6 +78,8 @@ export function buildMatchReplaySteps(record: MatchRecord): ReplayStep[] {
 
   for (const event of record.events) {
     const { title, detail } = titleForEvent(event);
+    const mentalMapBreak =
+      event.kind === 'peek' || event.kind === 'illegal_attempt';
     steps.push({
       index: steps.length,
       kind: event.kind,
@@ -82,6 +87,9 @@ export function buildMatchReplaySteps(record: MatchRecord): ReplayStep[] {
       title,
       detail,
       timestamp: event.timestamp,
+      mentalMapBreak,
+      weaknessSquares:
+        event.kind === 'peek' ? [event.square] : undefined,
     });
   }
 
@@ -105,6 +113,8 @@ export interface MoveReplayPosition {
 export interface MoveReplayTurnFlags {
   hadPeek: boolean;
   hadIllegal: boolean;
+  /** Peek squares and other flagged weakness targets for heatmap overlay */
+  weaknessSquares: Square[];
 }
 
 export interface MoveReplayTimelineEntry {
@@ -129,11 +139,18 @@ function isFlaggableEvent(
   return event.kind === 'peek' || event.kind === 'illegal_attempt';
 }
 
+function emptyTurnFlags(): MoveReplayTurnFlags {
+  return { hadPeek: false, hadIllegal: false, weaknessSquares: [] };
+}
+
 function turnFlagsForMove(
   pending: MoveReplayTurnFlags | undefined,
 ): MoveReplayTurnFlags | undefined {
   if (!pending || (!pending.hadPeek && !pending.hadIllegal)) return undefined;
-  return pending;
+  return {
+    ...pending,
+    weaknessSquares: [...new Set(pending.weaknessSquares)],
+  };
 }
 
 /** Move-centric replay — board steps follow moves; timeline flags peek/illegal turns. */
@@ -171,11 +188,11 @@ export function buildMoveReplayData(record: MatchRecord): MoveReplayData {
     }
 
     if (isFlaggableEvent(event) && event.fen === currentFen) {
-      const pending = pendingTurnFlags.get(nextMoveNumber) ?? {
-        hadPeek: false,
-        hadIllegal: false,
-      };
-      if (event.kind === 'peek') pending.hadPeek = true;
+      const pending = pendingTurnFlags.get(nextMoveNumber) ?? emptyTurnFlags();
+      if (event.kind === 'peek') {
+        pending.hadPeek = true;
+        pending.weaknessSquares.push(event.square);
+      }
       if (event.kind === 'illegal_attempt') pending.hadIllegal = true;
       pendingTurnFlags.set(nextMoveNumber, pending);
     }

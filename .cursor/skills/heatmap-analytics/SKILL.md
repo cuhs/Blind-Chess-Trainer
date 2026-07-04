@@ -63,7 +63,7 @@ Voice match peek → heatmap_ledger (match_peek) + guestStore.peekEvents
   → DailyDrill → fog lifts
 ```
 
-**Today:** puzzle training records `heatmap_ledger` on answer via `useTrainingAnswer`. Match peeks write a `match_peek` ledger row on **every** peek; `guestStore.addPeekEvent` stores at most **one** event per position (`positionKeyFromFen`). Finished matches persist to `guestStore.matchHistory` (AsyncStorage, cap 50) on finalize; Analysis tab lists them and `ReplayScreen` steps through moves/peeks/errors offline. `lib/peekPuzzles.ts` turns yesterday's peeks (or today's when yesterday is empty) into `source: 'peek'` drills merged in `useDailySession` — one puzzle max per position. Server-side `puzzle_bank` insert remains Phase 4.
+**Today:** puzzle training records `heatmap_ledger` on answer via `useTrainingAnswer`. Match peeks write a `match_peek` ledger row on **every** peek; `guestStore.addPeekEvent` stores at most **one** event per position (`positionKeyFromFen`). Finished matches persist to `guestStore.matchHistory` (AsyncStorage, cap 50) on finalize; Analysis tab lists them and `ReplayScreen` uses `buildMatchReplaySteps` so peeks/illegal attempts are their own timeline steps at the exact FEN, with dismissible `ReplayHeatmapBoard` overlay. `lib/peekPuzzles.ts` turns yesterday's peeks into `source: 'peek'` drills merged in `useDailySession`. Server-side `puzzle_bank` insert remains Phase 4.
 
 ## Checklist
 
@@ -72,8 +72,8 @@ Voice match peek → heatmap_ledger (match_peek) + guestStore.peekEvents
 - [ ] File a–h bottom, rank 8–1 left
 - [ ] FogOverlay uses colors.fogStone / outlineVariant
 - [ ] Legend uses SVG/color chips — no emoji
-- [ ] Replay timeline highlights peeks + illegal moves
-- [ ] Stats: clarity % and mastery count
+- [x] Replay event timeline with peek/illegal steps (`ReplayStepTimeline`)
+- [x] Replay heatmap overlay with clear-board toggle (`ReplayHeatmapBoard`)
 - [ ] HomeDashboard hero heatmap interactive with tooltips
 - [ ] Board Mapped % in HabitHeader via useFogClearedPercent
 - [ ] Pending ledger events persist offline and flush after auth/env setup

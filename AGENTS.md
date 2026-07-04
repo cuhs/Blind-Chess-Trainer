@@ -91,7 +91,7 @@ supabase/seed.sql     # Curated puzzle_bank seed rows
 | Main tabs | `/(main)/match` | `MatchSetupScreen` |
 | Main tabs | `/(main)/match/play` | `VoiceMatchScreen` |
 | Main tabs | `/(main)/analysis` | `MatchHistoryScreen` (saved matches list) |
-| Main tabs | `/(main)/analysis/[matchId]` | `ReplayScreen` — board, stepper, move timeline (red dot on peek/illegal) |
+| Main tabs | `/(main)/analysis/[matchId]` | `ReplayScreen` — event timeline with peek/illegal steps, heatmap overlay, clear-board toggle |
 | Settings (header only) | `/(main)/settings` | Settings stub — not in tab bar |
 
 ## Stitch → Screen Mapping
@@ -115,8 +115,8 @@ Post-onboarding `/(main)/index` — Stitch frame `b1eff5fd32e743e2a7f8a4b78a3403
 1. **AppHeader** — bordered top bar with mascot + settings
 2. **HabitHeader** — bolt streak + Board Mapped %
 3. **Hero copy** — "Cognitive Heatmap" title + subtitle
-4. **InteractiveHeatmap** — centered compact card, label-free fog grid
-5. **DailyMatrixCard** — "Today's Matrix: 3 Positions" primary CTA + peek loop badge; disabled when today's drill is complete
+4. **InteractiveHeatmap** — centered compact card, label-free fog grid (tap squares for tooltips)
+5. **DailyMatrixCard** — "Today's Matrix: N Positions" primary CTA + peek loop badge (`N positions from your match peeks`); disabled when today's drill is complete
 6. **VoiceMatchCard** — "Start Blindfold Match" secondary row
 7. **Tab bar** — Home | Training | Match | Analysis (active green 3D pill); Settings via header gear only
 
@@ -129,7 +129,7 @@ Post-onboarding `/(main)/index` — Stitch frame `b1eff5fd32e743e2a7f8a4b78a3403
    - Next: Stitch polish on hub/drill
 3. Voice match — `MatchSetupScreen` (Elo slider) → `VoiceMatchScreen` (native Stockfish on iOS dev build)
    - Done: `MatchRecorder` captures moves, peeks, illegal attempts, disambiguation, and resign; fuzzy voice resolver with piece-intent guards, length-scaled auto-submit confidence, and voice-triggered disambiguation overlay; engine-wait UI (spinner + "Move sent"); on-device STT via `useMatchSpeech` + `expo-speech-recognition` (requires dev build rebuild after native dep change)
-4. Post-game — Stitch polish on `ReplayScreen`, `CognitiveHeatmap`
+4. Post-game — `ReplayScreen` event timeline (peek/illegal as own steps) + dismissible heatmap overlay
 5. Infrastructure — Supabase, Express API (`apps/api/` — LLM templating when needed)
 
 ## Data Layer

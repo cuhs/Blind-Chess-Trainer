@@ -54,7 +54,7 @@ Validate seeds: `cd packages/chess-core && npm run validate:puzzles`. Author new
 | `usePuzzleSessionPhase` | Done | Board memorize or `useStoryNarration` when `moves[]` present |
 | `useStoryNarration` | Done | `expo-speech` move sequence (via session phase) |
 | `useTrainingAnswer` | Done | Validate answer + `recordHeatmapInteractions` |
-| `useDailyMatrix` | Done | Session puzzle count + peek loop badge when session includes peek puzzles + `isCompletedToday` |
+| `useDailyMatrix` | Done | Session puzzle count + peek loop badge (`N positions from your match peeks`) + `isCompletedToday` |
 
 ## Session model
 

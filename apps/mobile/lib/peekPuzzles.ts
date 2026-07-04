@@ -79,7 +79,7 @@ export function trainingPuzzlesFromPeekEvents(
       moves: [],
       prompt: draft.prompt,
       inputPlaceholder: draft.inputPlaceholder,
-      subtitle: 'From your blindfold match',
+      subtitle: 'From your match',
       answerType: draft.answerType,
       expected: draft.expected,
       squaresTouched,

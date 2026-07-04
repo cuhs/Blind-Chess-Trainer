@@ -73,7 +73,10 @@ describe('match replay helpers', () => {
     expect(steps[0]?.fen).toBe(START_FEN);
     expect(steps[1]?.fen).toBe('after-e4');
     expect(steps[2]?.title).toBe('Peek e4');
+    expect(steps[2]?.mentalMapBreak).toBe(true);
+    expect(steps[2]?.weaknessSquares).toEqual(['e4']);
     expect(steps[3]?.title).toBe('Illegal: Qh9');
+    expect(steps[3]?.mentalMapBreak).toBe(true);
   });
 
   it('should find a record by id and sort history newest first', () => {
@@ -169,7 +172,11 @@ describe('match replay helpers', () => {
         san: 'e5',
         positionIndex: 2,
         flagged: true,
-        turnFlags: { hadPeek: true, hadIllegal: true },
+        turnFlags: {
+          hadPeek: true,
+          hadIllegal: true,
+          weaknessSquares: ['e4'],
+        },
       },
     ]);
   });

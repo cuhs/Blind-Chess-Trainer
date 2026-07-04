@@ -1,14 +1,14 @@
-import { useCallback, useMemo, useState } from 'react';
+import { useCallback, useEffect, useMemo, useState } from 'react';
 import { ScrollView, StyleSheet, Text, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useLocalSearchParams, useRouter } from 'expo-router';
-import { buildMoveReplayData } from '@mindboard/chess-core';
+import { buildMatchReplaySteps } from '@mindboard/chess-core';
 import { AppHeader } from '@/components/ui/AppHeader';
 import { PrimaryButton } from '@/components/ui/PrimaryButton';
-import { ChessBoard } from '@/components/chess/ChessBoard';
 import { ReplayBackLink } from '@/components/replay/ReplayBackLink';
 import { ReplayControls } from '@/components/replay/ReplayControls';
-import { ReplayMoveTimeline } from '@/components/replay/ReplayMoveTimeline';
+import { ReplayHeatmapBoard } from '@/components/replay/ReplayHeatmapBoard';
+import { ReplayStepTimeline } from '@/components/replay/ReplayStepTimeline';
 import { ReplayTurnNotice } from '@/components/replay/ReplayTurnNotice';
 import { useMatchHistory } from '@/hooks/useMatchHistory';
 import { colors, layout, spacing, typography } from '@/theme';
@@ -17,38 +17,47 @@ import {
   formatMatchResult,
   formatPlayerColor,
 } from '@/lib/matchHistory';
+import { weaknessSquaresForReplayStep } from '@/lib/replayWeakness';
 
 export function ReplayScreen() {
   const router = useRouter();
   const { matchId } = useLocalSearchParams<{ matchId: string }>();
   const { hasHydrated, getMatchById } = useMatchHistory();
-  const [positionIndex, setPositionIndex] = useState(0);
+  const [stepIndex, setStepIndex] = useState(0);
+  const [fogDismissed, setFogDismissed] = useState(false);
 
   const record = matchId ? getMatchById(matchId) : undefined;
-  const replay = useMemo(
-    () => (record ? buildMoveReplayData(record) : null),
+  const steps = useMemo(
+    () => (record ? buildMatchReplaySteps(record) : []),
     [record],
   );
-  const currentPosition = replay?.positions[positionIndex];
-  const activeMove = replay?.moves.find(
-    (move) => move.positionIndex === positionIndex,
-  );
+  const currentStep = steps[stepIndex];
+
+  const weaknessSquares = useMemo(() => {
+    if (!currentStep?.mentalMapBreak) return [];
+    return weaknessSquaresForReplayStep(currentStep);
+  }, [currentStep]);
+
+  const showHeatmap = Boolean(currentStep?.mentalMapBreak && !fogDismissed);
+
+  useEffect(() => {
+    setFogDismissed(false);
+  }, [stepIndex]);
 
   const goToMatchList = useCallback(() => {
     router.back();
   }, [router]);
 
   const goToPrevious = useCallback(() => {
-    setPositionIndex((index) => Math.max(index - 1, 0));
+    setStepIndex((index) => Math.max(index - 1, 0));
   }, []);
 
   const goToNext = useCallback(() => {
-    if (!replay) return;
-    setPositionIndex((index) => Math.min(index + 1, replay.positions.length - 1));
-  }, [replay]);
+    setStepIndex((index) => Math.min(index + 1, steps.length - 1));
+  }, [steps.length]);
 
-  const selectMove = useCallback((index: number) => {
-    setPositionIndex(index);
+  const selectStep = useCallback((index: number) => {
+    setStepIndex(index);
   }, []);
 
   if (!hasHydrated) {
@@ -62,7 +71,7 @@ export function ReplayScreen() {
     );
   }
 
-  if (!record || !replay || !currentPosition) {
+  if (!record || !currentStep) {
     return (
       <SafeAreaView style={styles.safe} edges={['top']}>
         <AppHeader bordered onSettingsPress={() => router.push('/(main)/settings' as never)} />
@@ -103,31 +112,52 @@ export function ReplayScreen() {
         </Text>
 
         <View style={styles.boardWrap}>
-          <ChessBoard fen={currentPosition.fen} />
+          <ReplayHeatmapBoard
+            fen={currentStep.fen}
+            showHeatmap={showHeatmap}
+            weaknessSquares={weaknessSquares}
+          />
         </View>
 
-        {activeMove?.turnFlags ? (
+        {currentStep.kind === 'peek' && showHeatmap ? (
           <ReplayTurnNotice
-            moveNumber={activeMove.moveNumber}
-            turnFlags={activeMove.turnFlags}
+            stepKind="peek"
+            title={currentStep.title}
+            weaknessSquares={weaknessSquares}
+            onShowClearBoard={() => setFogDismissed(true)}
           />
+        ) : null}
+
+        {currentStep.kind === 'illegal_attempt' && showHeatmap ? (
+          <ReplayTurnNotice
+            stepKind="illegal_attempt"
+            title={currentStep.title}
+            weaknessSquares={weaknessSquares}
+            onShowClearBoard={() => setFogDismissed(true)}
+          />
+        ) : null}
+
+        {(currentStep.kind === 'peek' ||
+          currentStep.kind === 'illegal_attempt') &&
+        fogDismissed ? (
+          <Text style={styles.clearHint}>Board shown without fog overlay.</Text>
         ) : null}
 
         <ReplayControls
           onNext={goToNext}
           onPrevious={goToPrevious}
-          positionCount={replay.positions.length}
-          positionIndex={positionIndex}
+          positionCount={steps.length}
+          positionIndex={stepIndex}
         />
 
         <View style={styles.timelineSection}>
           <Text accessibilityRole="header" style={styles.timelineHeading}>
-            Move history
+            Timeline
           </Text>
-          <ReplayMoveTimeline
-            moves={replay.moves}
-            onSelectMove={selectMove}
-            selectedPositionIndex={positionIndex}
+          <ReplayStepTimeline
+            onSelectStep={selectStep}
+            selectedIndex={stepIndex}
+            steps={steps}
           />
         </View>
       </ScrollView>
@@ -154,6 +184,12 @@ const styles = StyleSheet.create({
   },
   boardWrap: {
     alignItems: 'center',
+  },
+  clearHint: {
+    ...typography.bodyMd,
+    color: colors.outline,
+    textAlign: 'center',
+    paddingHorizontal: spacing.marginMobile,
   },
   timelineSection: {
     gap: spacing.sm,

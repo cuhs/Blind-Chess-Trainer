@@ -101,7 +101,7 @@ No soft drop shadows. Use **tonal offsets and 3D extrusions**:
 | Active Recall Training Phase | `16b75139d1d14931a1d17f54ce051a0e` | Phase 2 | `DailyDrill` (session layout) |
 | Interactive Active Recall Training | `f42d4f83e10a44df8c569ed060ad83a4` | Phase 2 | `DailyDrill` (progress chrome) |
 | Animated Match Engine | `2cbaa7be4acd4190a3f95dae66d1b0bc` | Phase 3 | `VoiceMatch` |
-| Animated Cognitive Heatmap Dashboard | `61ce6c33f6fe4350b176eb6cd2ddace6` | Phase 4 / onboarding fog | `CognitiveHeatmap` / `FogRevealScreen` |
+| `CognitiveHeatmap` / `FogRevealScreen` | `61ce6c33f6fe4350b176eb6cd2ddace6` | Phase 4 / onboarding fog | `FogRevealScreen` (+ compact hero on `HomeDashboard`) |
 | MindBoard Home (Enhanced Loop) | `b1eff5fd32e743e2a7f8a4b78a340318` | Phase 1 exit | `HomeDashboard` |
 | Populated Game Analysis & Review | `48bde48ed59748cba0907d6a02705475` | Phase 4 | `ReplayScreen` (`ReplayMoveTimeline` + `ReplayControls`) |
 | Product Strategy & Screen Plan | `48eea1d4614941f3b6c927d368d8b1f0` | Reference only | — |
@@ -197,8 +197,8 @@ Post-onboarding `/(main)/index`. Habit validation + fog heatmap + closed-loop CT
 | Header | `AppHeader` (bordered) | Mascot + MindBoard + settings |
 | Stats | `HabitHeader` | Bolt streak + Board Mapped % (primary) |
 | Hero | Title + subtitle | "Cognitive Heatmap" + body copy |
-| Hero board | `InteractiveHeatmap` (`showLabels={false}`) | Centered compact card with 8×8 fog grid |
-| Primary CTA | `DailyMatrixCard` | "Today's Matrix: N Positions" + peek loop badge; "Completed Today" when drill done |
+| Hero board | `InteractiveHeatmap` (`showLabels={false}`) | Centered compact card with 8×8 fog grid; tap for tooltips |
+| Primary CTA | `DailyMatrixCard` | "Today's Matrix: N Positions" + peek loop badge (`N positions from your match peeks`); "Completed Today" when drill done |
 | Secondary CTA | `VoiceMatchCard` | "Start Blindfold Match" row + chevron |
 | Navigation | Expo tabs | Home · Training · Match · Analysis (active tab green 3D pill); Settings via header gear |
 
@@ -325,6 +325,7 @@ Shared icons live in `components/ui/icons/`. Reuse — do not inline emoji as te
 | `InteractiveHeatmap` | Hero 8×8 + `FogOverlay` + tap tooltips | Home + FogReveal |
 | `SquareTooltip` | Micro-tooltip on square tap | HomeDashboard |
 | `DailyMatrixCard` | Primary CTA + closed-loop badge; `completedToday` disables button | HomeDashboard + TrainingHub |
+| `MatchPeekBadge` | Yellow peek chip: "From your match" | `DailyDrillScreen` when `source: 'peek'` |
 | `VoiceMatchCard` | Blindfold match row + slashed-eye icon | HomeDashboard |
 | `BottomTabBar` | 4-tab nav: Home/Training/Match/Analysis; active green pill + 4px extrusion | `(main)/_layout` |
 | Tab icons | `HomeTabIcon`, `TrainingTabIcon`, `MatchTabIcon` (blindfold), `AnalysisTabIcon` | Bottom tab bar |
@@ -333,8 +334,10 @@ Shared icons live in `components/ui/icons/`. Reuse — do not inline emoji as te
 | `HeatmapLegend` | Three-state legend chips | FogReveal + heatmap |
 | `MatchSummaryCard` | Saved match row — date, result, move/peek counts | MatchHistoryScreen |
 | `ReplayControls` | Thumb-friendly previous/next stepper below board | ReplayScreen |
-| `ReplayMoveTimeline` | Horizontal move chips; red dot on peek/illegal turns | ReplayScreen |
-| `ReplayTurnNotice` | Error-styled banner when replaying a flagged move | ReplayScreen |
+| `ReplayHeatmapBoard` | Chess board + fog overlay; gold weakness squares on flagged steps | ReplayScreen |
+| `ReplayStepTimeline` | Horizontal chips for start, moves, peek, illegal | ReplayScreen |
+| `ReplayMoveTimeline` | Horizontal move chips; red dot on peek/illegal turns | Legacy move-only timeline |
+| `ReplayTurnNotice` | Mental-map-break banner + "Show clear board" | ReplayScreen |
 | `ReplayBackLink` | Chevron back to match list | ReplayScreen |
 
 File paths: `apps/mobile/components/{ui,chess,match,heatmap,replay,home,onboarding,training}/`
