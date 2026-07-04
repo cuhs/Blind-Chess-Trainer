@@ -1,5 +1,6 @@
 import { ActivityIndicator, View, Text, StyleSheet } from 'react-native';
-import { colors, radius, spacing, touch, typography } from '@/theme';
+import { colors, spacing, typography } from '@/theme';
+import { Card } from '@/components/ui/Card';
 
 export type MatchStatusTone = 'neutral' | 'action' | 'alert' | 'success';
 
@@ -26,7 +27,7 @@ export function MatchStatusBar({
   const toneColor = TONE_COLORS[statusTone];
 
   return (
-    <View style={styles.card}>
+    <Card variant="recessed" style={styles.card}>
       <View style={styles.header}>
         <Text style={styles.opponentLabel}>VS ENGINE</Text>
         <Text style={styles.opponentElo}>~{elo} Elo</Text>
@@ -47,16 +48,12 @@ export function MatchStatusBar({
           {statusText}
         </Text>
       </View>
-    </View>
+    </Card>
   );
 }
 
 const styles = StyleSheet.create({
   card: {
-    backgroundColor: colors.surfaceContainerLowest,
-    borderRadius: radius.lg,
-    borderWidth: touch.strokeWidth,
-    borderColor: colors.cardStroke,
     paddingHorizontal: spacing.md,
     paddingVertical: spacing.sm,
     gap: spacing.xs,
@@ -67,7 +64,7 @@ const styles = StyleSheet.create({
   opponentLabel: {
     ...typography.labelBold,
     color: colors.onSurfaceVariant,
-    letterSpacing: 1,
+    letterSpacing: 0.5,
   },
   opponentElo: {
     ...typography.bodyMd,
@@ -82,5 +79,6 @@ const styles = StyleSheet.create({
   status: {
     ...typography.labelBold,
     flex: 1,
+    letterSpacing: 0,
   },
 });

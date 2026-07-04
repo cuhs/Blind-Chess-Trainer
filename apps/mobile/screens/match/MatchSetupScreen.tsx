@@ -1,10 +1,11 @@
 import { useState } from 'react';
-import { ActivityIndicator, ScrollView, StyleSheet, Text, View } from 'react-native';
+import { ScrollView, StyleSheet, Text, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useRouter } from 'expo-router';
-import { colors, layout, spacing, typography } from '@/theme';
+import { colors, spacing, typography } from '@/theme';
 import { AppHeader } from '@/components/ui/AppHeader';
 import { PrimaryButton } from '@/components/ui/PrimaryButton';
+import { ScreenScroll } from '@/components/ui/ScreenScroll';
 import { HeroCopy } from '@/components/ui/HeroCopy';
 import { MatchEloSlider } from '@/components/match/MatchEloSlider';
 import { MatchColorPicker } from '@/components/match/MatchColorPicker';
@@ -51,21 +52,16 @@ export function MatchSetupScreen() {
         bordered
         onSettingsPress={() => router.push('/(main)/settings' as never)}
       />
-      <ScrollView
-        contentContainerStyle={styles.content}
-        showsVerticalScrollIndicator={false}
-      >
+      <ScreenScroll gap={spacing.lg}>
         <HeroCopy
           title="Blindfold Match"
           subtitle="Choose your opponent, then play from memory. Peek anytime. It shapes tomorrow's drills."
+          variant="section"
         />
 
         <MatchSetupHero />
 
-        <MatchColorPicker
-          onChange={setPlayerColor}
-          value={playerColor}
-        />
+        <MatchColorPicker onChange={setPlayerColor} value={playerColor} />
 
         <MatchEloSlider onChange={setElo} value={elo} />
 
@@ -78,16 +74,12 @@ export function MatchSetupScreen() {
           }}
           uppercase={false}
         />
-        {loading ? (
-          <ActivityIndicator accessibilityLabel="Loading Stockfish engine" color={colors.primary} />
-        ) : null}
         {error ? <Text style={styles.error}>{error}</Text> : null}
 
         <Text style={styles.note}>
-          Stockfish 17 powers ratings 1320+. Lower ratings use human-style
-          mistakes tuned to match chess.com beginner play.
+          Peek freely. Your mistakes become tomorrow&apos;s training puzzles.
         </Text>
-      </ScrollView>
+      </ScreenScroll>
     </SafeAreaView>
   );
 }
@@ -97,15 +89,9 @@ const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: colors.background,
   },
-  content: {
-    paddingHorizontal: spacing.marginMobile,
-    paddingTop: spacing.md,
-    paddingBottom: layout.tabBarClearance,
-    gap: spacing.lg,
-  },
   note: {
     ...typography.bodyMd,
-    color: colors.outline,
+    color: colors.onSurfaceVariant,
     textAlign: 'center',
   },
   error: {

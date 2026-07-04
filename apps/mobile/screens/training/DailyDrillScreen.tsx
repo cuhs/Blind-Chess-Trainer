@@ -1,13 +1,11 @@
 // TODO(stitch): Active Recall Training Phase + Interactive Active Recall Training frames
 import { useEffect, type ReactNode } from 'react';
-import { View, Text, StyleSheet } from 'react-native';
+import { View } from 'react-native';
 import { useRouter } from 'expo-router';
-import { SafeAreaView } from 'react-native-safe-area-context';
-import { colors, spacing, typography } from '@/theme';
 import { SquareKeypad } from '@/components/training/SquareKeypad';
 import { YesNoZone } from '@/components/training/YesNoZone';
-import { PrimaryButton } from '@/components/ui/PrimaryButton';
 import { ProgressChrome } from '@/components/ui/ProgressChrome';
+import { ScreenState } from '@/components/ui/ScreenState';
 import { MatchPeekBadge } from '@/components/training/MatchPeekBadge';
 import { PuzzleSessionLayout } from '@/components/training/PuzzleSessionLayout';
 import { useTrainingAnswer } from '@/hooks/useTrainingAnswer';
@@ -18,31 +16,6 @@ import { useDrillSessionController } from '@/hooks/useDrillSessionController';
 import { useResolvedPuzzle } from '@/hooks/useResolvedPuzzle';
 import { getTrainingDisplayFen } from '@/data/puzzleFen';
 import type { TrainingPuzzle } from '@/data/training-puzzles';
-
-interface DrillStateProps {
-  title?: string;
-  message: string;
-  onBack?: () => void;
-}
-
-function DrillState({ title, message, onBack }: DrillStateProps) {
-  return (
-    <SafeAreaView style={styles.safe}>
-      <View style={styles.stateWrap}>
-        {title ? <Text style={styles.stateTitle}>{title}</Text> : null}
-        <Text style={styles.stateText}>{message}</Text>
-        {onBack ? (
-          <PrimaryButton
-            accessibilityLabel="Back to Home"
-            label="Back to Home"
-            onPress={onBack}
-            uppercase={false}
-          />
-        ) : null}
-      </View>
-    </SafeAreaView>
-  );
-}
 
 interface ActiveDrillSessionProps {
   puzzle: TrainingPuzzle;
@@ -143,7 +116,6 @@ function ActiveDrillSession({
       }
       board={{
         boardKey: resolvedPuzzle.id,
-        // Memorize shows the base FEN; peek shows the position after moves[].
         fen: boardFen,
         peekVisible,
         showBoard: isMemorizing || peekVisible,
@@ -179,36 +151,39 @@ export function DailyDrillScreen() {
 
   if (isNotConfigured) {
     return (
-      <DrillState
-        title="Supabase not configured"
-        message="Add EXPO_PUBLIC_SUPABASE_URL and EXPO_PUBLIC_SUPABASE_PUBLISHABLE_KEY to .env.local (repo root or apps/mobile), then restart Expo."
-        onBack={() => router.back()}
+      <ScreenState
+        actionLabel="Go back"
+        message="Sign-in and puzzle sync are not set up on this device yet."
+        onAction={() => router.back()}
+        title="Training unavailable"
       />
     );
   }
 
   if (isCompletedToday) {
     return (
-      <DrillState
-        title="Matrix cleared"
+      <ScreenState
+        actionLabel="Back to Home"
         message="You finished today's puzzles. Come back tomorrow."
-        onBack={() => router.back()}
+        onAction={() => router.back()}
+        title="Matrix cleared"
       />
     );
   }
 
   if (isLoading || isBootstrapping) {
-    return <DrillState message="Loading today's puzzles..." />;
+    return <ScreenState message="Loading today's puzzles..." />;
   }
 
   if (isError || !puzzle || !resolvedPuzzle) {
     const devHint =
       __DEV__ && error instanceof Error ? `\n\n(${error.message})` : '';
     return (
-      <DrillState
+      <ScreenState
+        actionLabel="Go back"
+        message={`Could not load today's puzzles. Check your connection and try again.${devHint}`}
+        onAction={() => router.back()}
         title="Could not load puzzles"
-        message={`Check EXPO_PUBLIC_SUPABASE_URL, anonymous auth, and that puzzle_bank is seeded on your cloud project.${devHint}`}
-        onBack={() => router.back()}
       />
     );
   }
@@ -223,26 +198,3 @@ export function DailyDrillScreen() {
     />
   );
 }
-
-const styles = StyleSheet.create({
-  safe: {
-    flex: 1,
-    backgroundColor: colors.background,
-  },
-  stateWrap: {
-    flex: 1,
-    justifyContent: 'center',
-    paddingHorizontal: spacing.marginMobile,
-    gap: spacing.md,
-  },
-  stateTitle: {
-    ...typography.headlineMd,
-    color: colors.onSurface,
-    textAlign: 'center',
-  },
-  stateText: {
-    ...typography.bodyMd,
-    color: colors.onSurfaceVariant,
-    textAlign: 'center',
-  },
-});

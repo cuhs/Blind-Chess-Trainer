@@ -113,20 +113,19 @@ Blueprint-only screens (no Stitch frame): `StoryCheck`, `RewardPuzzle`, `MatchPr
 Post-onboarding `/(main)/index` — Stitch frame `b1eff5fd32e743e2a7f8a4b78a340318`. Top-to-bottom:
 
 1. **AppHeader** — bordered top bar with mascot + settings
-2. **HabitHeader** — bolt streak + Board Mapped %
+2. **HabitHeader** — `StatCard` row: bolt streak + Board Mapped %
 3. **Hero copy** — "Cognitive Heatmap" title + subtitle
-4. **InteractiveHeatmap** — centered compact card, label-free fog grid (tap squares for tooltips)
-5. **DailyMatrixCard** — "Today's Matrix: N Positions" primary CTA + peek loop badge (`N positions from your match peeks`); disabled when today's drill is complete
+4. **InteractiveHeatmap** — non-interactive fog teaser (`interactive={false}`)
+5. **DailyMatrixCard** — "Today's Matrix: N Positions" primary CTA + `PeekChip` loop badge; disabled when today's drill is complete
 6. **VoiceMatchCard** — "Start Blindfold Match" secondary row
-7. **Tab bar** — Home | Training | Match | Analysis (active green 3D pill); Settings via header gear only
+7. **Tab bar** — Home | Training | Match | Analysis (soft active pill); Settings via header gear only
 
 ## Build Order
 
 1. Onboarding — `HookBoard` → `MatchPrimer` (Stitch: Invisible Grid Hook)
 1b. Home — `HomeDashboard` from Stitch `b1eff5fd32e743e2a7f8a4b78a340318`
 2. Training — `TrainingHub`, `DailyDrill` backed by `puzzle_bank`; motif resolve via `useResolvedPuzzle` (no separate `StoryPuzzle` route — both Stitch training frames map to `DailyDrill`)
-   - Done: engine-backed prompts when top motif matches `expected_answer`; daily cap at 3 puzzles (`selectDailyPuzzles` + `useDailySession`); completion gate via `lastDrillCompletedDate`; home + hub `DailyMatrixCard`; 54 curated `puzzle_bank` seed rows
-   - Next: Stitch polish on hub/drill
+   - Done: engine-backed prompts when top motif matches `expected_answer`; daily cap at 3 puzzles (`selectDailyPuzzles` + `useDailySession`); completion gate via `lastDrillCompletedDate`; home + hub `DailyMatrixCard`; TrainingHub stats + closed-loop card; 54 curated `puzzle_bank` seed rows
 3. Voice match — `MatchSetupScreen` (Elo slider) → `VoiceMatchScreen` (native Stockfish on iOS dev build)
    - Done: `MatchRecorder` captures moves, peeks, illegal attempts, disambiguation, and resign; fuzzy voice resolver with piece-intent guards, length-scaled auto-submit confidence, and voice-triggered disambiguation overlay; engine-wait UI (spinner + "Move sent"); on-device STT via `useMatchSpeech` + `expo-speech-recognition` (requires dev build rebuild after native dep change)
 4. Post-game — `ReplayScreen` event timeline (peek/illegal as own steps) + dismissible heatmap overlay

@@ -1,6 +1,5 @@
-import { Pressable, Text, View, StyleSheet } from 'react-native';
-import { colors, radius, spacing, typography } from '@/theme';
-import { LightbulbIcon } from '@/components/ui/icons/LightbulbIcon';
+import { StyleSheet, View } from 'react-native';
+import { PeekChip } from '@/components/ui/PeekChip';
 
 interface PeekButtonProps {
   onPress: () => void;
@@ -8,39 +7,18 @@ interface PeekButtonProps {
 
 export function PeekButton({ onPress }: PeekButtonProps) {
   return (
-    <Pressable
-      accessibilityLabel="I forgot... need a peek?"
-      accessibilityRole="button"
-      onPress={onPress}
-      style={styles.button}
-    >
-      <View style={styles.chip}>
-        <LightbulbIcon color={colors.secondary} size={18} />
-        <Text style={styles.text}>I forgot... need a peek?</Text>
-      </View>
-    </Pressable>
+    <View style={styles.wrap}>
+      <PeekChip
+        label="I forgot... need a peek?"
+        onPress={onPress}
+        variant="action"
+      />
+    </View>
   );
 }
 
 const styles = StyleSheet.create({
-  button: {
+  wrap: {
     alignItems: 'center',
-  },
-  chip: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: spacing.sm,
-    backgroundColor: colors.secondaryFixed,
-    borderRadius: radius.full,
-    borderWidth: 1,
-    borderColor: colors.secondaryContainer,
-    paddingHorizontal: spacing.md,
-    paddingVertical: spacing.sm,
-  },
-  text: {
-    ...typography.labelBold,
-    color: colors.onSecondaryFixedVariant,
-    textTransform: 'uppercase',
-    letterSpacing: 0.5,
   },
 });

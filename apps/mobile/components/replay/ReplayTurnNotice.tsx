@@ -31,87 +31,77 @@ export function ReplayTurnNotice({
       ? 'You peeked at the board here'
       : 'You tried an illegal move here';
   const weakness = weaknessSummary(stepKind, weaknessSquares);
-  const summary = [line, weakness, title].filter(Boolean).join('. ');
 
   return (
     <View
-      accessibilityLabel={`Mental map broke. ${summary}`}
+      accessibilityLabel={`Mental map broke. ${line}`}
       accessibilityRole="text"
       style={styles.wrap}
     >
-      <View style={styles.header}>
-        <View style={styles.dot} />
+      <View style={styles.accent} />
+      <View style={styles.body}>
         <Text style={styles.title}>Here&apos;s where your mental map broke</Text>
+        <Text style={styles.line}>{line}</Text>
+        {weakness ? <Text style={styles.weakness}>{weakness}</Text> : null}
+        {stepKind === 'illegal_attempt' ? (
+          <Text style={styles.detail}>{title}</Text>
+        ) : null}
+        <Pressable
+          accessibilityLabel="Show clear board"
+          accessibilityRole="button"
+          onPress={onShowClearBoard}
+          style={({ pressed }) => [styles.clearButton, pressed && styles.pressed]}
+        >
+          <Text style={styles.clearButtonText}>Show clear board</Text>
+        </Pressable>
       </View>
-      <Text style={styles.line}>{line}</Text>
-      {weakness ? <Text style={styles.weakness}>{weakness}</Text> : null}
-      {stepKind === 'illegal_attempt' ? (
-        <Text style={styles.detail}>{title}</Text>
-      ) : null}
-      <Pressable
-        accessibilityLabel="Show clear board"
-        accessibilityRole="button"
-        onPress={onShowClearBoard}
-        style={({ pressed }) => [styles.clearButton, pressed && styles.pressed]}
-      >
-        <Text style={styles.clearButtonText}>Show clear board</Text>
-      </Pressable>
     </View>
   );
 }
 
 const styles = StyleSheet.create({
   wrap: {
-    marginHorizontal: spacing.marginMobile,
-    padding: spacing.md,
+    flexDirection: 'row',
     borderRadius: radius.lg,
     borderWidth: touch.strokeWidth,
-    borderColor: colors.error,
+    borderColor: colors.errorContainer,
     backgroundColor: colors.errorContainer,
-    gap: spacing.xs,
+    overflow: 'hidden',
   },
-  header: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: spacing.sm,
-  },
-  dot: {
-    width: 10,
-    height: 10,
-    borderRadius: radius.full,
+  accent: {
+    width: 4,
     backgroundColor: colors.error,
+  },
+  body: {
+    flex: 1,
+    padding: spacing.md,
+    gap: spacing.xs,
   },
   title: {
     ...typography.labelBold,
     color: colors.onErrorContainer,
     letterSpacing: 0,
-    flex: 1,
   },
   line: {
     ...typography.bodyMd,
     color: colors.onErrorContainer,
-    paddingLeft: 10 + spacing.sm,
   },
   weakness: {
     ...typography.bodyMd,
     color: colors.onErrorContainer,
     fontFamily: typography.labelBold.fontFamily,
-    paddingLeft: 10 + spacing.sm,
   },
   detail: {
     ...typography.bodyMd,
     color: colors.onErrorContainer,
-    paddingLeft: 10 + spacing.sm,
   },
   clearButton: {
     alignSelf: 'flex-start',
     marginTop: spacing.sm,
-    marginLeft: 10 + spacing.sm,
+    minHeight: touch.min,
+    justifyContent: 'center',
     paddingVertical: spacing.xs,
     paddingHorizontal: spacing.sm,
-    borderRadius: radius.md,
-    borderWidth: touch.strokeWidth,
-    borderColor: colors.onErrorContainer,
   },
   pressed: {
     opacity: 0.7,

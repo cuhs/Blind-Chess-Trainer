@@ -1,16 +1,16 @@
 // TODO(stitch): MatchPrimer — infer from HookBoard
-import { View, Text, StyleSheet, ScrollView } from 'react-native';
+import { StyleSheet, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useRouter } from 'expo-router';
-import { colors, spacing, typography } from '@/theme';
+import { colors, spacing } from '@/theme';
 import { AppHeader } from '@/components/ui/AppHeader';
+import { HeroCopy } from '@/components/ui/HeroCopy';
 import { PrimaryButton } from '@/components/ui/PrimaryButton';
 import { ProgressChrome } from '@/components/ui/ProgressChrome';
+import { ScreenScroll } from '@/components/ui/ScreenScroll';
+import { MatchSetupHero } from '@/components/match/MatchSetupHero';
 import { useOnboardingNavigation } from '@/hooks/useOnboardingNavigation';
 import { useGuestStore } from '@/stores/guestStore';
-
-const MATCH_PRIMER_COPY =
-  'Your first game will feel chaotic. You will lose track of the board. That is the point. Peek freely, let the app catch your mistakes, and your failures will build tomorrow\'s puzzles.';
 
 export function MatchPrimerScreen() {
   const router = useRouter();
@@ -24,17 +24,27 @@ export function MatchPrimerScreen() {
   };
 
   return (
-    <SafeAreaView style={styles.safe}>
-      <ScrollView contentContainerStyle={styles.content}>
-        <AppHeader showSettings={false} />
+    <SafeAreaView style={styles.safe} edges={['top']}>
+      <ScreenScroll
+        contentContainerStyle={styles.content}
+        gap={spacing.lg}
+        withTabClearance={false}
+      >
+        <AppHeader bordered showSettings={false} />
 
         <ProgressChrome label={progressLabel()} percent={progressPercent()} />
 
-        <Text style={styles.headline}>Ready for your first match?</Text>
-        <Text style={styles.body}>{MATCH_PRIMER_COPY}</Text>
+        <View style={styles.heroWrap}>
+          <MatchSetupHero />
+        </View>
+
+        <HeroCopy
+          title="Ready for your first match?"
+          subtitle="Your first game will feel chaotic. You will lose track of the board. That is the point. Peek freely, let the app catch your mistakes, and your failures will build tomorrow's puzzles."
+        />
 
         <PrimaryButton label="Enter MindBoard" onPress={handleEnter} />
-      </ScrollView>
+      </ScreenScroll>
     </SafeAreaView>
   );
 }
@@ -45,18 +55,11 @@ const styles = StyleSheet.create({
     backgroundColor: colors.background,
   },
   content: {
-    paddingHorizontal: spacing.marginMobile,
-    paddingBottom: spacing.xl,
     flexGrow: 1,
     justifyContent: 'center',
-    gap: spacing.lg,
+    paddingBottom: spacing.xl,
   },
-  headline: {
-    ...typography.headlineLg,
-    color: colors.onSurface,
-  },
-  body: {
-    ...typography.bodyMd,
-    color: colors.onSurfaceVariant,
+  heroWrap: {
+    alignItems: 'center',
   },
 });

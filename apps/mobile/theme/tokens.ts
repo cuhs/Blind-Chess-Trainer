@@ -49,6 +49,7 @@ export const colors = {
   cardStroke: '#e5e5e5',
   recessedBg: '#f7f7f7',
   contrastInk: '#4b4b4b',
+  streak: '#fec700',
 } as const;
 
 export const spacing = {
@@ -86,6 +87,7 @@ export const typography = {
     fontSize: 28,
     lineHeight: 36,
     fontWeight: '800' as const,
+    letterSpacing: -0.56,
   },
   headlineLg: {
     fontFamily: 'PlusJakartaSans-ExtraBold',
@@ -118,6 +120,26 @@ export const typography = {
     fontWeight: '700' as const,
     letterSpacing: 0.7,
   },
+  button: {
+    fontFamily: 'BeVietnamPro-Medium',
+    fontSize: 16,
+    lineHeight: 22,
+    fontWeight: '500' as const,
+  },
+  statValue: {
+    fontFamily: 'PlusJakartaSans-ExtraBold',
+    fontSize: 24,
+    lineHeight: 32,
+    fontWeight: '800' as const,
+  },
+  statLabel: {
+    fontFamily: 'BeVietnamPro-Bold',
+    fontSize: 14,
+    lineHeight: 18,
+    fontWeight: '700' as const,
+    letterSpacing: 0.5,
+    textTransform: 'uppercase' as const,
+  },
 } as const;
 
 export const touch = {
@@ -134,7 +156,10 @@ export const motion = {
 } as const;
 
 export const layout = {
-  // Bottom-tab clearance for scrollable main-tab screens (72pt bar + insets + breathing room).
+  headerHeight: 64,
+  tabBarHeight: 72,
+  tabIconSize: 24,
+  // tabBarHeight + default bottom inset (spacing.md) + breathing room (40).
   tabBarClearance: 128,
 } as const;
 

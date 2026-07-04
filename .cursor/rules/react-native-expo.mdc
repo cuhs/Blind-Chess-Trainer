@@ -12,10 +12,11 @@ Import `@/theme` tokens. Load Plus Jakarta Sans + Be Vietnam Pro via `expo-font`
 
 ## Stitch Component Patterns
 
-- `PrimaryButton`: 4px 3D offset, translate down on press
+- `PrimaryButton`: 4px 3D offset on `primary`/`secondary` only; `ghost`/`text` flat
 - `SquareKeypad`: A–H / 1–8 key rows (56px) + selection display + Submit — for `square` puzzles
-- `YesNoZone`: split tap halves + swipe (No ← red \| green → Yes), directional haptic — for `yes-no` puzzles
-- `Card`: white, 2pt `colors.cardStroke`, 4px bottom offset — no drop shadow
+- `YesNoZone`: split tap halves + swipe (No ← red | green → Yes), directional haptic — for `yes-no` puzzles
+- `Card`: flat default (`variant: flat`); `recessed` for settings/options panels
+- `ScreenScroll`, `StatCard`, `ScreenState`, `PeekChip`: shared layout primitives
 - `ChessBoard`: fluid width minus 40px margins; a–h / 1–8 labels; SVG pieces
 - Icons: `components/ui/icons/` — SVG only, **no emoji**
 

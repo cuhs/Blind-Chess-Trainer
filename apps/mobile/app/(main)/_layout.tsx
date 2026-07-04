@@ -2,7 +2,7 @@ import { Tabs } from 'expo-router';
 import { Pressable, StyleSheet, Text } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import type { BottomTabBarButtonProps } from '@react-navigation/bottom-tabs';
-import { colors, radius, spacing, typography, touch } from '@/theme';
+import { colors, layout, radius, spacing, typography, touch } from '@/theme';
 import { useHabitStreakSync } from '@/hooks/useHabitStreak';
 import { useProfileSync } from '@/hooks/useProfileSync';
 import {
@@ -11,8 +11,6 @@ import {
   MatchTabIcon,
   TrainingTabIcon,
 } from '@/components/ui/icons/TabIcons';
-
-const TAB_ICON_SIZE = 24;
 
 function TabBarButton({
   accessibilityLabel,
@@ -40,7 +38,7 @@ function TabBarButton({
 }
 
 function tabIconColor(focused: boolean) {
-  return focused ? colors.onPrimaryContainer : colors.outline;
+  return focused ? colors.primary : colors.outline;
 }
 
 export default function MainLayout() {
@@ -53,7 +51,7 @@ export default function MainLayout() {
     <Tabs
       screenOptions={{
         headerShown: false,
-        tabBarActiveTintColor: colors.onPrimaryContainer,
+        tabBarActiveTintColor: colors.primary,
         tabBarInactiveTintColor: colors.outline,
         tabBarStyle: {
           backgroundColor: colors.surface,
@@ -63,13 +61,13 @@ export default function MainLayout() {
           borderTopRightRadius: radius.xl,
           paddingTop: spacing.sm,
           paddingBottom: bottomInset,
-          height: 72 + bottomInset,
+          height: layout.tabBarHeight + bottomInset,
         },
         tabBarItemStyle: {
           paddingTop: 0,
         },
         tabBarIconStyle: {
-          marginBottom: 2,
+          marginBottom: spacing.xs / 2,
         },
         tabBarLabel: ({ color, children, focused }) => (
           <Text
@@ -78,7 +76,7 @@ export default function MainLayout() {
             numberOfLines={1}
             style={[
               styles.tabLabel,
-              { color: focused ? colors.onPrimaryContainer : color },
+              { color: focused ? colors.primary : color },
             ]}
           >
             {children}
@@ -95,7 +93,7 @@ export default function MainLayout() {
             <HomeTabIcon
               color={tabIconColor(focused)}
               filled={focused}
-              size={TAB_ICON_SIZE}
+              size={layout.tabIconSize}
             />
           ),
         }}
@@ -108,7 +106,7 @@ export default function MainLayout() {
             <TrainingTabIcon
               color={tabIconColor(focused)}
               filled={focused}
-              size={TAB_ICON_SIZE}
+              size={layout.tabIconSize}
             />
           ),
         }}
@@ -121,7 +119,7 @@ export default function MainLayout() {
             <MatchTabIcon
               color={tabIconColor(focused)}
               filled={focused}
-              size={TAB_ICON_SIZE}
+              size={layout.tabIconSize}
             />
           ),
         }}
@@ -134,7 +132,7 @@ export default function MainLayout() {
             <AnalysisTabIcon
               color={tabIconColor(focused)}
               filled={focused}
-              size={TAB_ICON_SIZE}
+              size={layout.tabIconSize}
             />
           ),
         }}
@@ -157,21 +155,18 @@ const styles = StyleSheet.create({
     paddingHorizontal: spacing.xs,
     paddingVertical: spacing.xs,
     borderRadius: radius.lg,
-    marginHorizontal: 2,
+    marginHorizontal: spacing.xs / 2,
   },
   tabButtonActive: {
-    backgroundColor: colors.primaryContainer,
-    borderBottomWidth: touch.buttonOffset,
-    borderBottomColor: colors.onPrimaryContainer,
-    transform: [{ translateY: 1 }],
+    backgroundColor: colors.surfaceContainer,
   },
   tabButtonPressed: {
-    transform: [{ translateY: 1 }],
+    opacity: 0.85,
   },
   tabLabel: {
     ...typography.labelBold,
     letterSpacing: 0,
-    marginTop: 2,
+    marginTop: spacing.xs / 2,
     textAlign: 'center',
     width: '100%',
   },

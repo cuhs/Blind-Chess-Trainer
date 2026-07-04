@@ -1,5 +1,6 @@
 import { View, Text, StyleSheet } from 'react-native';
 import { colors, radius, spacing, touch, typography } from '@/theme';
+import { Card } from '@/components/ui/Card';
 import { BlindfoldIcon } from '@/components/ui/icons/BlindfoldIcon';
 import { getInvisibleSquareColor } from '@/components/chess/boardColors';
 
@@ -8,7 +9,7 @@ const CELL = 28;
 
 export function MatchSetupHero() {
   return (
-    <View style={styles.card}>
+    <Card style={styles.card}>
       <View style={styles.gridWrap}>
         {Array.from({ length: FOG_GRID }, (_, rank) => (
           <View key={rank} style={styles.row}>
@@ -32,19 +33,15 @@ export function MatchSetupHero() {
         </View>
       </View>
       <Text style={styles.tagline}>Map the board in your mind</Text>
-    </View>
+    </Card>
   );
 }
 
 const styles = StyleSheet.create({
   card: {
-    backgroundColor: colors.surfaceContainerLowest,
-    borderRadius: radius.lg,
-    borderWidth: touch.strokeWidth,
-    borderColor: colors.cardStroke,
-    padding: spacing.lg,
     alignItems: 'center',
     gap: spacing.md,
+    padding: spacing.lg,
   },
   gridWrap: {
     position: 'relative',

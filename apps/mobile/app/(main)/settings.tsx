@@ -1,23 +1,27 @@
-import { Pressable, Text, View, StyleSheet } from 'react-native';
+import { Pressable, ScrollView, Text, View, StyleSheet } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useRouter } from 'expo-router';
 import { AppHeader } from '@/components/ui/AppHeader';
+import { Card } from '@/components/ui/Card';
 import { useGuestStore, type VoiceListenMode } from '@/stores/guestStore';
 import { colors, radius, spacing, touch, typography } from '@/theme';
 
-const OPTIONS: Array<{ mode: VoiceListenMode; label: string; description: string }> =
-  [
-    {
-      mode: 'auto',
-      label: 'Auto-listen on your turn',
-      description: 'Mic arms when it is your move. Tap mic to cancel or re-arm.',
-    },
-    {
-      mode: 'manual',
-      label: 'Tap to listen',
-      description: 'Tap the mic to start and stop listening. Hold mic to speak.',
-    },
-  ];
+const VOICE_OPTIONS: Array<{
+  mode: VoiceListenMode;
+  label: string;
+  description: string;
+}> = [
+  {
+    mode: 'auto',
+    label: 'Auto-listen on your turn',
+    description: 'Mic arms when it is your move. Tap mic to cancel or re-arm.',
+  },
+  {
+    mode: 'manual',
+    label: 'Tap to listen',
+    description: 'Tap the mic to start and stop listening. Hold mic to speak.',
+  },
+];
 
 export default function SettingsRoute() {
   const router = useRouter();
@@ -27,7 +31,10 @@ export default function SettingsRoute() {
   return (
     <SafeAreaView style={styles.safe} edges={['top']}>
       <AppHeader bordered showSettings={false} />
-      <View style={styles.content}>
+      <ScrollView
+        contentContainerStyle={styles.content}
+        showsVerticalScrollIndicator={false}
+      >
         <Pressable
           accessibilityLabel="Go back"
           accessibilityRole="button"
@@ -36,9 +43,10 @@ export default function SettingsRoute() {
         >
           <Text style={styles.backText}>Back</Text>
         </Pressable>
+
         <Text style={styles.sectionTitle}>Voice match</Text>
-        <View style={styles.card}>
-          {OPTIONS.map((option) => {
+        <Card variant="recessed" style={styles.optionsCard}>
+          {VOICE_OPTIONS.map((option) => {
             const selected = voiceListenMode === option.mode;
             return (
               <Pressable
@@ -54,8 +62,16 @@ export default function SettingsRoute() {
               </Pressable>
             );
           })}
-        </View>
-      </View>
+        </Card>
+
+        <Text style={styles.sectionTitle}>Engine</Text>
+        <Card variant="recessed">
+          <Text style={styles.engineBody}>
+            Stockfish 17 powers ratings 1320+. Lower ratings use human-style
+            mistakes tuned to match chess.com beginner play.
+          </Text>
+        </Card>
+      </ScrollView>
     </SafeAreaView>
   );
 }
@@ -68,6 +84,7 @@ const styles = StyleSheet.create({
   content: {
     paddingHorizontal: spacing.marginMobile,
     paddingTop: spacing.md,
+    paddingBottom: spacing.xl,
     gap: spacing.md,
   },
   back: {
@@ -78,19 +95,13 @@ const styles = StyleSheet.create({
   backText: {
     ...typography.labelBold,
     color: colors.tertiary,
+    letterSpacing: 0,
   },
   sectionTitle: {
-    ...typography.labelBold,
+    ...typography.statLabel,
     color: colors.onSurfaceVariant,
-    textTransform: 'uppercase',
-    letterSpacing: 1,
   },
-  card: {
-    backgroundColor: colors.recessedBg,
-    borderRadius: radius.lg,
-    borderWidth: touch.strokeWidth,
-    borderColor: colors.cardStroke,
-    padding: spacing.md,
+  optionsCard: {
     gap: spacing.sm,
   },
   option: {
@@ -103,13 +114,17 @@ const styles = StyleSheet.create({
   },
   optionSelected: {
     borderColor: colors.tertiary,
-    backgroundColor: colors.tertiaryContainer,
+    backgroundColor: colors.surfaceContainerLow,
   },
   optionLabel: {
     ...typography.headlineMd,
     color: colors.onSurface,
   },
   optionDescription: {
+    ...typography.bodyMd,
+    color: colors.onSurfaceVariant,
+  },
+  engineBody: {
     ...typography.bodyMd,
     color: colors.onSurfaceVariant,
   },

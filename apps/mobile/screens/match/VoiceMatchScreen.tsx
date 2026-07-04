@@ -324,13 +324,6 @@ export function VoiceMatchScreen() {
                 uppercase={false}
                 variant={completedMatchRecord ? 'secondary' : undefined}
               />
-              <PrimaryButton
-                accessibilityLabel="Back to home"
-                label="Back to home"
-                onPress={() => router.replace('/(main)')}
-                uppercase={false}
-                variant="secondary"
-              />
             </View>
           ) : (
             <>
@@ -431,12 +424,11 @@ const styles = StyleSheet.create({
   },
   footerRow: {
     alignItems: 'center',
-    gap: spacing.sm,
-    marginTop: -spacing.sm,
+    gap: spacing.md,
   },
   peekHint: {
-    ...typography.labelBold,
-    color: colors.outline,
+    ...typography.bodyMd,
+    color: colors.onSurfaceVariant,
     textAlign: 'center',
   },
   gameOverActions: {

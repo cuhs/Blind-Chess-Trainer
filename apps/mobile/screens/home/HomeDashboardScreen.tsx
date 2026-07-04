@@ -1,9 +1,10 @@
 // Stitch frame: b1eff5fd32e743e2a7f8a4b78a340318 (MindBoard Home Enhanced Loop)
 import { router } from 'expo-router';
-import { ScrollView, StyleSheet, View } from 'react-native';
+import { StyleSheet, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { colors, layout, spacing } from '@/theme';
+import { colors, spacing } from '@/theme';
 import { AppHeader } from '@/components/ui/AppHeader';
+import { ScreenScroll } from '@/components/ui/ScreenScroll';
 import { HabitHeader } from '@/components/home/HabitHeader';
 import { HeroCopy } from '@/components/ui/HeroCopy';
 import { InteractiveHeatmap } from '@/components/heatmap/InteractiveHeatmap';
@@ -33,31 +34,29 @@ export function HomeDashboardScreen() {
         bordered
         onSettingsPress={() => router.push('/(main)/settings' as never)}
       />
-      <ScrollView
-        contentContainerStyle={styles.content}
-        showsVerticalScrollIndicator={false}
-      >
+      <ScreenScroll gap={spacing.md}>
         <HabitHeader
           boardMappedPercent={clarityPercent}
           streakDays={streakDays}
         />
 
-        <View style={styles.hero}>
+        <View style={styles.section}>
           <HeroCopy
             title="Cognitive Heatmap"
             subtitle="Your mental map of the board. Clear the fog to master the game."
           />
         </View>
 
-        <View style={styles.mapSection}>
+        <View style={styles.section}>
           <InteractiveHeatmap
             fullWidthFrame={false}
             horizontalInset={spacing.marginMobile * 2 + spacing.md * 2}
+            interactive={false}
             showLabels={false}
           />
         </View>
 
-        <View style={styles.action}>
+        <View style={styles.section}>
           <DailyMatrixCard
             completedToday={isCompletedToday}
             loopBadge={loopBadge}
@@ -66,7 +65,7 @@ export function HomeDashboardScreen() {
           />
           <VoiceMatchCard onPress={handleMatch} />
         </View>
-      </ScrollView>
+      </ScreenScroll>
     </SafeAreaView>
   );
 }
@@ -76,20 +75,8 @@ const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: colors.background,
   },
-  content: {
-    paddingHorizontal: spacing.marginMobile,
-    paddingBottom: layout.tabBarClearance,
-    gap: spacing.md,
-  },
-  hero: {
-    marginTop: spacing.xs,
-  },
-  mapSection: {
-    alignSelf: 'stretch',
-    alignItems: 'center',
-    marginTop: spacing.xs,
-  },
-  action: {
+  section: {
+    marginTop: spacing.sectionGap,
     gap: spacing.md,
   },
 });

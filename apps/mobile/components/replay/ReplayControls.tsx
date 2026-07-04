@@ -22,7 +22,7 @@ export function ReplayControls({
   const moveLabel =
     positionIndex === 0
       ? 'Start position'
-      : `After move ${positionIndex} of ${positionCount - 1}`;
+      : `Step ${positionIndex} of ${positionCount - 1}`;
 
   return (
     <View style={styles.wrap}>
@@ -33,13 +33,13 @@ export function ReplayControls({
         <StepButton
           accessibilityLabel="Previous position"
           disabled={atStart}
-          icon={<ChevronLeftIcon color={colors.onTertiaryContainer} size={36} />}
+          icon={<ChevronLeftIcon color={colors.onSurface} size={28} />}
           onPress={onPrevious}
         />
         <StepButton
           accessibilityLabel="Next position"
           disabled={atEnd}
-          icon={<ChevronRightIcon color={colors.onTertiaryContainer} size={36} />}
+          icon={<ChevronRightIcon color={colors.onSurface} size={28} />}
           onPress={onNext}
         />
       </View>
@@ -60,8 +60,6 @@ function StepButton({
   icon,
   onPress,
 }: StepButtonProps) {
-  const [pressed, setPressed] = useState(false);
-
   return (
     <Pressable
       accessibilityLabel={accessibilityLabel}
@@ -69,15 +67,10 @@ function StepButton({
       accessibilityState={{ disabled }}
       disabled={disabled}
       onPress={onPress}
-      onPressIn={() => setPressed(true)}
-      onPressOut={() => setPressed(false)}
-      style={[
+      style={({ pressed }) => [
         styles.stepButton,
         disabled && styles.stepButtonDisabled,
-        {
-          transform: [{ translateY: pressed && !disabled ? touch.buttonOffset : 0 }],
-          marginBottom: pressed && !disabled ? 0 : touch.buttonOffset,
-        },
+        pressed && !disabled && styles.stepButtonPressed,
       ]}
     >
       {icon}
@@ -85,18 +78,16 @@ function StepButton({
   );
 }
 
-const STEP_BUTTON_SIZE = 80;
-
 const styles = StyleSheet.create({
   wrap: {
     alignItems: 'center',
     gap: spacing.sm,
-    paddingHorizontal: spacing.marginMobile,
   },
   label: {
     ...typography.labelBold,
     color: colors.outline,
     textAlign: 'center',
+    letterSpacing: 0,
   },
   buttons: {
     flexDirection: 'row',
@@ -105,16 +96,19 @@ const styles = StyleSheet.create({
     gap: spacing.xl,
   },
   stepButton: {
-    width: STEP_BUTTON_SIZE,
-    height: STEP_BUTTON_SIZE,
+    width: touch.inputHeight,
+    height: touch.inputHeight,
     alignItems: 'center',
     justifyContent: 'center',
     borderRadius: radius.lg,
     borderWidth: touch.strokeWidth,
-    borderColor: colors.tertiary,
-    backgroundColor: colors.tertiaryContainer,
+    borderColor: colors.cardStroke,
+    backgroundColor: colors.surfaceContainerLowest,
   },
   stepButtonDisabled: {
     opacity: 0.4,
+  },
+  stepButtonPressed: {
+    backgroundColor: colors.surfaceContainerLow,
   },
 });

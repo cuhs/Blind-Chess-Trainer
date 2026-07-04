@@ -1,5 +1,5 @@
 import { View, Text, Pressable, StyleSheet } from 'react-native';
-import { colors, spacing, touch, typography } from '@/theme';
+import { colors, layout, spacing, touch, typography } from '@/theme';
 import { MascotAvatar } from '@/components/ui/MascotAvatar';
 import { SettingsIcon } from '@/components/ui/icons/SettingsIcon';
 
@@ -24,7 +24,7 @@ export function AppHeader({
         <Pressable
           accessibilityLabel="Settings"
           accessibilityRole="button"
-          hitSlop={8}
+          hitSlop={spacing.sm}
           onPress={onSettingsPress}
           style={styles.settings}
         >
@@ -40,13 +40,13 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
+    paddingHorizontal: spacing.marginMobile,
     paddingVertical: spacing.sm,
-    minHeight: 64,
+    minHeight: layout.headerHeight,
   },
   bordered: {
     borderBottomWidth: touch.strokeWidth,
     borderBottomColor: colors.outlineVariant,
-    paddingHorizontal: spacing.marginMobile,
     backgroundColor: colors.background,
   },
   brand: {

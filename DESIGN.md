@@ -22,7 +22,9 @@
 
 **Playful Tactile Minimalism** — encouraging, energetic, game-first ed-tech aesthetic inspired by Duolingo (gamification, bold UI) and Ahead (soft transitions, minimalist prompts).
 
-- Heavy rounded corners, bold 2pt strokes, 3D-offset "squishy" buttons
+**Calmer evolution (2026):** primary CTAs keep 3D press; cards, tabs, and secondary actions use flat/recessed surfaces. One hero accent per screen (green = primary action; gold = peek/loop only).
+
+- Heavy rounded corners, bold 2pt strokes, 3D-offset **primary buttons only**
 - Flat vibrant surfaces — no complex gradients
 - Mascot-forward chess pieces with character/personality
 - User feels rewarded, not judged
@@ -58,6 +60,9 @@ Tokens: `apps/mobile/theme/tokens.ts`
 | `bodyLg` | Be Vietnam Pro | 18px | 500 | Input text, emphasized body |
 | `bodyMd` | Be Vietnam Pro | 16px | 400 | Explanatory copy, mascot tips |
 | `labelBold` | Be Vietnam Pro | 14px | 700 | Badges, labels, legend items |
+| `button` | Be Vietnam Pro | 16px | 500 | Primary/ghost button labels |
+| `statValue` | Plus Jakarta Sans | 24px | 800 | Stat card numbers |
+| `statLabel` | Be Vietnam Pro | 14px | 700 | Uppercase stat labels |
 
 Headlines: tight tracking. Body: generous line height for lesson digestibility.
 
@@ -77,6 +82,9 @@ Headlines: tight tracking. Body: generous line height for lesson digestibility.
 | `strokeWidth` | 2pt | Cards, inputs, containers |
 | `progressBarHeight` | 12px | Pill-shaped progress bars |
 | `layout.tabBarClearance` | 128px | Scroll padding-bottom on main-tab screens |
+| `layout.tabBarHeight` | 72px | Tab bar base height |
+| `layout.headerHeight` | 64px | App header min height |
+| `layout.tabIconSize` | 24px | Bottom tab icon size |
 
 Board: fluid square, full width minus side margins. Squares: 4px rounded corners.
 
@@ -84,12 +92,14 @@ Board: fluid square, full width minus side margins. Squares: 4px rounded corners
 
 ## Elevation & Motion (from Stitch)
 
-No soft drop shadows. Use **tonal offsets and 3D extrusions**:
+No soft drop shadows. Use **tonal surfaces**; 3D extrusion on **primary CTAs only**:
 
-- Buttons/cards: 4px bottom border in darker shade; on press translate 4px down
+- `PrimaryButton` (`primary` / `secondary`): 4px translate on press + bottom offset
+- `PrimaryButton` (`ghost` / `text`): flat, no extrusion
+- Cards: flat white + 2pt stroke (`variant: flat` default); `recessed` for settings/options; `elevated` rare
+- Tab bar: soft `surfaceContainer` fill on active tab (no green 3D pill)
 - Active chess pieces: 2px vertical offset above square
-- Cards: white + 2pt stroke, 16px radius, 4px bottom offset (no shadow)
-- Focused inputs: stroke → Action Blue (`#4abdff`), offset more pronounced
+- Focused inputs: stroke → Action Blue (`#4abdff`)
 
 ---
 
@@ -103,7 +113,7 @@ No soft drop shadows. Use **tonal offsets and 3D extrusions**:
 | Animated Match Engine | `2cbaa7be4acd4190a3f95dae66d1b0bc` | Phase 3 | `VoiceMatch` |
 | `CognitiveHeatmap` / `FogRevealScreen` | `61ce6c33f6fe4350b176eb6cd2ddace6` | Phase 4 / onboarding fog | `FogRevealScreen` (+ compact hero on `HomeDashboard`) |
 | MindBoard Home (Enhanced Loop) | `b1eff5fd32e743e2a7f8a4b78a340318` | Phase 1 exit | `HomeDashboard` |
-| Populated Game Analysis & Review | `48bde48ed59748cba0907d6a02705475` | Phase 4 | `ReplayScreen` (`ReplayMoveTimeline` + `ReplayControls`) |
+| Populated Game Analysis & Review | `48bde48ed59748cba0907d6a02705475` | Phase 4 | `ReplayScreen` (`ReplayStepTimeline` + `ReplayControls`) |
 | Product Strategy & Screen Plan | `48eea1d4614941f3b6c927d368d8b1f0` | Reference only | — |
 | Mascot logo | `b6e58aa5efdd4cd994cd1d6a03da943a` | Brand asset (legacy) | — |
 | MindBoard Standalone Icon | `4709d4e8656e42bebf74af7b36e3821a` | App / header icon | `MascotAvatar` |
@@ -195,12 +205,12 @@ Post-onboarding `/(main)/index`. Habit validation + fog heatmap + closed-loop CT
 | Zone (top → bottom) | Component | Data |
 |---------------------|-----------|------|
 | Header | `AppHeader` (bordered) | Mascot + MindBoard + settings |
-| Stats | `HabitHeader` | Bolt streak + Board Mapped % (primary) |
+| Stats | `HabitHeader` (`StatCard` row) | Bolt streak + Board Mapped % |
 | Hero | Title + subtitle | "Cognitive Heatmap" + body copy |
-| Hero board | `InteractiveHeatmap` (`showLabels={false}`) | Centered compact card with 8×8 fog grid; tap for tooltips |
-| Primary CTA | `DailyMatrixCard` | "Today's Matrix: N Positions" + peek loop badge (`N positions from your match peeks`); "Completed Today" when drill done |
+| Hero board | `InteractiveHeatmap` (`interactive={false}`, `showLabels={false}`) | Centered compact fog teaser |
+| Primary CTA | `DailyMatrixCard` | "Today's Matrix: N Positions" + peek loop badge; "Completed Today" when drill done |
 | Secondary CTA | `VoiceMatchCard` | "Start Blindfold Match" row + chevron |
-| Navigation | Expo tabs | Home · Training · Match · Analysis (active tab green 3D pill); Settings via header gear |
+| Navigation | Expo tabs | Home · Training · Match · Analysis (soft active pill); Settings via header gear |
 
 ---
 
@@ -289,13 +299,17 @@ Shared icons live in `components/ui/icons/`. Reuse — do not inline emoji as te
 
 | Component | Stitch spec | Blueprint constraint |
 |-----------|-------------|---------------------|
-| `PrimaryButton` | 3D-offset, Plus Jakarta Bold, 16px radius | — |
+| `PrimaryButton` | 3D-offset on `primary`/`secondary`; `ghost`/`text` flat | — |
+| `StatCard` | Label + value in flat `Card` | `HabitHeader`, `HeatmapStats`, TrainingHub |
+| `ScreenScroll` | Standard scroll padding + tab clearance | Main-tab screens |
+| `ScreenState` | Centered loading/error/empty | Drill, Replay errors |
+| `PeekChip` | Gold peek/loop chip (`action` / `info` / `loop`) | `PeekButton`, `MatchPeekBadge`, `DailyMatrixCard` |
 | `ScrollAnswerCue` | Tappable card row (white, 2pt stroke) + green chevron badge; press scrolls controls into view | Rendered by `PuzzleSessionLayout` only when answer controls overflow the viewport |
 | `SquareKeypad` | Selection display + A–H / 1–8 key rows (56px) + Submit | `square` puzzles; replaces native keyboard |
 | `YesNoZone` | Split tap halves (No/red ← \| → Yes/green) + swipe; directional haptic | `yes-no` puzzles; replaces native keyboard |
 | `AnswerFlashOverlay` | Non-interactive green/red color wash | Answer feedback (`useAnswerFlash`) |
 | `ProgressBar` | 12px pill, green fill, white shine | — |
-| `Card` | White, 2pt `#e5e5e5` stroke, 16px radius, 4px offset | — |
+| `Card` | Flat white + 2pt stroke, 16px radius (`flat` default; `recessed`, `elevated` variants) | — |
 | `HeroCopy` | Title + optional subtitle; `display` (centered) / `section` (left) | Home, TrainingHub, FogReveal headers |
 | `PlaceholderScreen` | Centered mascot/icon + badge + copy | Analysis + Settings stubs |
 | `ChessBoard` | Labels, 4px square radius, SVG mascot pieces | Visible: hook, replay, post-game only |
@@ -321,23 +335,22 @@ Shared icons live in `components/ui/icons/`. Reuse — do not inline emoji as te
 | `AppHeader` | Mascot avatar + MindBoard title + settings | Onboarding + home |
 | `BoardFrame` | 3D card wrapper for boards/heatmap | Chess + heatmap |
 | `MascotAvatar` | Standalone Icon (`4709d4e8`) in green circle frame | `AppHeader` |
-| `HabitHeader` | Bolt streak + Board Mapped % | HomeDashboard |
-| `InteractiveHeatmap` | Hero 8×8 + `FogOverlay` + tap tooltips | Home + FogReveal |
-| `SquareTooltip` | Micro-tooltip on square tap | HomeDashboard |
+| `HabitHeader` | `StatCard` row: streak (bolt) + Board Mapped % | HomeDashboard |
+| `InteractiveHeatmap` | Hero 8×8 + `FogOverlay`; `interactive={false}` on home teaser | Home + FogReveal |
+| `SquareTooltip` | Micro-tooltip on square tap | Full heatmap when interactive |
 | `DailyMatrixCard` | Primary CTA + closed-loop badge; `completedToday` disables button | HomeDashboard + TrainingHub |
 | `MatchPeekBadge` | Yellow peek chip: "From your match" | `DailyDrillScreen` when `source: 'peek'` |
 | `VoiceMatchCard` | Blindfold match row + slashed-eye icon | HomeDashboard |
-| `BottomTabBar` | 4-tab nav: Home/Training/Match/Analysis; active green pill + 4px extrusion | `(main)/_layout` |
+| `BottomTabBar` | 4-tab nav; active soft `surfaceContainer` pill + green label | `(main)/_layout` |
 | Tab icons | `HomeTabIcon`, `TrainingTabIcon`, `MatchTabIcon` (blindfold), `AnalysisTabIcon` | Bottom tab bar |
-| `BoltIcon` | Orange filled bolt for streak | `HabitHeader` |
-| `HeatmapStats` | CLARITY %, MASTERY count | FogReveal + heatmap |
+| `BoltIcon` | Streak bolt (`colors.streak`) | `HabitHeader` |
+| `HeatmapStats` | Clarity + Mastery `StatCard` row | FogReveal + onboarding |
 | `HeatmapLegend` | Three-state legend chips | FogReveal + heatmap |
 | `MatchSummaryCard` | Saved match row — date, result, move/peek counts | MatchHistoryScreen |
-| `ReplayControls` | Thumb-friendly previous/next stepper below board | ReplayScreen |
+| `ReplayControls` | Outline previous/next steppers (56px) below board | ReplayScreen |
 | `ReplayHeatmapBoard` | Chess board + fog overlay; gold weakness squares on flagged steps | ReplayScreen |
 | `ReplayStepTimeline` | Horizontal chips for start, moves, peek, illegal | ReplayScreen |
-| `ReplayMoveTimeline` | Horizontal move chips; red dot on peek/illegal turns | Legacy move-only timeline |
-| `ReplayTurnNotice` | Mental-map-break banner + "Show clear board" | ReplayScreen |
+| `ReplayTurnNotice` | Left-border mental-map-break callout + "Show clear board" | ReplayScreen |
 | `ReplayBackLink` | Chevron back to match list | ReplayScreen |
 
 File paths: `apps/mobile/components/{ui,chess,match,heatmap,replay,home,onboarding,training}/`
@@ -352,7 +365,7 @@ Icon assets: `components/ui/icons/`. Piece SVGs: `components/chess/pieces/`.
 
 | Layer | Role | Example |
 |-------|------|---------|
-| `components/ui/` | Generic, cross-screen primitives | `PrimaryButton`, `Card`, `PromptText`, `HeroCopy`, `ProgressChrome`, `AnswerFlashOverlay` |
+| `components/ui/` | Generic, cross-screen primitives | `PrimaryButton`, `Card`, `StatCard`, `ScreenScroll`, `ScreenState`, `PeekChip`, `HeroCopy`, `ProgressChrome` |
 | `components/{chess,match,heatmap,replay,home,onboarding,training}/` | Domain-specific, reusable | `ChessBoard`, `FogOverlay`, `DailyMatrixCard`, `PuzzleSessionLayout`, `SquareKeypad`, `YesNoZone` |
 | `screens/` | Route-level composition only | Import components; minimal layout logic |
 | `hooks/` | Shared stateful logic | `useFogOpacity`, `useOnboardingStep` |

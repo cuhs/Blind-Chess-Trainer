@@ -87,7 +87,7 @@ export function ReplayScreen() {
             label="Back to list"
             onPress={() => router.back()}
             uppercase={false}
-            variant="secondary"
+            variant="ghost"
           />
         </View>
       </SafeAreaView>
@@ -172,32 +172,31 @@ const styles = StyleSheet.create({
   },
   scrollContent: {
     flexGrow: 1,
+    paddingHorizontal: spacing.marginMobile,
     paddingTop: spacing.sm,
     paddingBottom: layout.tabBarClearance,
-    gap: spacing.sm,
+    gap: spacing.lg,
   },
   subheading: {
     ...typography.bodyMd,
-    color: colors.outline,
+    color: colors.onSurfaceVariant,
     textAlign: 'center',
-    paddingHorizontal: spacing.marginMobile,
   },
   boardWrap: {
     alignItems: 'center',
   },
   clearHint: {
     ...typography.bodyMd,
-    color: colors.outline,
+    color: colors.onSurfaceVariant,
     textAlign: 'center',
-    paddingHorizontal: spacing.marginMobile,
   },
   timelineSection: {
-    gap: spacing.sm,
+    gap: spacing.md,
   },
   timelineHeading: {
     ...typography.labelBold,
     color: colors.outline,
-    paddingHorizontal: spacing.marginMobile,
+    letterSpacing: 0,
   },
   centered: {
     flex: 1,

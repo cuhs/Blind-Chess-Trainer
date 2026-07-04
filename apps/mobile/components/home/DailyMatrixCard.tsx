@@ -1,6 +1,7 @@
-import { Text, StyleSheet, View } from 'react-native';
-import { colors, radius, spacing, typography } from '@/theme';
+import { Text, StyleSheet } from 'react-native';
+import { colors, spacing, typography } from '@/theme';
 import { Card } from '@/components/ui/Card';
+import { PeekChip } from '@/components/ui/PeekChip';
 import { PrimaryButton } from '@/components/ui/PrimaryButton';
 
 interface DailyMatrixCardProps {
@@ -19,13 +20,9 @@ export function DailyMatrixCard({
   const buttonLabel = completedToday ? 'Completed Today' : 'Start Training';
 
   return (
-    <Card style={styles.card}>
+    <Card>
       <Text style={styles.title}>Today&apos;s Matrix: {puzzleCount} Positions</Text>
-      {loopBadge ? (
-        <View style={styles.badge}>
-          <Text style={styles.badgeText}>{loopBadge}</Text>
-        </View>
-      ) : null}
+      {loopBadge ? <PeekChip label={loopBadge} variant="loop" /> : null}
       <PrimaryButton
         accessibilityLabel={buttonLabel}
         disabled={completedToday}
@@ -38,22 +35,9 @@ export function DailyMatrixCard({
 }
 
 const styles = StyleSheet.create({
-  card: {
-    marginBottom: spacing.md,
-  },
   title: {
     ...typography.headlineMd,
     color: colors.onSurface,
     marginBottom: spacing.sm,
-  },
-  badge: {
-    backgroundColor: colors.secondaryContainer,
-    borderRadius: radius.md,
-    padding: spacing.sm,
-    marginBottom: spacing.md,
-  },
-  badgeText: {
-    ...typography.bodyMd,
-    color: colors.contrastInk,
   },
 });

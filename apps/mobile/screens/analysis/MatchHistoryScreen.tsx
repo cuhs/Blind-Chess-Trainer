@@ -1,11 +1,12 @@
-import { ScrollView, StyleSheet, Text, View } from 'react-native';
+import { StyleSheet, Text, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useRouter } from 'expo-router';
+import { colors, spacing, typography } from '@/theme';
 import { AppHeader } from '@/components/ui/AppHeader';
 import { HeroCopy } from '@/components/ui/HeroCopy';
+import { ScreenScroll } from '@/components/ui/ScreenScroll';
 import { MatchSummaryCard } from '@/components/replay/MatchSummaryCard';
 import { useMatchHistory } from '@/hooks/useMatchHistory';
-import { colors, layout, spacing, typography } from '@/theme';
 
 export function MatchHistoryScreen() {
   const router = useRouter();
@@ -17,24 +18,23 @@ export function MatchHistoryScreen() {
         bordered
         onSettingsPress={() => router.push('/(main)/settings' as never)}
       />
-      <ScrollView
-        contentContainerStyle={styles.content}
-        showsVerticalScrollIndicator={false}
-      >
+      <ScreenScroll gap={spacing.lg}>
         <HeroCopy
           subtitle="Review saved blindfold matches offline. Replays survive app restarts."
           title="Game Analysis"
+          variant="section"
         />
 
         {!hasHydrated ? (
-          <Text style={styles.empty}>Loading saved games…</Text>
+          <Text style={styles.status}>Loading saved games…</Text>
         ) : matches.length === 0 ? (
           <View style={styles.emptyWrap}>
-            <Text accessibilityRole="header" style={styles.empty}>
+            <Text accessibilityRole="header" style={styles.emptyTitle}>
               No saved matches yet
             </Text>
             <Text style={styles.emptyHint}>
-              Finish a voice match and your moves, peeks, and voice errors will appear here.
+              Finish a voice match and your moves, peeks, and voice errors will
+              appear here.
             </Text>
           </View>
         ) : (
@@ -50,7 +50,7 @@ export function MatchHistoryScreen() {
             ))}
           </View>
         )}
-      </ScrollView>
+      </ScreenScroll>
     </SafeAreaView>
   );
 }
@@ -60,26 +60,26 @@ const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: colors.background,
   },
-  content: {
-    paddingHorizontal: spacing.marginMobile,
-    paddingTop: spacing.md,
-    paddingBottom: layout.tabBarClearance,
-    gap: spacing.lg,
-  },
   list: {
     gap: spacing.md,
   },
+  status: {
+    ...typography.bodyMd,
+    color: colors.onSurfaceVariant,
+    textAlign: 'center',
+  },
   emptyWrap: {
     gap: spacing.sm,
+    paddingVertical: spacing.lg,
   },
-  empty: {
+  emptyTitle: {
     ...typography.headlineMd,
     color: colors.onSurface,
     textAlign: 'center',
   },
   emptyHint: {
     ...typography.bodyMd,
-    color: colors.outline,
+    color: colors.onSurfaceVariant,
     textAlign: 'center',
   },
 });

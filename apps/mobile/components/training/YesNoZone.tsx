@@ -134,7 +134,7 @@ const styles = StyleSheet.create({
     backgroundColor: colors.error,
   },
   yesHalf: {
-    backgroundColor: colors.outlineVariant,
+    backgroundColor: colors.surfaceContainerLow,
     borderColor: colors.primary,
   },
   yesActive: {

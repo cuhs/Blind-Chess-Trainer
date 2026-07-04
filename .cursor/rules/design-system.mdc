@@ -16,8 +16,11 @@ import { colors, spacing, typography, touch, radius } from '@/theme';
 
 - Light mode, mobile-first, 20px side margins
 - Fonts: Plus Jakarta Sans (headlines), Be Vietnam Pro (body)
-- 3D-offset buttons (4px press), 2pt strokes, 16px card radius
+- **3D-offset primary buttons only** (4px press); cards/tabs flat or recessed
+- Card variants: `flat` (default), `recessed`, `elevated` (rare)
+- `PrimaryButton` variants: `primary`, `secondary`, `ghost`, `text`
 - Inputs: 56px height; focus stroke → `colors.tertiaryContainer`
+- Accent budget: green = primary CTA; gold = peek/loop; neutrals for stats
 
 ## Blueprint Overrides (interaction)
 

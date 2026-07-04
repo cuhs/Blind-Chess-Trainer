@@ -110,7 +110,6 @@ const styles = StyleSheet.create({
     marginBottom: spacing.md,
   },
   listContent: {
-    paddingHorizontal: spacing.marginMobile,
     gap: spacing.sm,
   },
   chip: {
@@ -127,11 +126,11 @@ const styles = StyleSheet.create({
     gap: spacing.xs,
   },
   chipSelected: {
-    borderColor: colors.tertiary,
-    backgroundColor: colors.tertiaryContainer,
+    borderColor: colors.primary,
+    backgroundColor: colors.surfaceContainerLowest,
   },
   chipTextSelected: {
-    color: colors.onTertiaryContainer,
+    color: colors.primary,
   },
   flagDot: {
     position: 'absolute',
