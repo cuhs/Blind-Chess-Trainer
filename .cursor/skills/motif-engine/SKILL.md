@@ -87,10 +87,15 @@ FEN → analyzePosition() → Motif | null → buildPuzzleFromMotif() → questi
 
 LLM never analyzes position. `null` → skip or use static prompt from generator/`puzzle_bank` regression fixture.
 
-## Seed validation
+## Validation
 
-Fixtures: `src/motifs/fixtures/puzzle-bank-fixtures.json`.
-Run: `cd packages/chess-core && npm run validate:puzzles`.
+| Script | Scope |
+|--------|-------|
+| `validate:generators` | Runtime categories + motif synthesis (200 seeds/daily rotation, 100/all categories) |
+| `validate:puzzles` | 54 golden `puzzle-bank-fixtures.json` rows |
+| `validate:curriculum` | 18 curriculum nodes (generators + legacy bank_slug if any) |
+
+Fixtures: `src/motifs/fixtures/puzzle-bank-fixtures.json` (regression only — training is generator-first).
 
 ## Checklist
 

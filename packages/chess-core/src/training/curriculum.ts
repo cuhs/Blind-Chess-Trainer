@@ -37,10 +37,6 @@ function generators(
   return seeds.map((seed) => ({ type: 'generator', generatorId, seed }));
 }
 
-function bankSlugs(slugs: [string, string, string]): NodePuzzleSource[] {
-  return slugs.map((slug) => ({ type: 'bank_slug', slug }));
-}
-
 const UNITS: TrainingUnit[] = [
   {
     id: 'unit-1',
