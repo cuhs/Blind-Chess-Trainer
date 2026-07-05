@@ -6,19 +6,29 @@ export type NarrationPhase = 'pending' | 'narrating' | 'prompting' | 'success';
 
 export { buildMoveNarrationScript } from './storyNarrationScript';
 
+interface StoryNarrationOptions {
+  fen?: string;
+  stripCheck?: boolean;
+}
+
 export function useStoryNarration(
   moves: string[],
   enabled = true,
   resetKey = 'default',
+  narrationOptions: StoryNarrationOptions = {},
+  narrationScript?: string,
 ) {
-  const active = enabled && moves.length > 0;
+  const active = enabled && (moves.length > 0 || Boolean(narrationScript?.trim()));
   const [phase, setPhase] = useState<NarrationPhase>(
     active ? 'narrating' : 'pending',
   );
   const generationRef = useRef(0);
   const cancelSpeakRef = useRef<(() => void) | null>(null);
 
-  const spoken = active ? buildMoveNarrationScript(moves) : '';
+  const spoken = active
+    ? narrationScript?.trim() ||
+      buildMoveNarrationScript(moves, narrationOptions)
+    : '';
 
   useEffect(() => {
     cancelSpeakRef.current?.();

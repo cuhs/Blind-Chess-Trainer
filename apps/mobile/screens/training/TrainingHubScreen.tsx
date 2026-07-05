@@ -8,9 +8,11 @@ import { HeroCopy } from '@/components/ui/HeroCopy';
 import { ScreenScroll } from '@/components/ui/ScreenScroll';
 import { StatCard } from '@/components/ui/StatCard';
 import { DailyMatrixCard } from '@/components/home/DailyMatrixCard';
+import { TrainingPathMap } from '@/components/training/TrainingPathMap';
 import { PrimaryButton } from '@/components/ui/PrimaryButton';
 import { useDailyMatrix } from '@/hooks/useDailyMatrix';
 import { useDailySession } from '@/hooks/useDailySession';
+import { useTrainingPath } from '@/hooks/useTrainingPath';
 import { useGuestStore } from '@/stores/guestStore';
 import { completedIdsForToday } from '@/lib/drillProgress';
 import { todayKey } from '@/lib/dateKey';
@@ -18,6 +20,7 @@ import { todayKey } from '@/lib/dateKey';
 export function TrainingHubScreen() {
   const { puzzleCount, loopBadge, isCompletedToday } = useDailyMatrix();
   const { puzzles } = useDailySession();
+  const { activeNode } = useTrainingPath();
   const drillProgress = useGuestStore((s) => s.drillProgress);
   const today = todayKey();
   const completedIds = completedIdsForToday(drillProgress, today);
@@ -31,6 +34,11 @@ export function TrainingHubScreen() {
     router.push('/(main)/training/drill' as never);
   };
 
+  const handleStartActiveNode = () => {
+    if (!activeNode) return;
+    router.push(`/(main)/training/node/${activeNode.id}` as never);
+  };
+
   return (
     <SafeAreaView style={styles.safe} edges={['top']}>
       <AppHeader
@@ -39,8 +47,25 @@ export function TrainingHubScreen() {
       />
       <ScreenScroll>
         <HeroCopy
-          title="Story of the Position"
-          subtitle="Active recall drills to sharpen your mental map."
+          title="Training Path"
+          subtitle="Build blindfold skill step by step, then review with the daily matrix."
+          variant="section"
+        />
+
+        {activeNode ? (
+          <PrimaryButton
+            accessibilityLabel={`Continue training: ${activeNode.title}`}
+            label={`Continue: ${activeNode.title}`}
+            onPress={handleStartActiveNode}
+            uppercase={false}
+          />
+        ) : null}
+
+        <TrainingPathMap />
+
+        <HeroCopy
+          title="Daily Matrix"
+          subtitle="Three puzzles a day — bank plus peek-generated review."
           variant="section"
         />
 

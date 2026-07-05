@@ -2,12 +2,16 @@ import { create } from 'zustand';
 import { persist, createJSONStorage } from 'zustand/middleware';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { appendMatchRecord, positionKeyFromFen } from '@mindboard/chess-core';
-import type {
-  MatchRecord,
-  OnboardingAnswer,
-  OnboardingStep,
-  PeekEvent,
-  Square,
+import {
+  EMPTY_TRAINING_PROGRESS,
+  type MatchRecord,
+  type NodeSessionProgress,
+  type NodeStarRating,
+  type OnboardingAnswer,
+  type OnboardingStep,
+  type PeekEvent,
+  type Square,
+  type TrainingProgress,
 } from '@mindboard/shared';
 import type { DrillProgress } from '@/lib/drillProgress';
 import {
@@ -16,6 +20,11 @@ import {
 } from '@/lib/drillCompletion';
 import { todayKey } from '@/lib/dateKey';
 import { nextStreakDays } from '@/lib/streak';
+import {
+  applyNodeCompletion,
+  setActiveNode,
+} from '@/lib/trainingProgress';
+import { onboardingTrainingProgress } from '@/lib/onboardingCurriculumBridge';
 
 export type HeatmapInteractionType = 'puzzle' | 'match_peek';
 
@@ -43,6 +52,8 @@ interface GuestState {
   lastActiveDate: string | null;
   lastDrillCompletedDate: string | null;
   drillProgress: DrillProgress | null;
+  trainingProgress: TrainingProgress;
+  nodeSessionProgress: NodeSessionProgress | null;
   peekEvents: PeekEvent[];
   matchHistory: MatchRecord[];
   matchElo: number;
@@ -75,6 +86,11 @@ interface GuestState {
   completeDailyDrill: (date?: string) => void;
   recordDrillPuzzleComplete: (puzzleId: string) => void;
   clearDrillProgress: () => void;
+  setTrainingProgress: (progress: TrainingProgress) => void;
+  setActiveTrainingNode: (nodeId: string | null) => void;
+  recordNodePuzzleComplete: (nodeId: string, puzzleId: string) => void;
+  clearNodeSessionProgress: () => void;
+  completeTrainingNode: (nodeId: string, stars: NodeStarRating) => void;
   setMatchElo: (elo: number) => void;
   setMatchPlayerColor: (color: 'w' | 'b') => void;
   setVoiceListenMode: (mode: VoiceListenMode) => void;
@@ -95,6 +111,8 @@ export const useGuestStore = create<GuestState>()(
       lastActiveDate: null,
       lastDrillCompletedDate: null,
       drillProgress: null,
+      trainingProgress: { ...EMPTY_TRAINING_PROGRESS },
+      nodeSessionProgress: null,
       peekEvents: [],
       matchHistory: [],
       matchElo: 800,
@@ -103,7 +121,21 @@ export const useGuestStore = create<GuestState>()(
       _hasHydrated: false,
 
       setOnboardingComplete: (complete) =>
-        set({ onboardingComplete: complete, currentOnboardingStep: 'complete' }),
+        set((state) => {
+          if (!complete) {
+            return {
+              onboardingComplete: false,
+              currentOnboardingStep: 'complete' as const,
+            };
+          }
+          return {
+            onboardingComplete: true,
+            currentOnboardingStep: 'complete' as const,
+            trainingProgress: state.trainingProgress.completedNodeIds.length
+              ? state.trainingProgress
+              : onboardingTrainingProgress(),
+          };
+        }),
 
       setCurrentStep: (step) => set({ currentOnboardingStep: step }),
 
@@ -246,6 +278,42 @@ export const useGuestStore = create<GuestState>()(
 
       clearDrillProgress: () => set({ drillProgress: null }),
 
+      setTrainingProgress: (progress) => set({ trainingProgress: progress }),
+
+      setActiveTrainingNode: (nodeId) =>
+        set((state) => ({
+          trainingProgress: setActiveNode(state.trainingProgress, nodeId),
+        })),
+
+      recordNodePuzzleComplete: (nodeId, puzzleId) =>
+        set((state) => {
+          const existing =
+            state.nodeSessionProgress?.nodeId === nodeId
+              ? state.nodeSessionProgress.completedPuzzleIds
+              : [];
+          if (existing.includes(puzzleId)) return state;
+
+          return {
+            nodeSessionProgress: {
+              nodeId,
+              completedPuzzleIds: [...existing, puzzleId],
+            },
+            trainingProgress: setActiveNode(state.trainingProgress, nodeId),
+          };
+        }),
+
+      clearNodeSessionProgress: () => set({ nodeSessionProgress: null }),
+
+      completeTrainingNode: (nodeId, stars) =>
+        set((state) => ({
+          trainingProgress: applyNodeCompletion(
+            state.trainingProgress,
+            nodeId,
+            stars,
+          ),
+          nodeSessionProgress: null,
+        })),
+
       setMatchElo: (elo) => set({ matchElo: elo }),
 
       setMatchPlayerColor: (color) => set({ matchPlayerColor: color }),
@@ -272,6 +340,8 @@ export const useGuestStore = create<GuestState>()(
         lastActiveDate: state.lastActiveDate,
         lastDrillCompletedDate: state.lastDrillCompletedDate,
         drillProgress: state.drillProgress,
+        trainingProgress: state.trainingProgress,
+        nodeSessionProgress: state.nodeSessionProgress,
         peekEvents: state.peekEvents,
         matchHistory: state.matchHistory,
         matchElo: state.matchElo,

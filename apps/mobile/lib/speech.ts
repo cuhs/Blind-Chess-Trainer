@@ -52,7 +52,6 @@ export function speakNarration(
       rate: 0.92,
       pitch: 1.0,
       onDone: finish,
-      onStopped: finish,
       onError: (error) => {
         if (__DEV__) {
           console.warn('[speech] narration failed', error);

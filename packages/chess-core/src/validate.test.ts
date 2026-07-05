@@ -8,11 +8,12 @@ describe('validateAnswer', () => {
     expect(validateAnswer('square', 'd4', 'e4')).toBe(false);
   });
 
-  it('validates yes/no with move application', () => {
+  it('validates yes/no against expected even when moves are present', () => {
     const fen = 'rnbqkbnr/pppp1ppp/4p3/8/4P3/8/PPPP1PPP/RNBQKBNR w KQkq - 0 2';
     const moves = ['Nf3', 'd5'];
     expect(validateAnswer('yes-no', 'no', 'no', fen, moves)).toBe(true);
     expect(validateAnswer('yes-no', 'yes', 'no', fen, moves)).toBe(false);
+    expect(validateAnswer('yes-no', 'yes', 'yes', fen, moves)).toBe(true);
   });
 
   it('validates yes/no against the expected answer when no moves are given', () => {

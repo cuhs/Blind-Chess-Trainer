@@ -12,6 +12,7 @@ interface UseDrillSessionControllerInput {
   isCompletedToday: boolean;
 }
 
+/** @deprecated Use useTrainingSessionController with kind: 'daily' */
 export function useDrillSessionController({
   puzzles,
   puzzleCount,

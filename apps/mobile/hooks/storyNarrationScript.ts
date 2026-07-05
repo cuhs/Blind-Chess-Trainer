@@ -6,12 +6,29 @@ const PIECE_PREFIX: Record<string, string> = {
   K: 'King',
 };
 
-function formatMoveForSpeech(san: string): string {
-  const piece = san[0];
+export interface NarrationOptions {
+  /** FEN before moves[0] — sets who speaks first. Defaults to White. */
+  fen?: string;
+  /** Hide check/checkmate from speech so the answer is not spoiled. */
+  stripCheck?: boolean;
+}
+
+function turnFromFen(fen: string): 'w' | 'b' {
+  const turn = fen.trim().split(/\s+/)[1];
+  return turn === 'b' ? 'b' : 'w';
+}
+
+function formatMoveForSpeech(san: string, options: NarrationOptions): string {
+  const normalized = options.stripCheck ? san.replace(/[+#]/g, '') : san;
+  const piece = normalized[0];
   const spoken =
     piece && PIECE_PREFIX[piece]
-      ? `${PIECE_PREFIX[piece]} ${san.slice(1)}`
-      : san;
+      ? `${PIECE_PREFIX[piece]} ${normalized.slice(1)}`
+      : normalized;
+
+  if (options.stripCheck) {
+    return spoken.replace(/x/g, ' takes ').replace(/\s+/g, ' ').trim();
+  }
 
   return spoken
     .replace(/x/g, ' takes ')
@@ -21,11 +38,17 @@ function formatMoveForSpeech(san: string): string {
     .trim();
 }
 
-export function buildMoveNarrationScript(moves: string[]): string {
+export function buildMoveNarrationScript(
+  moves: string[],
+  options: NarrationOptions = {},
+): string {
+  let turn: 'w' | 'b' = options.fen ? turnFromFen(options.fen) : 'w';
+
   return moves
-    .map((move, i) => {
-      const color = i % 2 === 0 ? 'White plays' : 'Black plays';
-      return `${color} ${formatMoveForSpeech(move)}`;
+    .map((move) => {
+      const color = turn === 'w' ? 'White plays' : 'Black plays';
+      turn = turn === 'w' ? 'b' : 'w';
+      return `${color} ${formatMoveForSpeech(move, options)}`;
     })
     .join('. ');
 }

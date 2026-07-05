@@ -7,3 +7,4 @@ export * from './match-replay';
 export * from './types/motifs';
 export * from './motifs';
 export * from './voice/index';
+export * from './training';

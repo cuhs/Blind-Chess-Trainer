@@ -14,7 +14,11 @@ export function useMemorizePhase(
   const [peekVisible, setPeekVisible] = useState(false);
 
   useEffect(() => {
-    if (!enabled) return;
+    if (!enabled) {
+      setPhase('answering');
+      setPeekVisible(false);
+      return;
+    }
 
     setPhase('memorize');
     setPeekVisible(false);

@@ -11,6 +11,7 @@ export interface TrainingPuzzleInput {
   answerType: AnswerType;
   expected: string;
   squaresTouched: Square[];
+  showBoard?: boolean;
 }
 
 export interface ResolvedTrainingPuzzle extends TrainingPuzzleInput {

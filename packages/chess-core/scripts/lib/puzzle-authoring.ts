@@ -21,6 +21,46 @@ export interface SeedRow extends FixtureRow {
   answerSquare: string;
   answerType: 'square' | 'yes-no';
   squaresTouched: string[];
+  puzzleKind?: string | null;
+  trainingNodeId?: string | null;
+}
+
+const TRAINING_NODE_BY_SLUG: Record<string, string> = {
+  'drill-pin-knight': 'node-4-1',
+  'drill-pin-bishop': 'node-4-1',
+  'drill-pin-rook-pawn': 'node-4-1',
+  'drill-fork-knight': 'node-4-2',
+  'drill-fork-royal-knight': 'node-4-2',
+  'drill-fork-knight-dual': 'node-4-2',
+  'drill-hanging-queen-a4': 'node-4-3',
+  'drill-hanging-queen-a7': 'node-4-3',
+  'drill-hanging-knight-f6': 'node-4-3',
+  'drill-story-check': 'node-5-1',
+  'drill-story-check-yes': 'node-5-1',
+  'drill-story-check-white-no': 'node-5-1',
+};
+
+function puzzleKindFromMotif(motif: string): string | null {
+  if (motif === 'story_check') return 'story_check';
+  if (
+    motif === 'pin' ||
+    motif === 'fork' ||
+    motif === 'skewer' ||
+    motif === 'hanging_piece' ||
+    motif === 'discovered_attack'
+  ) {
+    return 'functional_geometry';
+  }
+  return null;
+}
+
+function enrichTrainingTags(row: SeedRow): SeedRow {
+  const motif = row.motifJson.motif ?? '';
+  return {
+    ...row,
+    puzzleKind: row.puzzleKind ?? puzzleKindFromMotif(motif),
+    trainingNodeId: row.trainingNodeId ?? TRAINING_NODE_BY_SLUG[row.slug] ?? null,
+  };
 }
 
 export interface ProbeCandidate {
@@ -195,6 +235,8 @@ export function fixtureToSqlRow(row: SeedRow): string {
   const placeholder =
     row.answerType === 'yes-no' ? "'e.g. Yes'" : "'e.g. a8'";
   const prompt = row.nlpPrompt.replace(/'/g, "''");
+  const puzzleKind = row.puzzleKind ? `'${row.puzzleKind}'` : 'null';
+  const trainingNodeId = row.trainingNodeId ? `'${row.trainingNodeId}'` : 'null';
 
   return `  (
     '${row.slug}',
@@ -209,7 +251,9 @@ export function fixtureToSqlRow(row: SeedRow): string {
     '${moves}'::jsonb,
     '${squares}'::jsonb,
     'daily',
-    true
+    true,
+    ${puzzleKind},
+    ${trainingNodeId}
   )`;
 }
 
@@ -237,6 +281,7 @@ export const SEED_SQL_FOOTER = `-- Authoring audio (story) puzzles — rows with
 `;
 
 export function buildSeedSql(rows: SeedRow[]): string {
+  const taggedRows = rows.map(enrichTrainingTags);
   return `insert into public.puzzle_bank (
   slug,
   fen,
@@ -250,10 +295,12 @@ export function buildSeedSql(rows: SeedRow[]): string {
   moves,
   squares_touched,
   source,
-  is_active
+  is_active,
+  puzzle_kind,
+  training_node_id
 )
 values
-${rows.map(fixtureToSqlRow).join(',\n')}
+${taggedRows.map(fixtureToSqlRow).join(',\n')}
 on conflict (slug) do update
 set
   fen = excluded.fen,
@@ -268,6 +315,8 @@ set
   squares_touched = excluded.squares_touched,
   source = excluded.source,
   is_active = excluded.is_active,
+  puzzle_kind = excluded.puzzle_kind,
+  training_node_id = excluded.training_node_id,
   updated_at = now();
 
 ${SEED_SQL_FOOTER}`;

@@ -1,113 +1,92 @@
 ---
 name: training-flow
 description: >-
-  Phase 2 training suite — TrainingHub, DailyDrill, puzzle_bank loading,
-  memorize/narration phases, and motif-backed prompt resolution. Use when
-  building or extending Story of the Position drills.
+  Phase 2 training suite — TrainingHub path, TrainingNode levels, DailyDrill,
+  puzzle_bank loading, curriculum generators, memorize/narration phases, and
+  motif-backed prompt resolution. Use when building or extending training drills.
 disable-model-invocation: false
 ---
 
 # Training Flow
 
-Phase 2 pedagogy: tactile input only (no voice). Story of the Position drills backed by `puzzle_bank` + motif engine.
+Phase 2 pedagogy: tactile input only (no voice). Two modes:
+
+1. **Training path** — linear 6-unit curriculum (`packages/chess-core/src/training/curriculum.ts`), 3 puzzles per node, progress in `guestStore.trainingProgress`
+2. **Daily matrix** — 3 puzzles/day from `puzzle_bank` + peek events (`useDailySession`)
 
 ## Routes
 
 | Route | Screen | Role |
 |-------|--------|------|
-| `/(main)/training` | `TrainingHubScreen` | Hero + `DailyMatrixCard` CTA |
-| `/(main)/training/drill` | `DailyDrillScreen` | Multi-puzzle session |
+| `/(main)/training` | `TrainingHubScreen` | Path map + daily matrix CTA |
+| `/(main)/training/node/[nodeId]` | `TrainingNodeScreen` | Single curriculum node session |
+| `/(main)/training/drill` | `DailyDrillScreen` | Daily 3-puzzle session |
 
-**No separate `StoryPuzzle` route.** Both Stitch training frames map to `DailyDrill`:
-
-| Stitch frame | ID | RN screen |
-|--------------|-----|-----------|
-| Active Recall Training Phase | `16b75139d1d14931a1d17f54ce051a0e` | `DailyDrill` (session layout) |
-| Interactive Active Recall Training | `f42d4f83e10a44df8c569ed060ad83a4` | `DailyDrill` (progress chrome) |
-
-Blueprint-only onboarding puzzles (`StoryCheck`, `RewardPuzzle`) infer visuals from `HookBoard` + `DailyDrill` patterns.
+**No separate `StoryPuzzle` route.** Stitch training frames map to `DailyDrill` / `TrainingNodeScreen` via `ActivePuzzleSession`.
 
 ## Data flow
 
+### Daily matrix (unchanged)
+
 ```
 puzzle_bank (Supabase) + match peekEvents (guestStore; one per position)
-  → peekPuzzles (motif engine; positionKeyFromFen dedup) + usePuzzleBank
+  → peekPuzzles + usePuzzleBank
   → useDailySession (selectDailyPuzzles — up to 2 peek + bank fill, 3 per todayKey)
-  → useDrillSessionController (resume via drillProgress; completeDailyDrill on finish)
-  → useResolvedPuzzle (resolveTrainingPuzzle)
-  → DailyDrillScreen
+  → useTrainingSessionController (kind: daily)
+  → ActivePuzzleSession
 ```
 
-`resolveTrainingPuzzle` runs `analyzePosition` on `displayFen`. When the top motif's `expected` matches `puzzle_bank.expected_answer`, the engine prompt and `squaresTouched` win; otherwise the curated DB prompt is kept (e.g. bishop square vs pinned knight on the same FEN).
+### Training path
 
-Validate seeds: `cd packages/chess-core && npm run validate:puzzles`. Author new rows with `npm run probe:puzzles` → merge fixtures → `npm run generate:seed` → `supabase db query --linked -f supabase/seed.sql` (see `supabase/README.md`).
+```
+CURRICULUM (chess-core) + buildTrainingPuzzleSpec (generators) + puzzle_bank slugs
+  → useNodePuzzles(nodeId)
+  → useTrainingSessionController (kind: node)
+  → completeTrainingNode → trainingProgress
+```
+
+Onboarding credits `node-2-1` + `node-5-1` via `onboardingCurriculumBridge` on `setOnboardingComplete`.
 
 ## Hooks
 
-| Hook | Status | Role |
-|------|--------|------|
-| `usePuzzleBank` | Done | Loads all active `puzzle_bank` rows via React Query |
-| `useDailySession` | Done | Bank + peek-generated puzzles via `peekPuzzles`; 3 per `todayKey()`; `peekPuzzleCount` for loop badge |
-| `useDrillSessionController` | Done | Resume/recovery via `lib/drillBootstrap.ts`; `completeDailyDrill` on session end |
-| `useResolvedPuzzle` | Done | Memoized `resolveTrainingPuzzle` per puzzle |
-| `useMemorizePhase` | Done | 5s board memorize → answering → success |
-| `usePuzzleSessionPhase` | Done | Board memorize or `useStoryNarration` when `moves[]` present |
-| `useStoryNarration` | Done | `expo-speech` move sequence (via session phase) |
-| `useTrainingAnswer` | Done | Validate answer + `recordHeatmapInteractions` |
-| `useDailyMatrix` | Done | Session puzzle count + peek loop badge (`N positions from your match peeks`) + `isCompletedToday` |
+| Hook | Role |
+|------|------|
+| `usePuzzleBank` | Loads all active `puzzle_bank` rows via React Query |
+| `useDailySession` | Bank + peek puzzles; 3 per `todayKey()`; daily completion gate |
+| `useTrainingSessionController` | Daily or node session bootstrap, resume, completion |
+| `useNodePuzzles` | Resolve node `puzzles[]` from bank slugs + generators |
+| `useTrainingPath` | Path map units/nodes, active node |
+| `useDrillSessionController` | Deprecated — use `useTrainingSessionController` |
+| `useResolvedPuzzle` | `resolveTrainingPuzzle` per puzzle |
+| `usePuzzleSessionPhase` | memorize → narrate → answer |
+| `useTrainingAnswer` | Validate + heatmap ledger |
+| `useDailyMatrix` | Daily puzzle count + peek loop badge |
 
 ## Session model
 
-`usePuzzleSessionPhase(resetKey, { fen, moves })` sequences the prepare phases:
+`usePuzzleSessionPhase` + `ActivePuzzleSession` — same per-puzzle flow for daily and path.
 
 | Puzzle shape | Flow |
 |--------------|------|
+| `showBoard: false` | prompt only — no board, no invisible grid, no peek |
 | No `moves[]` | memorize board 5s → answer |
 | `moves[]` + standard-start FEN | narrate (blank screen) → answer |
 | `moves[]` + custom FEN | memorize board 5s → narrate (blank) → answer |
 
-Then: **Answer** (`SquareKeypad` / `YesNoZone`) → **Peek** (2s flash — base FEN for static puzzles; post-move `displayFen` when `moves[]` were narrated) → advance or complete → home tab.
+## Curriculum puzzle kinds
 
-## Authoring audio (story) puzzles
+`coordinate`, `static_recall`, `move_update`, `functional_geometry`, `shallow_calc`, `chunk`, `story_check` — see `packages/shared/src/training-curriculum.ts`.
 
-Rows with non-empty `moves[]` in `puzzle_bank`:
+Generators: `packages/chess-core/src/training/generators/`. Unit 4–5 bank nodes use `puzzle_bank` slugs; optional DB columns `puzzle_kind`, `training_node_id`.
 
-1. **Pattern A — narration only:** `fen` = standard start, `moves` = legal SAN sequence (3–5 moves). No board shown; everyone knows the start.
-2. **Pattern B — memorize then narrate:** `fen` = custom base position, `moves` = short continuation (1–2 plies). Board shown 5s first, or the narration has no context.
+Validate seeds: `cd packages/chess-core && npm run validate:puzzles`.
 
-Rules:
+## Progress persistence
 
-- `moves[]` must be legal from `fen` — validator rejects illegal sequences
-- `subtitle` must not mention the moves (it displays during memorize)
-- `expected_answer` is about the position **after** `moves`
-- Mirror the row in `packages/chess-core/src/motifs/fixtures/puzzle-bank-fixtures.json`; story_check rows set `"checkColor"` and the validator confirms the yes/no answer against the real position
-- Run `cd packages/chess-core && npm run validate:puzzles`
+| Field | Purpose |
+|-------|---------|
+| `trainingProgress` | `completedNodeIds`, `nodeStars`, `activeNodeId` |
+| `nodeSessionProgress` | Mid-node resume (`nodeId` + `completedPuzzleIds`) |
+| `drillProgress` / `lastDrillCompletedDate` | Daily matrix only |
 
-Full recipe comment at the bottom of `supabase/seed.sql`.
-
-Blueprint: **3 puzzles per daily session** — `lib/dailySession.selectDailyPuzzles` (up to 2 peek-sourced from matches, remaining slots from `puzzle_bank`; slot order shuffled deterministically by `todayKey()`). Completion gated via `guestStore.lastDrillCompletedDate`. **Mid-session resume:** `guestStore.drillProgress` stores `completedPuzzleIds` for the current `dateKey`; `DailyDrillScreen` resumes at the next unsolved puzzle via `lib/drillProgress.ts` and clears progress on session complete.
-
-## Phase 2 remaining
-
-```
-- [x] TrainingHub + DailyDrill routes
-- [x] puzzle_bank loading + heatmap on answer/peek
-- [x] useResolvedPuzzle / motif-backed prompts
-- [x] Wire useStoryNarration for puzzles with moves[] (`usePuzzleSessionPhase`)
-- [x] Daily session cap at 3 puzzles + completion gate (`useDailySession`)
-- [x] Mid-session drill resume (`guestStore.drillProgress` + `lib/drillProgress.ts`)
-- [x] Home + hub `DailyMatrixCard` with completed-today state
-- [x] Expand puzzle_bank (54 curated rows in `supabase/seed.sql`; re-validate via `npm run validate:puzzles`, regenerate with `npm run generate:seed` in `packages/chess-core`)
-- [ ] Stitch visual polish (TODO(stitch) on hub + drill screens)
-```
-
-## Stitch infer (onboarding siblings)
-
-| Screen | Infer from |
-|--------|------------|
-| `StoryCheck`, `RewardPuzzle` | `HookBoard` + `DailyDrill` (`PuzzleSessionLayout`, progress chrome) |
-| `TrainingHub` | `DailyDrill` + `HomeDashboard` card patterns |
-
-## Simulator (`ios-simulator-testing`)
-
-After training UI changes, run P1 scenarios 9–10 in `ios-simulator-testing` skill.
+Pure helpers: `apps/mobile/lib/trainingProgress.ts`.

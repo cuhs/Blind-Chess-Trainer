@@ -27,6 +27,8 @@ interface PuzzleSessionLayoutProps {
     fen: string;
     boardKey?: string;
     peekVisible: boolean;
+    /** When true, omit the board area entirely (pure blind recall — no grid). */
+    hideBoardArea?: boolean;
     /** Defaults to `isMemorizing`; pass explicitly to keep the board hidden (e.g. on completion). */
     showBoard?: boolean;
   };
@@ -76,7 +78,7 @@ export function PuzzleSessionLayout({
     viewportHeight > 0 && contentHeight > viewportHeight + 1;
   // Only hint at scrolling when the controls are actually below the fold.
   const showAnswerCue = isAnswering && contentOverflows;
-  const showPeek = onPeek != null && !isPreparing;
+  const showPeek = onPeek != null && !isPreparing && !board.hideBoardArea;
 
   useEffect(() => {
     if (!isAnswering) return;
@@ -120,20 +122,22 @@ export function PuzzleSessionLayout({
 
         {showAnswerCue ? <ScrollAnswerCue onPress={handleCuePress} /> : null}
 
-        <View
-          style={styles.boardWrap}
-          onLayout={(event) => {
-            boardYRef.current = event.nativeEvent.layout.y;
-          }}
-        >
-          <PuzzleBoard
-            boardKey={board.boardKey}
-            fen={board.fen}
-            isMemorizing={showBoard}
-            peekVisible={board.peekVisible}
-          />
-          {showPeek ? <PeekButton onPress={handlePeek} /> : null}
-        </View>
+        {!board.hideBoardArea ? (
+          <View
+            style={styles.boardWrap}
+            onLayout={(event) => {
+              boardYRef.current = event.nativeEvent.layout.y;
+            }}
+          >
+            <PuzzleBoard
+              boardKey={board.boardKey}
+              fen={board.fen}
+              isMemorizing={showBoard}
+              peekVisible={board.peekVisible}
+            />
+            {showPeek ? <PeekButton onPress={handlePeek} /> : null}
+          </View>
+        ) : null}
 
         {children ? <View style={styles.controls}>{children}</View> : null}
       </ScrollView>

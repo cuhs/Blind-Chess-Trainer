@@ -11,7 +11,9 @@ insert into public.puzzle_bank (
   moves,
   squares_touched,
   source,
-  is_active
+  is_active,
+  puzzle_kind,
+  training_node_id
 )
 values
   (
@@ -27,7 +29,9 @@ values
     '[]'::jsonb,
     '["c4","d5","e6"]'::jsonb,
     'daily',
-    true
+    true,
+    'functional_geometry',
+    'node-4-1'
   ),
   (
     'drill-pin-bishop',
@@ -42,7 +46,9 @@ values
     '[]'::jsonb,
     '["c4","d5","e6"]'::jsonb,
     'daily',
-    true
+    true,
+    'functional_geometry',
+    'node-4-1'
   ),
   (
     'drill-story-check',
@@ -57,7 +63,9 @@ values
     '["e4","e5","Nf3","Nc6","Bc4","Nf6"]'::jsonb,
     '[]'::jsonb,
     'daily',
-    true
+    true,
+    'story_check',
+    'node-5-1'
   ),
   (
     'drill-fork-knight',
@@ -72,7 +80,9 @@ values
     '[]'::jsonb,
     '["d4","c2","f5"]'::jsonb,
     'daily',
-    true
+    true,
+    'functional_geometry',
+    'node-4-2'
   ),
   (
     'drill-skewer-rook',
@@ -87,7 +97,9 @@ values
     '[]'::jsonb,
     '["d6","d3","d2"]'::jsonb,
     'daily',
-    true
+    true,
+    'functional_geometry',
+    null
   ),
   (
     'drill-discovered-bishop',
@@ -102,7 +114,9 @@ values
     '["d5"]'::jsonb,
     '["b2","g7","d5"]'::jsonb,
     'daily',
-    true
+    true,
+    'functional_geometry',
+    null
   ),
   (
     'drill-hanging-king',
@@ -117,7 +131,9 @@ values
     '[]'::jsonb,
     '["e1","e2"]'::jsonb,
     'daily',
-    true
+    true,
+    'functional_geometry',
+    null
   ),
   (
     'drill-pin-rook-pawn',
@@ -132,7 +148,9 @@ values
     '[]'::jsonb,
     '["e7","e2","e1"]'::jsonb,
     'daily',
-    true
+    true,
+    'functional_geometry',
+    'node-4-1'
   ),
   (
     'drill-pin-relative-knight',
@@ -147,7 +165,9 @@ values
     '[]'::jsonb,
     '["g5","f6","d8"]'::jsonb,
     'daily',
-    true
+    true,
+    'functional_geometry',
+    null
   ),
   (
     'drill-pin-bishop-diagonal',
@@ -162,7 +182,9 @@ values
     '[]'::jsonb,
     '["b5","c6","e8"]'::jsonb,
     'daily',
-    true
+    true,
+    'functional_geometry',
+    null
   ),
   (
     'drill-pin-rook-attacker',
@@ -177,7 +199,9 @@ values
     '[]'::jsonb,
     '["e7","e2","e1"]'::jsonb,
     'daily',
-    true
+    true,
+    'functional_geometry',
+    null
   ),
   (
     'drill-pin-queen-behind',
@@ -192,7 +216,9 @@ values
     '[]'::jsonb,
     '["g5","f6","d8"]'::jsonb,
     'daily',
-    true
+    true,
+    'functional_geometry',
+    null
   ),
   (
     'drill-pin-bishop-attacker',
@@ -207,7 +233,9 @@ values
     '[]'::jsonb,
     '["b5","c6","e8"]'::jsonb,
     'daily',
-    true
+    true,
+    'functional_geometry',
+    null
   ),
   (
     'drill-pin-king-behind',
@@ -222,7 +250,9 @@ values
     '[]'::jsonb,
     '["e7","e2","e1"]'::jsonb,
     'daily',
-    true
+    true,
+    'functional_geometry',
+    null
   ),
   (
     'drill-pin-bishop-f6',
@@ -237,7 +267,9 @@ values
     '[]'::jsonb,
     '["f6","e5"]'::jsonb,
     'daily',
-    true
+    true,
+    'functional_geometry',
+    null
   ),
   (
     'drill-fork-royal-knight',
@@ -252,7 +284,9 @@ values
     '[]'::jsonb,
     '["d4","c2","e2"]'::jsonb,
     'daily',
-    true
+    true,
+    'functional_geometry',
+    'node-4-2'
   ),
   (
     'drill-fork-pawn-e4',
@@ -267,7 +301,9 @@ values
     '[]'::jsonb,
     '["e4","d5","f5"]'::jsonb,
     'daily',
-    true
+    true,
+    'functional_geometry',
+    null
   ),
   (
     'drill-fork-queen-d5',
@@ -282,7 +318,9 @@ values
     '[]'::jsonb,
     '["e4","d5","e8"]'::jsonb,
     'daily',
-    true
+    true,
+    'functional_geometry',
+    null
   ),
   (
     'drill-fork-queen-target',
@@ -297,7 +335,9 @@ values
     '[]'::jsonb,
     '["e4","d5","e8"]'::jsonb,
     'daily',
-    true
+    true,
+    'functional_geometry',
+    null
   ),
   (
     'drill-fork-knight-queen',
@@ -312,7 +352,9 @@ values
     '[]'::jsonb,
     '["c2","d4"]'::jsonb,
     'daily',
-    true
+    true,
+    'functional_geometry',
+    null
   ),
   (
     'drill-fork-bishop-pair',
@@ -327,7 +369,9 @@ values
     '[]'::jsonb,
     '["e4","d5","f5"]'::jsonb,
     'daily',
-    true
+    true,
+    'functional_geometry',
+    null
   ),
   (
     'drill-skewer-queen-behind',
@@ -342,7 +386,9 @@ values
     '[]'::jsonb,
     '["d5","d3","d1"]'::jsonb,
     'daily',
-    true
+    true,
+    'functional_geometry',
+    null
   ),
   (
     'drill-skewer-bishop-rear',
@@ -357,7 +403,9 @@ values
     '[]'::jsonb,
     '["d6","d3","d2"]'::jsonb,
     'daily',
-    true
+    true,
+    'functional_geometry',
+    null
   ),
   (
     'drill-skewer-rook-attacker',
@@ -372,7 +420,9 @@ values
     '[]'::jsonb,
     '["d5","d3","d1"]'::jsonb,
     'daily',
-    true
+    true,
+    'functional_geometry',
+    null
   ),
   (
     'drill-hanging-queen-a4',
@@ -387,7 +437,9 @@ values
     '[]'::jsonb,
     '["a1","a4"]'::jsonb,
     'daily',
-    true
+    true,
+    'functional_geometry',
+    'node-4-3'
   ),
   (
     'drill-hanging-attacker-rook',
@@ -402,7 +454,9 @@ values
     '[]'::jsonb,
     '["a1","a4"]'::jsonb,
     'daily',
-    true
+    true,
+    'functional_geometry',
+    null
   ),
   (
     'drill-fork-queen-f5',
@@ -417,7 +471,9 @@ values
     '[]'::jsonb,
     '["f5","e4","g4","e6"]'::jsonb,
     'daily',
-    true
+    true,
+    'functional_geometry',
+    null
   ),
   (
     'drill-disc-rook-check',
@@ -432,7 +488,9 @@ values
     '["hxg3"]'::jsonb,
     '["h1","h8","g3"]'::jsonb,
     'daily',
-    true
+    true,
+    'functional_geometry',
+    null
   ),
   (
     'drill-disc-knight-check',
@@ -447,7 +505,9 @@ values
     '["Ng4"]'::jsonb,
     '["h1","h8","g4"]'::jsonb,
     'daily',
-    true
+    true,
+    'functional_geometry',
+    null
   ),
   (
     'drill-disc-queen-rook',
@@ -462,7 +522,9 @@ values
     '["Rh4"]'::jsonb,
     '["a1","a8","h4"]'::jsonb,
     'daily',
-    true
+    true,
+    'functional_geometry',
+    null
   ),
   (
     'drill-disc-rook-attacker',
@@ -477,7 +539,9 @@ values
     '["hxg3"]'::jsonb,
     '["h1","h8","g3"]'::jsonb,
     'daily',
-    true
+    true,
+    'functional_geometry',
+    null
   ),
   (
     'drill-story-check-yes',
@@ -492,7 +556,9 @@ values
     '["e4","e5","Qh5","Nc6","Bc4","Nf6","Qxf7+"]'::jsonb,
     '[]'::jsonb,
     'daily',
-    true
+    true,
+    'story_check',
+    'node-5-1'
   ),
   (
     'drill-story-check-white-no',
@@ -507,7 +573,9 @@ values
     '["d4","d5","c4","e6","Nc3","Nf6"]'::jsonb,
     '[]'::jsonb,
     'daily',
-    true
+    true,
+    'story_check',
+    'node-5-1'
   ),
   (
     'drill-story-check-scholar',
@@ -522,7 +590,9 @@ values
     '["e4","e5","Bc4","Nc6","Qh5"]'::jsonb,
     '[]'::jsonb,
     'daily',
-    true
+    true,
+    'story_check',
+    null
   ),
   (
     'drill-story-check-pin',
@@ -537,7 +607,9 @@ values
     '["e4","e5","Nf3","d6","d4","Bg4"]'::jsonb,
     '[]'::jsonb,
     'daily',
-    true
+    true,
+    'story_check',
+    null
   ),
   (
     'drill-story-memorize-fork',
@@ -552,7 +624,9 @@ values
     '["Nxf5"]'::jsonb,
     '["f5","c2"]'::jsonb,
     'daily',
-    true
+    true,
+    'functional_geometry',
+    null
   ),
   (
     'drill-fork-bishop-pair-b',
@@ -567,7 +641,9 @@ values
     '[]'::jsonb,
     '["e4","d5"]'::jsonb,
     'daily',
-    true
+    true,
+    'functional_geometry',
+    null
   ),
   (
     'drill-skewer-bishop-diagonal',
@@ -582,7 +658,9 @@ values
     '[]'::jsonb,
     '["e1","d2"]'::jsonb,
     'daily',
-    true
+    true,
+    'functional_geometry',
+    null
   ),
   (
     'drill-hanging-queen-a7',
@@ -597,7 +675,9 @@ values
     '[]'::jsonb,
     '["a1","a7"]'::jsonb,
     'daily',
-    true
+    true,
+    'functional_geometry',
+    'node-4-3'
   ),
   (
     'drill-pin-knight-c3',
@@ -612,7 +692,9 @@ values
     '[]'::jsonb,
     '["c4","b3"]'::jsonb,
     'daily',
-    true
+    true,
+    'functional_geometry',
+    null
   ),
   (
     'drill-fork-knight-back',
@@ -627,7 +709,9 @@ values
     '[]'::jsonb,
     '["c2","b4"]'::jsonb,
     'daily',
-    true
+    true,
+    'functional_geometry',
+    null
   ),
   (
     'drill-story-italian',
@@ -642,7 +726,9 @@ values
     '["e4","e5","Nf3","Nc6","Bc4","Bc5"]'::jsonb,
     '[]'::jsonb,
     'daily',
-    true
+    true,
+    'story_check',
+    null
   ),
   (
     'drill-story-disc-prep',
@@ -657,7 +743,9 @@ values
     '["e4","e5","Nf3","Nc6","Bc4","Nf6","Ng5"]'::jsonb,
     '[]'::jsonb,
     'daily',
-    true
+    true,
+    'story_check',
+    null
   ),
   (
     'drill-disc-pawn-queen',
@@ -672,7 +760,9 @@ values
     '["d5"]'::jsonb,
     '["b2","g7","d5"]'::jsonb,
     'daily',
-    true
+    true,
+    'functional_geometry',
+    null
   ),
   (
     'drill-pin-attacker-c4',
@@ -687,7 +777,9 @@ values
     '[]'::jsonb,
     '["c4","d5","e6"]'::jsonb,
     'daily',
-    true
+    true,
+    'functional_geometry',
+    null
   ),
   (
     'drill-hanging-rook-e3',
@@ -702,7 +794,9 @@ values
     '[]'::jsonb,
     '["e1","e3"]'::jsonb,
     'daily',
-    true
+    true,
+    'functional_geometry',
+    null
   ),
   (
     'drill-fork-knight-dual',
@@ -717,7 +811,9 @@ values
     '[]'::jsonb,
     '["d4","c2","e2"]'::jsonb,
     'daily',
-    true
+    true,
+    'functional_geometry',
+    'node-4-2'
   ),
   (
     'drill-pin-queen-d8',
@@ -732,7 +828,9 @@ values
     '[]'::jsonb,
     '["g5","f6","d8"]'::jsonb,
     'daily',
-    true
+    true,
+    'functional_geometry',
+    null
   ),
   (
     'drill-story-london',
@@ -747,7 +845,9 @@ values
     '["d4","d5","Bf4","Nf6","e3","e6"]'::jsonb,
     '[]'::jsonb,
     'daily',
-    true
+    true,
+    'story_check',
+    null
   ),
   (
     'drill-story-check-white-yes',
@@ -762,7 +862,9 @@ values
     '[]'::jsonb,
     '[]'::jsonb,
     'daily',
-    true
+    true,
+    'story_check',
+    null
   ),
   (
     'drill-pin-queen-file',
@@ -777,7 +879,9 @@ values
     '[]'::jsonb,
     '["e4","e2","e1"]'::jsonb,
     'daily',
-    true
+    true,
+    'functional_geometry',
+    null
   ),
   (
     'drill-hanging-knight-f6',
@@ -792,7 +896,9 @@ values
     '[]'::jsonb,
     '["f6","f4"]'::jsonb,
     'daily',
-    true
+    true,
+    'functional_geometry',
+    'node-4-3'
   ),
   (
     'drill-story-memorize-check',
@@ -807,7 +913,9 @@ values
     '["Re7+"]'::jsonb,
     '[]'::jsonb,
     'daily',
-    true
+    true,
+    'story_check',
+    null
   ),
   (
     'drill-pin-rook-backrank',
@@ -822,7 +930,9 @@ values
     '[]'::jsonb,
     '["e3","e2","e1"]'::jsonb,
     'daily',
-    true
+    true,
+    'functional_geometry',
+    null
   )
 on conflict (slug) do update
 set
@@ -838,6 +948,8 @@ set
   squares_touched = excluded.squares_touched,
   source = excluded.source,
   is_active = excluded.is_active,
+  puzzle_kind = excluded.puzzle_kind,
+  training_node_id = excluded.training_node_id,
   updated_at = now();
 
 -- Authoring audio (story) puzzles — rows with a non-empty moves[] array:

@@ -31,10 +31,10 @@ app/                    → Expo Router entry (`index` resumes onboarding at cur
   (onboarding)/         → linear flow, gestureEnabled: false
   (main)/               → tabs: Home | Training | Match | Analysis; settings route hidden (header gear)
     analysis/           → stack: list (index) + replay ([matchId])
-    training/           → stack: hub (index) + drill session
+    training/           → stack: hub (index) + node ([nodeId]) + drill session
 screens/onboarding/     → HookBoard, StoryCheck, RewardPuzzle, FogReveal, MatchPrimer
 screens/home/           → HomeDashboard (closed-loop)
-screens/training/       → TrainingHub, DailyDrill
+screens/training/       → TrainingHub, TrainingNode, DailyDrill
 screens/match/          → VoiceMatch
 screens/analysis/       → MatchHistory, Replay
 ```
@@ -61,10 +61,13 @@ chess.js owns position. UI state in Zustand. Server state via TanStack Query.
 |------|------|
 | `usePuzzleBank` | Load all active `puzzle_bank` rows via React Query |
 | `useDailySession` | Slice to 3 puzzles per `todayKey()`; `isCompletedToday` from `lastDrillCompletedDate`; resume via `drillProgress` |
-| `useDrillSessionController` | Bootstrap resume/recovery + puzzle index; calls `completeDailyDrill` on session end |
+| `useTrainingSessionController` | Daily or node session bootstrap/resume; `completeDailyDrill` or `completeTrainingNode` on finish |
+| `useNodePuzzles` | Resolve curriculum node puzzles (bank + generators) |
+| `useTrainingPath` | Path map units/nodes, active node |
+| `useDrillSessionController` | Deprecated wrapper — prefer `useTrainingSessionController` |
 | `useProfileSync` | Hydrate `matchElo` from `profiles` — mount once under `(main)` |
 | `useResolvedPuzzle` | `resolveTrainingPuzzle` — engine prompt when motif matches `expected` |
-| `usePuzzleSessionPhase` | memorize → narrate → answer; skips memorize only for standard-start FENs; memorize shows base FEN, peek shows post-move FEN when `moves[]` exist |
+| `usePuzzleSessionPhase` | memorize → narrate → answer; `showBoard: false` skips board/peek (coordinate drills); standard-start + moves skips memorize |
 | `useMemorizePhase` | 5s board memorize step |
 | `useStoryNarration` | Move TTS via `expo-speech` (puzzles with `moves[]`) |
 | `useTrainingAnswer` | Validate + heatmap ledger |

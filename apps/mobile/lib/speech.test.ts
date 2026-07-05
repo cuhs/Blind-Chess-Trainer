@@ -35,4 +35,19 @@ describe('speakNarration', () => {
     expect(onDone).not.toHaveBeenCalled();
     expect(stopMock).toHaveBeenCalled();
   });
+
+  it('does not call onDone when speech is stopped mid-utterance', async () => {
+    speakMock.mockImplementation((_text, options) => {
+      options?.onStopped?.();
+    });
+
+    const { speakNarration } = await import('./speech');
+    const onDone = vi.fn();
+
+    speakNarration('White develops the kingside knight.', { onDone });
+    await Promise.resolve();
+    await Promise.resolve();
+
+    expect(onDone).not.toHaveBeenCalled();
+  });
 });

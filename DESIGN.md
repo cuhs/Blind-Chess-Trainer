@@ -338,7 +338,10 @@ Shared icons live in `components/ui/icons/`. Reuse — do not inline emoji as te
 | `HabitHeader` | `StatCard` row: streak (bolt) + Board Mapped % | HomeDashboard |
 | `InteractiveHeatmap` | Hero 8×8 + `FogOverlay`; `interactive={false}` on home teaser | Home + FogReveal |
 | `SquareTooltip` | Micro-tooltip on square tap | Full heatmap when interactive |
-| `DailyMatrixCard` | Primary CTA + closed-loop badge; `completedToday` disables button | HomeDashboard + TrainingHub |
+| `DailyMatrixCard` | Primary CTA + closed-loop badge; `completedToday` disables button | HomeDashboard + TrainingHub (daily section) |
+| `TrainingPathMap` | Vertical unit headers + `TrainingNodeChip` list; active node CTA on hub | TrainingHub |
+| `TrainingNodeChip` | Path node row — icon by `PuzzleKind`, locked/active/complete + stars | `TrainingPathMap` |
+| `ActivePuzzleSession` | Shared memorize/narrate/answer shell for drill + node sessions | `DailyDrillScreen`, `TrainingNodeScreen` |
 | `MatchPeekBadge` | Yellow peek chip: "From your match" | `DailyDrillScreen` when `source: 'peek'` |
 | `VoiceMatchCard` | Blindfold match row + slashed-eye icon | HomeDashboard |
 | `BottomTabBar` | 4-tab nav; active soft `surfaceContainer` pill + green label | `(main)/_layout` |
@@ -355,7 +358,7 @@ Shared icons live in `components/ui/icons/`. Reuse — do not inline emoji as te
 
 File paths: `apps/mobile/components/{ui,chess,match,heatmap,replay,home,onboarding,training}/`
 
-Screens: `TrainingHubScreen` (`/(main)/training`), `DailyDrillScreen` (`/(main)/training/drill`), `VoiceMatchScreen` (`/(main)/match`), `MatchHistoryScreen` (`/(main)/analysis`), `ReplayScreen` (`/(main)/analysis/[matchId]`).
+Screens: `TrainingHubScreen` (`/(main)/training`), `TrainingNodeScreen` (`/(main)/training/node/[nodeId]`), `DailyDrillScreen` (`/(main)/training/drill`), `VoiceMatchScreen` (`/(main)/match`), `MatchHistoryScreen` (`/(main)/analysis`), `ReplayScreen` (`/(main)/analysis/[matchId]`).
 
 Icon assets: `components/ui/icons/`. Piece SVGs: `components/chess/pieces/`.
 
@@ -366,7 +369,7 @@ Icon assets: `components/ui/icons/`. Piece SVGs: `components/chess/pieces/`.
 | Layer | Role | Example |
 |-------|------|---------|
 | `components/ui/` | Generic, cross-screen primitives | `PrimaryButton`, `Card`, `StatCard`, `ScreenScroll`, `ScreenState`, `PeekChip`, `HeroCopy`, `ProgressChrome` |
-| `components/{chess,match,heatmap,replay,home,onboarding,training}/` | Domain-specific, reusable | `ChessBoard`, `FogOverlay`, `DailyMatrixCard`, `PuzzleSessionLayout`, `SquareKeypad`, `YesNoZone` |
+| `components/{chess,match,heatmap,replay,home,onboarding,training}/` | Domain-specific, reusable | `ChessBoard`, `FogOverlay`, `DailyMatrixCard`, `TrainingPathMap`, `PuzzleSessionLayout`, `SquareKeypad`, `YesNoZone` |
 | `screens/` | Route-level composition only | Import components; minimal layout logic |
 | `hooks/` | Shared stateful logic | `useFogOpacity`, `useOnboardingStep` |
 

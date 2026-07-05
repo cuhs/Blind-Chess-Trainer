@@ -31,12 +31,5 @@ export function validateAnswer(
   const normalized = normalizeYesNo(userInput);
   if (!normalized.ok) return false;
 
-  if (fen && moves && moves.length > 0) {
-    const afterFen = applyMoves(fen, moves);
-    const inCheck = isInCheck(afterFen);
-    const userSaysYes = normalized.value === 'yes';
-    return userSaysYes === inCheck;
-  }
-
   return normalized.value === expected.toLowerCase();
 }
