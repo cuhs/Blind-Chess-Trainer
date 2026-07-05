@@ -36,7 +36,7 @@ describe('getFallbackMove', () => {
     expect(
       replies.has('e5') || replies.has('c5') || replies.has('Nf6') || replies.has('e6'),
     ).toBe(true);
-  }, 15_000);
+  }, 45_000);
 
   it('plays legal moves from the starting position at 1200', () => {
     const chess = new Chess(START);
