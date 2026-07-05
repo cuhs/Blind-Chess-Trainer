@@ -19,6 +19,22 @@ describe('resolveNodePuzzles', () => {
     }
   });
 
+  it('preserves curriculum coordinate neighbor answers on a fresh session', () => {
+    const puzzles = resolveNodePuzzles('node-1-2', [], 'fresh');
+    expect(puzzles.map((puzzle) => puzzle.expected).sort()).toEqual([
+      'd3',
+      'e5',
+      'g8',
+    ]);
+  });
+
+  it('resolves all nodes on retry session keys', () => {
+    for (const nodeId of CURRICULUM.mainPathNodeIds) {
+      const puzzles = resolveNodePuzzles(nodeId, [], 'retry-1');
+      expect(puzzles, nodeId).toHaveLength(3);
+    }
+  });
+
   it('resolves motif generator nodes without puzzle_bank rows', () => {
     const puzzles = resolveNodePuzzles('node-4-1', [], 'fresh');
     expect(puzzles).toHaveLength(3);

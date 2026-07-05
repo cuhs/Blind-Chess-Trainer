@@ -43,7 +43,7 @@ Works offline from generators when Supabase bank is empty.
 
 ```
 CURRICULUM (chess-core) + buildTrainingPuzzleSpec / buildPuzzleFromCategory
-  → useNodePuzzles(nodeId) — session-derived seeds for variety
+  → useNodePuzzles(nodeId) — fresh sessions keep curriculum seeds; retries derive new seeds for variety
   → useTrainingSessionController (kind: node)
   → completeTrainingNode → trainingProgress
 ```

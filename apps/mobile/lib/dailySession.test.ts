@@ -6,6 +6,7 @@ import {
   hashDateKey,
   puzzlePromptCategory,
   selectDailyPuzzles,
+  selectDailyGeneratedPuzzles,
   shuffleDeterministic,
 } from './dailySession';
 
@@ -80,7 +81,28 @@ describe('selectDailyPuzzles', () => {
     expect(day1).not.toEqual(day2);
   });
 
-  it('uses up to two peek puzzles and fills the rest from the bank', () => {
+  it('returns three generated puzzles for an empty bank', () => {
+    const session = selectDailyPuzzles([], '2026-07-05');
+    expect(session).toHaveLength(DAILY_SESSION_SIZE);
+    expect(new Set(session.map((puzzle) => puzzle.id)).size).toBe(
+      DAILY_SESSION_SIZE,
+    );
+    expect(session.every((puzzle) => puzzle.id.startsWith('gen-'))).toBe(true);
+  });
+
+  it('avoids reserved prompt buckets in generated-only selection', () => {
+    const session = selectDailyGeneratedPuzzles(
+      '2026-07-05',
+      new Set(['pin']),
+      2,
+    );
+    expect(session).toHaveLength(2);
+    expect(session.every((puzzle) => !puzzle.id.includes('motif_pin'))).toBe(
+      true,
+    );
+  });
+
+  it('uses up to two peek puzzles and fills the rest from generated or bank', () => {
     const bank = [
       puzzle('daily-1'),
       puzzle('daily-2'),
