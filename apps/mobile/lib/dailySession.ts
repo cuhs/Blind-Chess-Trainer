@@ -15,7 +15,8 @@ function pickWithCategorySpread(
   count: number,
   seed: number,
   usedCategories: Set<string>,
-  categoryFor: (puzzle: TrainingPuzzle) => string = puzzlePromptCategory,
+  categoryFor: (puzzle: TrainingPuzzle) => string = (item) =>
+    puzzlePromptCategory(item.prompt),
 ): TrainingPuzzle[] {
   if (count <= 0 || pool.length === 0) return [];
 

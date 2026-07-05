@@ -46,8 +46,10 @@ function neighborExpected(square: Square, axis: 'rank' | 'file'): Square {
 }
 
 export function buildCoordinateNeighborPuzzle(seed: string): GeneratedTrainingPuzzle {
-  if (seed.includes(':')) {
-    const [square, axis] = seed.split(':') as [Square, 'rank' | 'file'];
+  const fixed = /^([a-h][1-8]):(rank|file)$/.exec(seed);
+  if (fixed) {
+    const square = fixed[1] as Square;
+    const axis = fixed[2] as 'rank' | 'file';
     const expected = neighborExpected(square, axis);
     if (!isOnBoard(expected)) {
       throw new Error(`Neighbor off board for seed ${seed}`);
@@ -97,8 +99,10 @@ export function buildCoordinateKnightReachPuzzle(
   let from: Square;
   let to: Square;
 
-  if (seed.includes(':')) {
-    [from, to] = seed.split(':') as [Square, Square];
+  const fixed = /^([a-h][1-8]):([a-h][1-8])$/.exec(seed);
+  if (fixed) {
+    from = fixed[1] as Square;
+    to = fixed[2] as Square;
   } else {
     const rng = seedToRng(`coordinate_knight_reach:${seed}`);
     from = pickSquare(rng);

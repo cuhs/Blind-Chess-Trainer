@@ -13,7 +13,6 @@ export function DailyDrillScreen() {
     isCompletedToday,
     isLoading,
     isError,
-    isNotConfigured,
     error,
   } = useDailySession();
   const { puzzleIndex, handlePuzzleSuccess, isBootstrapping } =
@@ -26,17 +25,6 @@ export function DailyDrillScreen() {
     });
   const puzzle = puzzles[puzzleIndex];
   const resolvedPuzzle = useResolvedPuzzle(puzzle);
-
-  if (isNotConfigured) {
-    return (
-      <ScreenState
-        actionLabel="Go back"
-        message="Sign-in and puzzle sync are not set up on this device yet."
-        onAction={() => router.back()}
-        title="Training unavailable"
-      />
-    );
-  }
 
   if (isCompletedToday) {
     return (

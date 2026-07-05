@@ -3,7 +3,7 @@ import { CURRICULUM } from './curriculum';
 import { verifyCurriculumPuzzleLogic } from './verify-curriculum-puzzle-logic';
 
 describe('verifyCurriculumPuzzleLogic', () => {
-  it('independently solves all 66 training-path puzzles', () => {
+  it('independently solves all 54 training-path puzzles', () => {
     const issues = verifyCurriculumPuzzleLogic();
     const puzzleCount = CURRICULUM.mainPathNodeIds.reduce(
       (count, nodeId) =>

@@ -1,4 +1,5 @@
 import { describe, expect, it } from 'vitest';
+import { CURRICULUM } from '@mindboard/chess-core';
 import {
   generatedToTrainingPuzzle,
   resolveNodePuzzles,
@@ -7,6 +8,17 @@ import {
 import { buildTrainingPuzzleSpec } from '@mindboard/chess-core';
 
 describe('resolveNodePuzzles', () => {
+  it('resolves all 18 curriculum nodes without puzzle_bank rows', () => {
+    for (const nodeId of CURRICULUM.mainPathNodeIds) {
+      const puzzles = resolveNodePuzzles(nodeId, [], 'fresh');
+      expect(puzzles, nodeId).toHaveLength(3);
+      for (const puzzle of puzzles) {
+        expect(puzzle.prompt.length, `${nodeId} ${puzzle.id}`).toBeGreaterThan(0);
+        expect(puzzle.expected.length, `${nodeId} ${puzzle.id}`).toBeGreaterThan(0);
+      }
+    }
+  });
+
   it('resolves motif generator nodes without puzzle_bank rows', () => {
     const puzzles = resolveNodePuzzles('node-4-1', [], 'fresh');
     expect(puzzles).toHaveLength(3);

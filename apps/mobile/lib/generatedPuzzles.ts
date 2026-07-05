@@ -4,6 +4,7 @@ import {
   deriveNodePuzzleSeed,
   getNode,
   selectDailyCategoryPuzzles,
+  type PuzzleCategoryId,
 } from '@mindboard/chess-core';
 import type { NodePuzzleSource } from '@mindboard/shared';
 import type { TrainingPuzzle } from '@/data/training-puzzles';
@@ -42,15 +43,12 @@ export function resolvePuzzleSource(
     return bankBySlug.get(source.slug) ?? null;
   }
 
-  const seed =
-    source.type === 'category'
-      ? deriveNodePuzzleSeed(nodeId, source.seed, sessionKey)
-      : deriveNodePuzzleSeed(nodeId, source.seed, sessionKey);
+  const seed = deriveNodePuzzleSeed(nodeId, source.seed, sessionKey);
 
   if (source.type === 'category') {
     try {
       return generatedToTrainingPuzzle(
-        buildPuzzleFromCategory(source.category, seed),
+        buildPuzzleFromCategory(source.category as PuzzleCategoryId, seed),
       );
     } catch {
       return null;

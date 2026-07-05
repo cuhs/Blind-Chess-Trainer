@@ -19,7 +19,6 @@ export function TrainingNodeScreen() {
     puzzleCount,
     isLoading,
     isError,
-    isNotConfigured,
     error,
   } = useNodePuzzles(nodeId);
 
@@ -69,17 +68,6 @@ export function TrainingNodeScreen() {
         message="Complete the previous level to unlock this one."
         onAction={() => router.back()}
         title="Level locked"
-      />
-    );
-  }
-
-  if (isNotConfigured) {
-    return (
-      <ScreenState
-        actionLabel="Go back"
-        message="Sign-in and puzzle sync are not set up on this device yet."
-        onAction={() => router.back()}
-        title="Training unavailable"
       />
     );
   }

@@ -81,5 +81,6 @@ export function deriveNodePuzzleSeed(
   sourceSeed: string,
   sessionKey: string,
 ): string {
-  return `${nodeId}:${sessionKey}:${sourceSeed}`;
+  if (sessionKey === 'fresh') return sourceSeed;
+  return `${nodeId}#${sessionKey}#${sourceSeed}`;
 }
