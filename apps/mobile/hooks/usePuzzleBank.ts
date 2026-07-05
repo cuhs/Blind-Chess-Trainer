@@ -9,7 +9,7 @@ const EMPTY_PUZZLES: TrainingPuzzle[] = [];
 export function usePuzzleBank(options: { enabled?: boolean } = {}) {
   const enabled = options.enabled ?? true;
   const authQuery = useSupabaseUserId();
-  const userId = authQuery.data ?? null;
+  const userId = enabled ? authQuery.data ?? null : null;
 
   const authPending =
     enabled &&
@@ -58,7 +58,7 @@ export function usePuzzleBank(options: { enabled?: boolean } = {}) {
     puzzleCount: puzzles.length,
     isNotConfigured: enabled && !isSupabaseConfigured,
     isLoading: enabled && isSupabaseConfigured && (authPending || puzzlePending),
-    isError: Boolean(authQuery.isError || puzzleQuery.isError),
-    error: puzzleQuery.error ?? authQuery.error ?? null,
+    isError: enabled && Boolean(authQuery.isError || puzzleQuery.isError),
+    error: enabled ? puzzleQuery.error ?? authQuery.error ?? null : null,
   };
 }

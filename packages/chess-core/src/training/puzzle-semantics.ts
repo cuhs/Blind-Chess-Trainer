@@ -141,3 +141,31 @@ export function previousFenFor(
   if (moves.length === 1) return fen;
   return applyMoves(fen, moves.slice(0, -1));
 }
+
+export function solveCoordinateNeighborSeed(seed: string): Square | null {
+  const fixed = /^([a-h][1-8]):(rank|file)$/.exec(seed);
+  if (!fixed) return null;
+  const square = fixed[1] as Square;
+  const axis = fixed[2] as 'rank' | 'file';
+  const file = square.charCodeAt(0);
+  const rank = Number.parseInt(square[1]!, 10);
+  const expected =
+    axis === 'rank'
+      ? (`${square[0]}${rank + 1}` as Square)
+      : (`${String.fromCharCode(file + 1)}${square[1]}` as Square);
+  return /^[a-h][1-8]$/.test(expected) ? expected : null;
+}
+
+export function solveKnightReachSeed(seed: string): 'yes' | 'no' | null {
+  const fixed = /^([a-h][1-8]):([a-h][1-8])$/.exec(seed);
+  if (!fixed) return null;
+  const from = fixed[1] as Square;
+  const to = fixed[2] as Square;
+  const chess = new Chess();
+  chess.remove('a1' as Square);
+  chess.put({ type: 'n', color: 'w' }, from);
+  const canReach = chess
+    .moves({ square: from, verbose: true })
+    .some((move) => move.to === to);
+  return canReach ? 'yes' : 'no';
+}

@@ -91,7 +91,7 @@ LLM never analyzes position. `null` → skip or use static prompt from generator
 
 | Script | Scope |
 |--------|-------|
-| `validate:generators` | Runtime categories + motif synthesis (200 seeds × 8 daily-rotation categories; 100 seeds × all 28 categories) |
+| `validate:generators` | Runtime categories + motif synthesis (200 seeds × 8 daily-rotation categories; 100 seeds × all 22 categories) |
 | `validate:puzzles` | 54 golden `puzzle-bank-fixtures.json` rows |
 | `validate:curriculum` | 18 curriculum nodes (generators + legacy bank_slug if any) |
 

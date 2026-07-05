@@ -7,10 +7,11 @@ import {
 } from '@/lib/peekPuzzles';
 import { todayKey } from '@/lib/dateKey';
 import { useGuestStore } from '@/stores/guestStore';
+import { isSupabaseConfigured } from '@/lib/supabase';
 import { usePuzzleBank } from './usePuzzleBank';
 
 export function useDailySession() {
-  const bank = usePuzzleBank({ enabled: true });
+  const bank = usePuzzleBank({ enabled: isSupabaseConfigured });
   const peekEvents = useGuestStore((s) => s.peekEvents);
   const lastDrillCompletedDate = useGuestStore((s) => s.lastDrillCompletedDate);
 

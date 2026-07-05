@@ -19,6 +19,8 @@ import {
   parsePieceFromPrompt,
   pawnDiagonallyDefends,
   PIECE_WORD,
+  solveCoordinateNeighborSeed,
+  solveKnightReachSeed,
 } from './puzzle-semantics';
 import {
   motifTypeFromGeneratorId,
@@ -69,24 +71,11 @@ function hasPawnChain(
 }
 
 function solveCoordinateNeighbor(seed: string): Square {
-  const [square, axis] = seed.split(':') as [Square, 'rank' | 'file'];
-  const file = square.charCodeAt(0);
-  const rank = Number.parseInt(square[1]!, 10);
-  if (axis === 'rank') {
-    return `${square[0]}${rank + 1}` as Square;
-  }
-  return `${String.fromCharCode(file + 1)}${square[1]}` as Square;
+  return solveCoordinateNeighborSeed(seed) ?? ('' as Square);
 }
 
 function solveKnightReach(seed: string): 'yes' | 'no' {
-  const [from, to] = seed.split(':') as [Square, Square];
-  const chess = new Chess();
-  chess.remove('a1');
-  chess.put({ type: 'n', color: 'w' }, from);
-  const canReach = chess
-    .moves({ square: from, verbose: true })
-    .some((move) => move.to === to);
-  return canReach ? 'yes' : 'no';
+  return solveKnightReachSeed(seed) ?? 'no';
 }
 
 function solveGeneratedPuzzle(
