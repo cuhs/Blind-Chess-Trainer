@@ -6,18 +6,20 @@ import { useSupabaseUserId } from './useSupabaseUserId';
 
 const EMPTY_PUZZLES: TrainingPuzzle[] = [];
 
-export function usePuzzleBank() {
+export function usePuzzleBank(options: { enabled?: boolean } = {}) {
+  const enabled = options.enabled ?? true;
   const authQuery = useSupabaseUserId();
   const userId = authQuery.data ?? null;
 
   const authPending =
+    enabled &&
     isSupabaseConfigured &&
     !authQuery.isError &&
     (authQuery.isFetching || (authQuery.isPending && userId === null));
 
   const puzzleQuery = useQuery({
     queryKey: ['puzzle-bank', userId],
-    enabled: Boolean(supabase && userId),
+    enabled: enabled && Boolean(supabase && userId),
     queryFn: async (): Promise<TrainingPuzzle[]> => {
       if (!supabase) return EMPTY_PUZZLES;
 
@@ -54,8 +56,8 @@ export function usePuzzleBank() {
   return {
     puzzles,
     puzzleCount: puzzles.length,
-    isNotConfigured: !isSupabaseConfigured,
-    isLoading: isSupabaseConfigured && (authPending || puzzlePending),
+    isNotConfigured: enabled && !isSupabaseConfigured,
+    isLoading: enabled && isSupabaseConfigured && (authPending || puzzlePending),
     isError: Boolean(authQuery.isError || puzzleQuery.isError),
     error: puzzleQuery.error ?? authQuery.error ?? null,
   };

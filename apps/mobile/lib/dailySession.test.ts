@@ -1,19 +1,19 @@
 import { describe, expect, it } from 'vitest';
+import { hashDateKey, shuffleDeterministic } from '@mindboard/chess-core';
 import type { TrainingPuzzle } from '@/data/training-puzzles';
 import {
   DAILY_SESSION_SIZE,
   MAX_PEEK_PUZZLES_PER_SESSION,
-  hashDateKey,
   puzzlePromptCategory,
   selectDailyPuzzles,
   selectDailyGeneratedPuzzles,
-  shuffleDeterministic,
 } from './dailySession';
 
 function puzzle(
   id: string,
   source?: 'daily' | 'peek',
   prompt = 'test',
+  promptCategory?: string,
 ): TrainingPuzzle {
   return {
     id,
@@ -24,6 +24,7 @@ function puzzle(
     expected: 'e4',
     squaresTouched: ['e4'],
     source,
+    promptCategory: promptCategory ?? puzzlePromptCategory(prompt),
   };
 }
 
@@ -47,7 +48,7 @@ describe('shuffleDeterministic', () => {
 });
 
 describe('selectDailyPuzzles', () => {
-  it('returns empty for empty bank', () => {
+  it('returns generated puzzles for empty bank', () => {
     const session = selectDailyPuzzles([], '2026-06-12');
     expect(session.length).toBeGreaterThan(0);
     expect(session.length).toBeLessThanOrEqual(DAILY_SESSION_SIZE);
@@ -84,10 +85,10 @@ describe('selectDailyPuzzles', () => {
   it('returns three generated puzzles for an empty bank', () => {
     const session = selectDailyPuzzles([], '2026-07-05');
     expect(session).toHaveLength(DAILY_SESSION_SIZE);
-    expect(new Set(session.map((puzzle) => puzzle.id)).size).toBe(
+    expect(new Set(session.map((item) => item.id)).size).toBe(
       DAILY_SESSION_SIZE,
     );
-    expect(session.every((puzzle) => puzzle.id.startsWith('gen-'))).toBe(true);
+    expect(session.every((item) => item.id.startsWith('gen-'))).toBe(true);
   });
 
   it('avoids reserved prompt buckets in generated-only selection', () => {
@@ -97,9 +98,7 @@ describe('selectDailyPuzzles', () => {
       2,
     );
     expect(session).toHaveLength(2);
-    expect(session.every((puzzle) => !puzzle.id.includes('motif_pin'))).toBe(
-      true,
-    );
+    expect(session.every((item) => !item.id.includes('motif_pin'))).toBe(true);
   });
 
   it('uses up to two peek puzzles and fills the rest from generated or bank', () => {
@@ -151,17 +150,15 @@ describe('selectDailyPuzzles', () => {
 
   it('spreads prompt categories when the bank has alternatives', () => {
     const bank = [
-      puzzle('hang-1', undefined, 'What square is the undefended knight on?'),
-      puzzle('hang-2', undefined, 'What square is the undefended rook on?'),
-      puzzle('hang-3', undefined, 'What square is the undefended queen on?'),
-      puzzle('pin-1', undefined, 'What square is the pinned knight on?'),
-      puzzle('fork-1', undefined, 'What square is the knight fork on?'),
-      puzzle('check-1', undefined, 'Is the Black King in check?'),
+      puzzle('hang-1', undefined, 'What square is the undefended knight on?', 'hanging'),
+      puzzle('hang-2', undefined, 'What square is the undefended rook on?', 'hanging'),
+      puzzle('hang-3', undefined, 'What square is the undefended queen on?', 'hanging'),
+      puzzle('pin-1', undefined, 'What square is the pinned knight on?', 'pin'),
+      puzzle('fork-1', undefined, 'What square is the knight fork on?', 'fork'),
+      puzzle('check-1', undefined, 'Is the Black King in check?', 'check'),
     ];
     const session = selectDailyPuzzles(bank, '2026-06-14');
-    const categories = new Set(
-      session.map((item) => puzzlePromptCategory(item.prompt)),
-    );
+    const categories = new Set(session.map((item) => item.promptCategory));
     expect(categories.size).toBeGreaterThan(1);
   });
 });

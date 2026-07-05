@@ -3,4 +3,7 @@ export * from './generators';
 export * from './categories';
 export * from './verify-puzzle';
 export * from './seed';
+export * from './seeded-random';
+export * from './prompt-category';
 export * from './daily-selection';
+export * from './daily-compose';

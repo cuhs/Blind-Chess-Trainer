@@ -1,12 +1,9 @@
 import { useMemo } from 'react';
 import { resolveNodePuzzles } from '@/lib/generatedPuzzles';
 import { getNode } from '@mindboard/chess-core';
-import { usePuzzleBank } from '@/hooks/usePuzzleBank';
 import { useGuestStore } from '@/stores/guestStore';
 
 export function useNodePuzzles(nodeId: string | undefined) {
-  const { puzzles: bankPuzzles, isLoading, isError, error, isNotConfigured } =
-    usePuzzleBank();
   const nodeSessionProgress = useGuestStore((s) => s.nodeSessionProgress);
 
   const sessionKey = useMemo(() => {
@@ -19,19 +16,17 @@ export function useNodePuzzles(nodeId: string | undefined) {
 
   const puzzles = useMemo(() => {
     if (!nodeId) return [];
-    return resolveNodePuzzles(nodeId, bankPuzzles, sessionKey);
-  }, [nodeId, bankPuzzles, sessionKey]);
+    return resolveNodePuzzles(nodeId, [], sessionKey);
+  }, [nodeId, sessionKey]);
 
   const node = nodeId ? getNode(nodeId) : undefined;
-  const puzzleCount = puzzles.length;
 
   return {
     node,
     puzzles,
-    puzzleCount,
+    puzzleCount: puzzles.length,
     isLoading: false,
-    isError,
-    error,
-    isNotConfigured: false,
+    isError: false,
+    error: null,
   };
 }

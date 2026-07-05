@@ -4,7 +4,7 @@ import { resolve, dirname } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import {
   buildPuzzleFromCategory,
-  listCategories,
+  isKnownCategory,
   type PuzzleCategoryId,
 } from '../src/training/categories';
 import { verifyGeneratedPuzzle } from '../src/training/verify-puzzle';
@@ -47,11 +47,11 @@ function slugFor(category: PuzzleCategoryId, index: number): string {
 
 function main(): void {
   const options = parseArgs(process.argv.slice(2));
-  const known = new Set(listCategories().map((item) => String(item.id)));
+  const known = isKnownCategory(String(options.category));
 
-  if (!known.has(String(options.category))) {
+  if (!known) {
     console.error(
-      `Unknown category "${options.category}". Known: ${[...known].join(', ')}`,
+      `Unknown category "${options.category}". Known generator ids: motif_pin, pin, story_check, …`,
     );
     process.exit(1);
   }

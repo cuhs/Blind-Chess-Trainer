@@ -1,18 +1,12 @@
 import {
-  buildPuzzleFromCategory,
   buildTrainingPuzzleSpec,
   deriveNodePuzzleSeed,
   getNode,
+  promptCategoryFromPuzzleId,
   selectDailyCategoryPuzzles,
-  type PuzzleCategoryId,
 } from '@mindboard/chess-core';
 import type { NodePuzzleSource } from '@mindboard/shared';
 import type { TrainingPuzzle } from '@/data/training-puzzles';
-import {
-  generatedPromptCategoryFromId,
-  hashDateKey,
-  puzzlePromptCategory,
-} from '@/lib/puzzleCategories';
 
 export function generatedToTrainingPuzzle(
   generated: ReturnType<typeof buildTrainingPuzzleSpec>,
@@ -30,6 +24,7 @@ export function generatedToTrainingPuzzle(
     source: 'daily',
     showBoard: generated.showBoard,
     narrationScript: generated.narrationScript,
+    promptCategory: promptCategoryFromPuzzleId(generated.id, generated.prompt),
   };
 }
 
@@ -44,28 +39,9 @@ export function resolvePuzzleSource(
   }
 
   const seed = deriveNodePuzzleSeed(nodeId, source.seed, sessionKey);
-
-  if (source.type === 'category') {
-    try {
-      return generatedToTrainingPuzzle(
-        buildPuzzleFromCategory(source.category as PuzzleCategoryId, seed),
-      );
-    } catch {
-      return null;
-    }
-  }
-
-  if (source.type === 'generator') {
-    try {
-      return generatedToTrainingPuzzle(
-        buildTrainingPuzzleSpec(source.generatorId, seed),
-      );
-    } catch {
-      return null;
-    }
-  }
-
-  return null;
+  return generatedToTrainingPuzzle(
+    buildTrainingPuzzleSpec(source.generatorId, seed),
+  );
 }
 
 export function resolveNodePuzzles(
@@ -88,7 +64,6 @@ export function resolveNodePuzzles(
   return resolved;
 }
 
-/** Map generated daily puzzles to TrainingPuzzle with category bucket metadata. */
 export function generatedDailyPuzzles(
   dateKey: string,
   reservedBuckets: Set<string>,
@@ -100,13 +75,3 @@ export function generatedDailyPuzzles(
   });
   return generated.map((puzzle) => generatedToTrainingPuzzle(puzzle));
 }
-
-export function peekPromptCategory(prompt: string): string {
-  return puzzlePromptCategory(prompt);
-}
-
-export function generatedPromptCategory(puzzle: TrainingPuzzle): string {
-  return generatedPromptCategoryFromId(puzzle.id, puzzle.prompt);
-}
-
-export { hashDateKey };

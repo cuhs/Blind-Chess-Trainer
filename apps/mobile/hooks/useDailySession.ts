@@ -10,7 +10,7 @@ import { useGuestStore } from '@/stores/guestStore';
 import { usePuzzleBank } from './usePuzzleBank';
 
 export function useDailySession() {
-  const bank = usePuzzleBank();
+  const bank = usePuzzleBank({ enabled: true });
   const peekEvents = useGuestStore((s) => s.peekEvents);
   const lastDrillCompletedDate = useGuestStore((s) => s.lastDrillCompletedDate);
 
@@ -30,16 +30,12 @@ export function useDailySession() {
     [puzzles],
   );
 
-  const puzzleCount = puzzles.length;
-  const isCompletedToday = lastDrillCompletedDate === todayKey();
-
   return {
     puzzles,
-    puzzleCount,
+    puzzleCount: puzzles.length,
     peekPuzzleCount,
-    sessionSize: puzzleCount,
-    isCompletedToday,
-    isNotConfigured: false,
+    sessionSize: puzzles.length,
+    isCompletedToday: lastDrillCompletedDate === todayKey(),
     isLoading: bank.isLoading,
     isError: bank.isError,
     error: bank.error,

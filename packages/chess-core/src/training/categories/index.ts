@@ -166,10 +166,19 @@ function metaFor(id: PuzzleCategoryId): PuzzleCategoryMeta {
 export function listCategories(): PuzzleCategoryMeta[] {
   const ids: PuzzleCategoryId[] = [
     ...Object.keys(GENERATOR_KIND),
-    ...Object.keys(MOTIF_TO_KIND),
     'story_check',
   ] as PuzzleCategoryId[];
   return ids.map(metaFor);
+}
+
+/** Accept generator ids, motif aliases, puzzle kinds, and story_check. */
+export function isKnownCategory(value: string): value is PuzzleCategoryId {
+  return (
+    value in GENERATOR_KIND ||
+    isMotifType(value) ||
+    isPuzzleKind(value) ||
+    value === 'story_check'
+  );
 }
 
 export function isMotifType(value: string): value is MotifType {

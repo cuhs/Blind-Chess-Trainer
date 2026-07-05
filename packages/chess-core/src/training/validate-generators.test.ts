@@ -35,7 +35,7 @@ function fuzzCategory(category: string, count: number, failures: string[]): void
 
 describe('validate generators fuzz', () => {
   it('lists all puzzle categories', () => {
-    expect(listCategories().length).toBeGreaterThanOrEqual(28);
+    expect(listCategories().length).toBe(22);
   });
 
   it('builds and verifies daily rotation categories (200 seeds each)', () => {

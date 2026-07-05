@@ -2,6 +2,7 @@ import {
   analyzePosition,
   buildPuzzleFromMotif,
   positionKeyFromFen,
+  promptCategoryFromText,
 } from '@mindboard/chess-core';
 import type { PeekEvent } from '@mindboard/shared';
 import { isSquare, type Square } from '@mindboard/shared';
@@ -84,6 +85,7 @@ export function trainingPuzzlesFromPeekEvents(
       expected: draft.expected,
       squaresTouched,
       source: 'peek',
+      promptCategory: promptCategoryFromText(draft.prompt),
     });
   }
 

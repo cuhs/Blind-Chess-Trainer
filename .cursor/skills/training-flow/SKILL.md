@@ -57,7 +57,7 @@ Onboarding credits `node-2-1` + `node-5-1` via `onboardingCurriculumBridge` on `
 | `usePuzzleBank` | Optional: load active `puzzle_bank` rows for hybrid daily top-up |
 | `useDailySession` | Generated + peek puzzles (+ optional bank); 3 per `todayKey()` |
 | `useTrainingSessionController` | Daily or node session bootstrap, resume, completion |
-| `useNodePuzzles` | Resolve node puzzles from generators/categories (session-derived seeds) |
+| `useNodePuzzles` | Resolve node puzzles from generators with session-derived seeds (no bank) |
 | `useTrainingPath` | Path map units/nodes, active node |
 | `useDrillSessionController` | Deprecated — use `useTrainingSessionController` |
 | `useResolvedPuzzle` | `resolveTrainingPuzzle` per puzzle |

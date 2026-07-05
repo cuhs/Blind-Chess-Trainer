@@ -5,34 +5,11 @@ import {
   DAILY_CATEGORY_ROTATION,
   type PuzzleCategoryId,
 } from './categories';
+import { hashDateKey, shuffleDeterministic } from './seeded-random';
 
 export const DEFAULT_DAILY_SESSION_SIZE = 3;
 
-function hashDateKey(dateKey: string): number {
-  let hash = 0;
-  for (let i = 0; i < dateKey.length; i += 1) {
-    hash = (hash * 31 + dateKey.charCodeAt(i)) >>> 0;
-  }
-  return hash;
-}
-
-function createSeededRandom(seed: number): () => number {
-  let state = seed >>> 0;
-  return () => {
-    state = (state * 1664525 + 1013904223) >>> 0;
-    return state / 0x1_0000_0000;
-  };
-}
-
-function shuffleDeterministic<T>(items: T[], seed: number): T[] {
-  const arr = [...items];
-  const random = createSeededRandom(seed);
-  for (let i = arr.length - 1; i > 0; i -= 1) {
-    const j = Math.floor(random() * (i + 1));
-    [arr[i], arr[j]] = [arr[j]!, arr[i]!];
-  }
-  return arr;
-}
+export { hashDateKey, shuffleDeterministic } from './seeded-random';
 
 /**
  * Pick generated puzzles for a calendar day with category spread.
@@ -49,7 +26,10 @@ export function selectDailyCategoryPuzzles(
   const categories = options.categories ?? DAILY_CATEGORY_ROTATION;
   const sessionSize = options.sessionSize ?? DEFAULT_DAILY_SESSION_SIZE;
   const reservedBuckets = options.reservedBuckets ?? new Set<string>();
-  const shuffled = shuffleDeterministic(categories, hashDateKey(`${dateKey}:categories`));
+  const shuffled = shuffleDeterministic(
+    categories,
+    hashDateKey(`${dateKey}:categories`),
+  );
 
   const picked: GeneratedTrainingPuzzle[] = [];
   const usedBuckets = new Set(reservedBuckets);

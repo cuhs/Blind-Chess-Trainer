@@ -15,6 +15,7 @@ describe('resolveNodePuzzles', () => {
       for (const puzzle of puzzles) {
         expect(puzzle.prompt.length, `${nodeId} ${puzzle.id}`).toBeGreaterThan(0);
         expect(puzzle.expected.length, `${nodeId} ${puzzle.id}`).toBeGreaterThan(0);
+        expect(puzzle.promptCategory, `${nodeId} ${puzzle.id}`).toBeTruthy();
       }
     }
   });
@@ -42,6 +43,7 @@ describe('resolveNodePuzzles', () => {
       expect(puzzle.prompt.length).toBeGreaterThan(0);
       expect(puzzle.squaresTouched.length).toBeGreaterThan(0);
       expect(puzzle.id).toMatch(/^gen-motif_pin-/);
+      expect(puzzle.promptCategory).toBe('pin');
     }
   });
 
@@ -72,16 +74,5 @@ describe('resolveNodePuzzles', () => {
       'node-4-1',
     );
     expect(puzzle?.id).toBe('drill-pin-knight');
-  });
-
-  it('resolves category sources via buildPuzzleFromCategory', () => {
-    const puzzle = resolvePuzzleSource(
-      { type: 'category', category: 'fork', seed: '0' },
-      new Map(),
-      'session-a',
-      'node-4-2',
-    );
-    expect(puzzle).not.toBeNull();
-    expect(puzzle!.id).toMatch(/^gen-motif_fork-/);
   });
 });
