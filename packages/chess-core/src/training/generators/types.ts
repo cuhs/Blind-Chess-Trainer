@@ -30,4 +30,11 @@ export type GeneratorId =
   | 'shallow_calc_attacked'
   | 'chunk_castled'
   | 'chunk_fianchetto'
-  | 'chunk_pawn_chain';
+  | 'chunk_pawn_chain'
+  | 'motif_pin'
+  | 'motif_fork'
+  | 'motif_skewer'
+  | 'motif_hanging'
+  | 'motif_discovered'
+  | 'motif_overloaded'
+  | 'story_check_line';

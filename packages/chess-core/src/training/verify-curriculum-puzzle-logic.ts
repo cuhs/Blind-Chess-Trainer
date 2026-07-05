@@ -1,6 +1,7 @@
 import { Chess, type Color, type PieceSymbol, type Square } from 'chess.js';
 import type { NodePuzzleSource } from '@mindboard/shared';
 import { analyzePosition } from '../motifs/analyze-position';
+import { buildPuzzleFromMotif } from '../motifs/questions';
 import { buildInfluenceMap } from '../motifs/influence';
 import fixtures from '../motifs/fixtures/puzzle-bank-fixtures.json';
 import { applyMoves } from '../validate';
@@ -280,6 +281,23 @@ function solveGeneratedPuzzle(
     const sqB = chainMatch[2]!.toLowerCase() as Square;
     const color = puzzle.prompt.includes('Black') ? 'b' : 'w';
     return hasPawnChain(chess, sqA, sqB, color) ? 'yes' : 'no';
+  }
+
+  if (generatorId === 'story_check_line') {
+    const color = puzzle.prompt.toLowerCase().includes('white') ? 'w' : 'b';
+    return isColorInCheck(afterFen, color) ? 'yes' : 'no';
+  }
+
+  if (generatorId.startsWith('motif_')) {
+    const previousFen =
+      puzzle.moves.length === 0
+        ? undefined
+        : puzzle.moves.length === 1
+          ? puzzle.fen
+          : applyMoves(puzzle.fen, puzzle.moves.slice(0, -1));
+    const motif = analyzePosition(afterFen, previousFen);
+    if (!motif) return null;
+    return buildPuzzleFromMotif(motif).expected;
   }
 
   return null;

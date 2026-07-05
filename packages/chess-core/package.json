@@ -9,6 +9,8 @@
     "test:coverage": "vitest run --coverage",
     "validate:puzzles": "vitest run src/motifs/validate-puzzle-bank.test.ts",
     "validate:curriculum": "vitest run src/training/validate-curriculum-puzzles.test.ts src/training/validate-curriculum-extended.test.ts src/training/verify-curriculum-puzzle-logic.test.ts",
+    "validate:generators": "vitest run src/training/validate-generators.test.ts",
+    "generate:puzzles": "npx tsx scripts/generate-puzzles.ts",
     "probe:puzzles": "npx tsx scripts/probe-puzzles.ts",
     "generate:seed": "npx tsx scripts/generate-seed.ts"
   },

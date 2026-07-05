@@ -1,14 +1,12 @@
 import { Chess } from 'chess.js';
 import type { Square } from '@mindboard/shared';
 import type { GeneratedTrainingPuzzle } from './types';
+import { isOnBoard, pickFrom, pickSquare, puzzleId, seedToRng } from '../seed';
 
 const EMPTY_BOARD = '8/8/8/8/8/8/8/8 w - - 0 1';
 
 function blindCoordinatePuzzle(
-  partial: Omit<
-    GeneratedTrainingPuzzle,
-    'showBoard' | 'fen' | 'moves'
-  >,
+  partial: Omit<GeneratedTrainingPuzzle, 'showBoard' | 'fen' | 'moves'>,
 ): GeneratedTrainingPuzzle {
   return {
     ...partial,
@@ -24,12 +22,10 @@ export function isLightSquare(square: Square): boolean {
   return (file + rank) % 2 === 1;
 }
 
-function puzzleId(generatorId: string, seed: string): string {
-  return `gen-${generatorId}-${seed.replace(/[^a-z0-9]/gi, '-')}`;
-}
-
 export function buildCoordinateColorPuzzle(seed: string): GeneratedTrainingPuzzle {
-  const square = seed as Square;
+  const square = /^[a-h][1-8]$/.test(seed)
+    ? (seed as Square)
+    : pickSquare(seedToRng(`coordinate_color:${seed}`));
   const light = isLightSquare(square);
   return blindCoordinatePuzzle({
     id: puzzleId('coordinate_color', seed),
@@ -41,36 +37,74 @@ export function buildCoordinateColorPuzzle(seed: string): GeneratedTrainingPuzzl
   });
 }
 
-export function buildCoordinateNeighborPuzzle(seed: string): GeneratedTrainingPuzzle {
-  const [square, axis] = seed.split(':') as [Square, 'rank' | 'file'];
+function neighborExpected(square: Square, axis: 'rank' | 'file'): Square {
   const file = square.charCodeAt(0);
   const rank = Number.parseInt(square[1]!, 10);
+  return axis === 'rank'
+    ? (`${square[0]}${rank + 1}` as Square)
+    : (`${String.fromCharCode(file + 1)}${square[1]}` as Square);
+}
 
-  let expected: Square;
-  let prompt: string;
-  if (axis === 'rank') {
-    expected = `${square[0]}${rank + 1}` as Square;
-    prompt = `Which square is one rank above ${square}?`;
-  } else {
-    expected = `${String.fromCharCode(file + 1)}${square[1]}` as Square;
-    prompt = `Which square is one file to the right of ${square}?`;
+export function buildCoordinateNeighborPuzzle(seed: string): GeneratedTrainingPuzzle {
+  if (seed.includes(':')) {
+    const [square, axis] = seed.split(':') as [Square, 'rank' | 'file'];
+    const expected = neighborExpected(square, axis);
+    if (!isOnBoard(expected)) {
+      throw new Error(`Neighbor off board for seed ${seed}`);
+    }
+    const prompt =
+      axis === 'rank'
+        ? `Which square is one rank above ${square}?`
+        : `Which square is one file to the right of ${square}?`;
+    return blindCoordinatePuzzle({
+      id: puzzleId('coordinate_neighbor', seed),
+      prompt,
+      inputPlaceholder: 'e.g. a8',
+      answerType: 'square',
+      expected,
+      squaresTouched: [square, expected],
+      subtitle: 'Navigate the grid from memory.',
+    });
   }
 
-  return blindCoordinatePuzzle({
-    id: puzzleId('coordinate_neighbor', seed),
-    prompt,
-    inputPlaceholder: 'e.g. a8',
-    answerType: 'square',
-    expected,
-    squaresTouched: [square, expected],
-    subtitle: 'Navigate the grid from memory.',
-  });
+  const rng = seedToRng(`coordinate_neighbor:${seed}`);
+  for (let attempt = 0; attempt < 64; attempt += 1) {
+    const square = pickSquare(rng);
+    const axis = pickFrom(rng, ['rank', 'file'] as const);
+    const expected = neighborExpected(square, axis);
+    if (!isOnBoard(expected)) continue;
+    const prompt =
+      axis === 'rank'
+        ? `Which square is one rank above ${square}?`
+        : `Which square is one file to the right of ${square}?`;
+    return blindCoordinatePuzzle({
+      id: puzzleId('coordinate_neighbor', seed),
+      prompt,
+      inputPlaceholder: 'e.g. a8',
+      answerType: 'square',
+      expected,
+      squaresTouched: [square, expected],
+      subtitle: 'Navigate the grid from memory.',
+    });
+  }
+
+  throw new Error(`Failed to build coordinate_neighbor for seed ${seed}`);
 }
 
 export function buildCoordinateKnightReachPuzzle(
   seed: string,
 ): GeneratedTrainingPuzzle {
-  const [from, to] = seed.split(':') as [Square, Square];
+  let from: Square;
+  let to: Square;
+
+  if (seed.includes(':')) {
+    [from, to] = seed.split(':') as [Square, Square];
+  } else {
+    const rng = seedToRng(`coordinate_knight_reach:${seed}`);
+    from = pickSquare(rng);
+    to = pickSquare(rng);
+  }
+
   const chess = new Chess();
   chess.remove('a1' as Square);
   chess.put({ type: 'n', color: 'w' }, from);

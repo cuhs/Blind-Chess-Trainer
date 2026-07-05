@@ -1,25 +1,21 @@
 import type { TrainingPuzzle } from '@/data/training-puzzles';
+import {
+  generatedDailyPuzzles,
+  generatedPromptCategory,
+  peekPromptCategory,
+} from '@/lib/generatedPuzzles';
+import { hashDateKey, puzzlePromptCategory } from '@/lib/puzzleCategories';
 
 export const DAILY_SESSION_SIZE = 3;
 
-/** Coarse prompt family — used to spread motif types across a daily session. */
-export function puzzlePromptCategory(prompt: string): string {
-  const p = prompt.toLowerCase();
-  if (p.includes('undefended') || p.includes('attacking ')) return 'hanging';
-  if (p.includes('pinned') || p.includes('pinning')) return 'pin';
-  if (p.includes('fork')) return 'fork';
-  if (p.startsWith('is the')) return 'yes-no';
-  if (p.includes('attack from')) return 'discovered';
-  if (p.includes('skewer') || p.includes('skewered')) return 'skewer';
-  if (p.includes('in check')) return 'check';
-  return 'other';
-}
+export { puzzlePromptCategory, hashDateKey };
 
 function pickWithCategorySpread(
   pool: TrainingPuzzle[],
   count: number,
   seed: number,
   usedCategories: Set<string>,
+  categoryFor: (puzzle: TrainingPuzzle) => string = puzzlePromptCategory,
 ): TrainingPuzzle[] {
   if (count <= 0 || pool.length === 0) return [];
 
@@ -29,7 +25,7 @@ function pickWithCategorySpread(
 
   for (const puzzle of shuffled) {
     if (picked.length >= count) break;
-    const category = puzzlePromptCategory(puzzle.prompt);
+    const category = categoryFor(puzzle);
     if (categories.has(category)) continue;
     picked.push(puzzle);
     categories.add(category);
@@ -43,16 +39,8 @@ function pickWithCategorySpread(
 
   return picked;
 }
-export const MAX_PEEK_PUZZLES_PER_SESSION = 2;
 
-/** Deterministic hash for rotating daily puzzle selection by calendar day. */
-export function hashDateKey(dateKey: string): number {
-  let hash = 0;
-  for (let i = 0; i < dateKey.length; i++) {
-    hash = (hash * 31 + dateKey.charCodeAt(i)) >>> 0;
-  }
-  return hash;
-}
+export const MAX_PEEK_PUZZLES_PER_SESSION = 2;
 
 function createSeededRandom(seed: number): () => number {
   let state = seed >>> 0;
@@ -75,13 +63,15 @@ export function shuffleDeterministic<T>(items: T[], seed: number): T[] {
 
 /**
  * Pick up to 3 puzzles for a calendar day: up to 2 peek-sourced (from matches),
- * remaining slots from puzzle bank, then shuffle slot order for the day.
+ * remaining slots from generated categories, optionally topped up from bank rows.
  */
 export function selectDailyPuzzles(
   all: TrainingPuzzle[],
   dateKey: string,
 ): TrainingPuzzle[] {
-  if (all.length === 0) return [];
+  if (all.length === 0) {
+    return selectDailyGeneratedPuzzles(dateKey, new Set(), DAILY_SESSION_SIZE);
+  }
 
   const peek = all.filter((p) => p.source === 'peek');
   const daily = all.filter((p) => p.source !== 'peek');
@@ -91,20 +81,42 @@ export function selectDailyPuzzles(
     hashDateKey(`${dateKey}:peek`),
   ).slice(0, MAX_PEEK_PUZZLES_PER_SESSION);
 
-  const bankSlots = DAILY_SESSION_SIZE - selectedPeek.length;
   const peekCategories = new Set(
-    selectedPeek.map((puzzle) => puzzlePromptCategory(puzzle.prompt)),
-  );
-  const selectedBank = pickWithCategorySpread(
-    daily,
-    bankSlots,
-    hashDateKey(`${dateKey}:bank`),
-    peekCategories,
+    selectedPeek.map((puzzle) => peekPromptCategory(puzzle.prompt)),
   );
 
-  const session = [...selectedPeek, ...selectedBank];
+  const generatedCount = Math.max(0, DAILY_SESSION_SIZE - selectedPeek.length);
+  const generated = selectDailyGeneratedPuzzles(
+    dateKey,
+    peekCategories,
+    generatedCount,
+  );
+
+  const remaining = DAILY_SESSION_SIZE - selectedPeek.length - generated.length;
+  const usedCategories = new Set([
+    ...peekCategories,
+    ...generated.map((puzzle) => generatedPromptCategory(puzzle)),
+  ]);
+
+  const selectedBank = pickWithCategorySpread(
+    daily,
+    remaining,
+    hashDateKey(`${dateKey}:bank`),
+    usedCategories,
+  );
+
+  const session = [...selectedPeek, ...generated, ...selectedBank];
   return shuffleDeterministic(session, hashDateKey(`${dateKey}:order`)).slice(
     0,
     DAILY_SESSION_SIZE,
   );
+}
+
+/** Generator-only daily slots — no peek rows included. */
+export function selectDailyGeneratedPuzzles(
+  dateKey: string,
+  reservedBuckets: Set<string> = new Set(),
+  count: number = DAILY_SESSION_SIZE,
+): TrainingPuzzle[] {
+  return generatedDailyPuzzles(dateKey, reservedBuckets, count);
 }

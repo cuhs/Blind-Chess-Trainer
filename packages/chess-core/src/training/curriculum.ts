@@ -165,11 +165,7 @@ const NODES: TrainingNode[] = [
     1,
     'Pins',
     'functional_geometry',
-    bankSlugs([
-      'drill-pin-knight',
-      'drill-pin-bishop',
-      'drill-pin-rook-pawn',
-    ]),
+    generators('motif_pin', ['0', '1', '2']),
   ),
   node(
     'node-4-2',
@@ -177,11 +173,7 @@ const NODES: TrainingNode[] = [
     2,
     'Forks',
     'functional_geometry',
-    bankSlugs([
-      'drill-fork-knight',
-      'drill-fork-royal-knight',
-      'drill-fork-knight-dual',
-    ]),
+    generators('motif_fork', ['0', '1', '2']),
   ),
   node(
     'node-4-3',
@@ -189,11 +181,7 @@ const NODES: TrainingNode[] = [
     3,
     'Hanging Pieces',
     'functional_geometry',
-    bankSlugs([
-      'drill-hanging-queen-a4',
-      'drill-hanging-queen-a7',
-      'drill-hanging-knight-f6',
-    ]),
+    generators('motif_hanging', ['0', '1', '2']),
   ),
   node(
     'node-5-1',
@@ -201,11 +189,7 @@ const NODES: TrainingNode[] = [
     1,
     'Check After Line',
     'story_check',
-    bankSlugs([
-      'drill-story-check',
-      'drill-story-check-yes',
-      'drill-story-check-white-no',
-    ]),
+    generators('story_check_line', ['0', '1', '2']),
   ),
   node(
     'node-5-2',

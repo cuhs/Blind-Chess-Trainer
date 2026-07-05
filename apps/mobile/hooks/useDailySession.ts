@@ -39,7 +39,7 @@ export function useDailySession() {
     peekPuzzleCount,
     sessionSize: puzzleCount,
     isCompletedToday,
-    isNotConfigured: bank.isNotConfigured,
+    isNotConfigured: false,
     isLoading: bank.isLoading,
     isError: bank.isError,
     error: bank.error,

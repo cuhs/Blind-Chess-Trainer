@@ -1,4 +1,5 @@
 import { describe, expect, it } from 'vitest';
+import { verifyGeneratedPuzzle } from '../verify-puzzle';
 import {
   buildShallowCalcAttackedPuzzle,
   buildShallowCalcStatePuzzle,
@@ -13,20 +14,25 @@ describe('shallow calc generators', () => {
     }
   });
 
-  it('attacked-square puzzles derive answers from board state', () => {
-    const afterE4 = buildShallowCalcAttackedPuzzle('0');
-    expect(afterE4.expected).toBe('yes');
-
-    const quiet = buildShallowCalcAttackedPuzzle('1');
-    expect(quiet.expected).toBe('no');
-
-    const bishopAims = buildShallowCalcAttackedPuzzle('2');
-    expect(bishopAims.expected).toBe('yes');
+  it('procedural seeds pass verification', () => {
+    for (const seed of ['0', '1', '2', '77']) {
+      expect(
+        verifyGeneratedPuzzle(buildShallowCalcAttackedPuzzle(seed), {
+          generatorId: 'shallow_calc_attacked',
+        }),
+      ).toEqual([]);
+      expect(
+        verifyGeneratedPuzzle(buildShallowCalcStatePuzzle(seed), {
+          generatorId: 'shallow_calc_state',
+        }),
+      ).toEqual([]);
+    }
   });
 
-  it('piece-still-there expected answers match board state', () => {
-    expect(buildShallowCalcStatePuzzle('0').expected).toBe('yes');
-    expect(buildShallowCalcStatePuzzle('1').expected).toBe('yes');
-    expect(buildShallowCalcStatePuzzle('2').expected).toBe('no');
+  it('attacked-square puzzles derive yes/no from board state', () => {
+    for (const seed of ['0', '1', '2']) {
+      const puzzle = buildShallowCalcAttackedPuzzle(seed);
+      expect(['yes', 'no']).toContain(puzzle.expected);
+    }
   });
 });

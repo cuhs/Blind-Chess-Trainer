@@ -1,5 +1,6 @@
 import type { Square } from '@mindboard/shared';
 import type { GeneratedTrainingPuzzle } from './types';
+import { pickFrom, seedToRng, puzzleId } from '../seed';
 
 interface ChunkFixture {
   fen: string;
@@ -35,6 +36,14 @@ const CHUNK_CASTLED: ChunkFixture[] = [
     squaresTouched: ['e1', 'h1'],
     subtitle: 'Recognize castling patterns.',
   },
+  {
+    fen: 'r3k2r/pppppppp/8/8/8/8/PPPPPPPP/R4RK1 w - - 0 1',
+    prompt: 'Which square is the White King on?',
+    answerType: 'square',
+    expected: 'g1',
+    squaresTouched: ['g1', 'f1'],
+    subtitle: 'Recognize castling patterns.',
+  },
 ];
 
 const CHUNK_FIANCHETTO: ChunkFixture[] = [
@@ -60,6 +69,14 @@ const CHUNK_FIANCHETTO: ChunkFixture[] = [
     answerType: 'yes-no',
     expected: 'yes',
     squaresTouched: ['g7', 'f8'],
+    subtitle: 'Spot fianchetto structures.',
+  },
+  {
+    fen: 'rnbqkb1r/pppppppp/5n2/8/8/5N2/PPPPPPPP/RNBQKB1R w KQkq - 2 3',
+    prompt: 'Has White fianchettoed a bishop?',
+    answerType: 'yes-no',
+    expected: 'no',
+    squaresTouched: ['c1', 'f1'],
     subtitle: 'Spot fianchetto structures.',
   },
 ];
@@ -89,19 +106,23 @@ const CHUNK_PAWN_CHAIN: ChunkFixture[] = [
     squaresTouched: ['e4', 'c2', 'f2'],
     subtitle: 'See pawn structures.',
   },
+  {
+    fen: 'rnbqkbnr/pp1ppppp/8/8/3P4/8/PP3PPP/RNBQKBNR w KQkq - 0 2',
+    prompt: 'Is the White pawn on d4 isolated?',
+    answerType: 'yes-no',
+    expected: 'yes',
+    squaresTouched: ['d4', 'c2', 'e2'],
+    subtitle: 'See pawn structures.',
+  },
 ];
-
-function puzzleId(generatorId: string, seed: string): string {
-  return `gen-${generatorId}-${seed}`;
-}
 
 function buildChunkPuzzle(
   generatorId: string,
   fixtures: ChunkFixture[],
   seed: string,
 ): GeneratedTrainingPuzzle {
-  const index = Number.parseInt(seed, 10);
-  const fixture = fixtures[index % fixtures.length]!;
+  const rng = seedToRng(`${generatorId}:${seed}`);
+  const fixture = pickFrom(rng, fixtures);
 
   return {
     id: puzzleId(generatorId, seed),

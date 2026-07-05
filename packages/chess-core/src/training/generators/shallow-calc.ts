@@ -1,122 +1,116 @@
 import { Chess } from 'chess.js';
 import type { Square } from '@mindboard/shared';
-import { applyMoves } from '../../validate';
 import type { GeneratedTrainingPuzzle } from './types';
+import { synthesizeOpeningLine } from '../position-synthesis/opening-lines';
+import { pickFrom, seedToRng, puzzleId } from '../seed';
 
-type ShallowVerify =
-  | { type: 'piece_on'; square: Square; color: 'w' | 'b'; pieceType?: string }
-  | { type: 'attacked'; square: Square; byColor: 'w' | 'b' };
+const PIECE_NAMES: Record<string, string> = {
+  k: 'king',
+  q: 'queen',
+  r: 'rook',
+  b: 'bishop',
+  n: 'knight',
+  p: 'pawn',
+};
 
-interface ShallowCalcFixture {
-  fen: string;
-  moves: string[];
-  prompt: string;
-  squaresTouched: Square[];
-  verify: ShallowVerify;
+function findPieceSquare(
+  chess: Chess,
+  color: 'w' | 'b',
+  type: string,
+): Square | null {
+  for (let file = 0; file < 8; file += 1) {
+    for (let rank = 1; rank <= 8; rank += 1) {
+      const sq = `${'abcdefgh'[file]}${rank}` as Square;
+      const piece = chess.get(sq);
+      if (piece && piece.color === color && piece.type === type) {
+        return sq;
+      }
+    }
+  }
+  return null;
 }
 
-const SHALLOW_STATE_FIXTURES: ShallowCalcFixture[] = [
-  {
-    fen: 'rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1',
-    moves: ['e4', 'e5', 'Nf3', 'Nc6', 'Bc4', 'Nf6'],
-    prompt: 'Is the White bishop still on c4?',
-    squaresTouched: ['c4', 'f6', 'e8'],
-    verify: { type: 'piece_on', square: 'c4', color: 'w', pieceType: 'b' },
-  },
-  {
-    fen: 'rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1',
-    moves: ['e4', 'e5', 'Nf3', 'Nc6'],
-    prompt: 'Is the White knight still on f3?',
-    squaresTouched: ['f3', 'c6', 'e5'],
-    verify: { type: 'piece_on', square: 'f3', color: 'w', pieceType: 'n' },
-  },
-  {
-    fen: 'rnbqkbnr/pppppppp/8/8/4P3/8/PPPP1PPP/RNBQKBNR b KQkq e3 0 1',
-    moves: ['d5', 'exd5'],
-    prompt: 'Is the White pawn still on e4?',
-    squaresTouched: ['e4', 'd5'],
-    verify: { type: 'piece_on', square: 'e4', color: 'w', pieceType: 'p' },
-  },
-];
+function buildShallowStatePuzzle(seed: string): GeneratedTrainingPuzzle {
+  const line = synthesizeOpeningLine(`shallow_state:${seed}`, 2, 5);
+  const chess = new Chess(line.displayFen);
+  const rng = seedToRng(`shallow_state_target:${seed}`);
 
-const SHALLOW_ATTACKED_FIXTURES: ShallowCalcFixture[] = [
-  {
-    fen: 'rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1',
-    moves: ['e4'],
-    prompt: 'Is d5 attacked by White?',
-    squaresTouched: ['e4', 'd5'],
-    verify: { type: 'attacked', square: 'd5', byColor: 'w' },
-  },
-  {
-    fen: 'rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1',
-    moves: ['e4', 'e5'],
-    prompt: 'Is f7 attacked by White?',
-    squaresTouched: ['e4', 'e5', 'f7'],
-    verify: { type: 'attacked', square: 'f7', byColor: 'w' },
-  },
-  {
-    fen: 'rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1',
-    moves: ['e4', 'e5', 'Nf3', 'Nc6', 'Bc4'],
-    prompt: 'Is f7 attacked by White?',
-    squaresTouched: ['c4', 'f7', 'e8'],
-    verify: { type: 'attacked', square: 'f7', byColor: 'w' },
-  },
-];
-
-function puzzleId(generatorId: string, seed: string): string {
-  return `gen-${generatorId}-${seed}`;
-}
-
-function evaluateVerify(fen: string, verify: ShallowVerify): 'yes' | 'no' {
-  const chess = new Chess(fen);
-
-  if (verify.type === 'piece_on') {
-    const piece = chess.get(verify.square);
-    const stillThere =
-      piece != null &&
-      piece.color === verify.color &&
-      (verify.pieceType ? piece.type === verify.pieceType : true);
-    return stillThere ? 'yes' : 'no';
+  const queryables: Array<{ color: 'w' | 'b'; type: string; square: Square }> =
+    [];
+  for (let file = 0; file < 8; file += 1) {
+    for (let rank = 1; rank <= 8; rank += 1) {
+      const sq = `${'abcdefgh'[file]}${rank}` as Square;
+      const piece = chess.get(sq);
+      if (piece && piece.type !== 'k') {
+        queryables.push({ color: piece.color, type: piece.type, square: sq });
+      }
+    }
   }
 
-  return chess.isAttacked(verify.square, verify.byColor) ? 'yes' : 'no';
-}
+  if (queryables.length === 0) {
+    throw new Error('No queryable pieces for shallow calc state');
+  }
 
-function buildShallowPuzzle(
-  generatorId: string,
-  fixtures: ShallowCalcFixture[],
-  seed: string,
-): GeneratedTrainingPuzzle {
-  const index = Number.parseInt(seed, 10);
-  const fixture = fixtures[index % fixtures.length]!;
-  const displayFen =
-    fixture.moves.length > 0
-      ? applyMoves(fixture.fen, fixture.moves)
-      : fixture.fen;
-  const expected = evaluateVerify(displayFen, fixture.verify);
+  const target = pickFrom(rng, queryables);
+  const colorLabel = target.color === 'w' ? 'White' : 'Black';
+  const pieceName = PIECE_NAMES[target.type] ?? 'piece';
 
   return {
-    id: puzzleId(generatorId, seed),
-    fen: fixture.fen,
-    moves: fixture.moves,
-    prompt: fixture.prompt,
+    id: puzzleId('shallow_calc_state', seed),
+    fen: line.fen,
+    moves: line.moves,
+    prompt: `Is the ${colorLabel} ${pieceName} still on ${target.square}?`,
+    answerType: 'yes-no',
+    expected: 'yes',
+    squaresTouched: [target.square],
+    subtitle: 'Follow the line, then verify.',
+  };
+}
+
+function buildShallowAttackedPuzzle(seed: string): GeneratedTrainingPuzzle {
+  const line = synthesizeOpeningLine(`shallow_attacked:${seed}`, 1, 4);
+  const chess = new Chess(line.displayFen);
+  const rng = seedToRng(`shallow_attacked_target:${seed}`);
+  const byWhite = rng() < 0.5;
+  const color = byWhite ? 'w' : 'b';
+  const attackedColor = byWhite ? 'b' : 'w';
+
+  const candidates: Square[] = [];
+  for (let file = 0; file < 8; file += 1) {
+    for (let rank = 1; rank <= 8; rank += 1) {
+      const sq = `${'abcdefgh'[file]}${rank}` as Square;
+      if (chess.get(sq)?.color === attackedColor) {
+        candidates.push(sq);
+      }
+    }
+  }
+
+  const fallback = findPieceSquare(chess, attackedColor, 'p') ?? 'e5';
+  const target = pickFrom(
+    rng,
+    candidates.length > 0 ? candidates : [fallback],
+  );
+  const expected = chess.isAttacked(target, color) ? 'yes' : 'no';
+  const colorLabel = byWhite ? 'White' : 'Black';
+
+  return {
+    id: puzzleId('shallow_calc_attacked', seed),
+    fen: line.fen,
+    moves: line.moves,
+    prompt: `Is ${target} attacked by ${colorLabel}?`,
     answerType: 'yes-no',
     expected,
-    squaresTouched: fixture.squaresTouched,
+    squaresTouched: [target],
     subtitle: 'Follow the line, then verify.',
   };
 }
 
 export function buildShallowCalcStatePuzzle(seed: string): GeneratedTrainingPuzzle {
-  return buildShallowPuzzle('shallow_calc_state', SHALLOW_STATE_FIXTURES, seed);
+  return buildShallowStatePuzzle(seed);
 }
 
 export function buildShallowCalcAttackedPuzzle(
   seed: string,
 ): GeneratedTrainingPuzzle {
-  return buildShallowPuzzle(
-    'shallow_calc_attacked',
-    SHALLOW_ATTACKED_FIXTURES,
-    seed,
-  );
+  return buildShallowAttackedPuzzle(seed);
 }

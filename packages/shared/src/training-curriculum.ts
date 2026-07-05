@@ -10,7 +10,8 @@ export type PuzzleKind =
 
 export type NodePuzzleSource =
   | { type: 'bank_slug'; slug: string }
-  | { type: 'generator'; generatorId: string; seed: string };
+  | { type: 'generator'; generatorId: string; seed: string }
+  | { type: 'category'; category: string; seed: string };
 
 export type NodeStarRating = 0 | 1 | 2 | 3;
 

@@ -390,7 +390,10 @@ function validateGeneratedPuzzle(
 
   if (generatorId === 'chunk_pawn_chain' && chess) {
     if (puzzle.prompt.includes('isolated')) {
-      const expected = isPawnIsolated(chess, 'e4', 'w') ? 'yes' : 'no';
+      const square = extractSquareFromPrompt(puzzle.prompt) ?? ('e4' as Square);
+      const piece = chess.get(square);
+      const color = piece?.color ?? 'w';
+      const expected = isPawnIsolated(chess, square, color) ? 'yes' : 'no';
       if (puzzle.expected !== expected) {
         issues.push({
           nodeId,

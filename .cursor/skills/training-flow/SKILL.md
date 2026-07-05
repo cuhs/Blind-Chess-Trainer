@@ -12,7 +12,7 @@ disable-model-invocation: false
 Phase 2 pedagogy: tactile input only (no voice). Two modes:
 
 1. **Training path** — linear 6-unit curriculum (`packages/chess-core/src/training/curriculum.ts`), 3 puzzles per node, progress in `guestStore.trainingProgress`
-2. **Daily matrix** — 3 puzzles/day from `puzzle_bank` + peek events (`useDailySession`)
+2. **Daily matrix** — 3 puzzles/day from **generated categories** (`selectDailyCategoryPuzzles`) + peek events + optional `puzzle_bank` top-up (`useDailySession`)
 
 ## Routes
 
@@ -26,21 +26,24 @@ Phase 2 pedagogy: tactile input only (no voice). Two modes:
 
 ## Data flow
 
-### Daily matrix (unchanged)
+### Daily matrix (generator-first)
 
 ```
-puzzle_bank (Supabase) + match peekEvents (guestStore; one per position)
-  → peekPuzzles + usePuzzleBank
-  → useDailySession (selectDailyPuzzles — up to 2 peek + bank fill, 3 per todayKey)
+match peekEvents (guestStore; one per position)
+  → peekPuzzles + optional usePuzzleBank (hybrid top-up)
+  → selectDailyPuzzles (up to 2 peek + generated category spread + bank fill)
+  → useDailySession
   → useTrainingSessionController (kind: daily)
   → ActivePuzzleSession
 ```
 
+Works offline from generators when Supabase bank is empty.
+
 ### Training path
 
 ```
-CURRICULUM (chess-core) + buildTrainingPuzzleSpec (generators) + puzzle_bank slugs
-  → useNodePuzzles(nodeId)
+CURRICULUM (chess-core) + buildTrainingPuzzleSpec / buildPuzzleFromCategory
+  → useNodePuzzles(nodeId) — session-derived seeds for variety
   → useTrainingSessionController (kind: node)
   → completeTrainingNode → trainingProgress
 ```
@@ -51,10 +54,10 @@ Onboarding credits `node-2-1` + `node-5-1` via `onboardingCurriculumBridge` on `
 
 | Hook | Role |
 |------|------|
-| `usePuzzleBank` | Loads all active `puzzle_bank` rows via React Query |
-| `useDailySession` | Bank + peek puzzles; 3 per `todayKey()`; daily completion gate |
+| `usePuzzleBank` | Optional: load active `puzzle_bank` rows for hybrid daily top-up |
+| `useDailySession` | Generated + peek puzzles (+ optional bank); 3 per `todayKey()` |
 | `useTrainingSessionController` | Daily or node session bootstrap, resume, completion |
-| `useNodePuzzles` | Resolve node `puzzles[]` from bank slugs + generators |
+| `useNodePuzzles` | Resolve node puzzles from generators/categories (session-derived seeds) |
 | `useTrainingPath` | Path map units/nodes, active node |
 | `useDrillSessionController` | Deprecated — use `useTrainingSessionController` |
 | `useResolvedPuzzle` | `resolveTrainingPuzzle` per puzzle |
@@ -77,7 +80,7 @@ Onboarding credits `node-2-1` + `node-5-1` via `onboardingCurriculumBridge` on `
 
 `coordinate`, `static_recall`, `move_update`, `functional_geometry`, `shallow_calc`, `chunk`, `story_check` — see `packages/shared/src/training-curriculum.ts`.
 
-Generators: `packages/chess-core/src/training/generators/`. Unit 4–5 bank nodes use `puzzle_bank` slugs; optional DB columns `puzzle_kind`, `training_node_id`.
+Generators: `packages/chess-core/src/training/generators/` + `categories/` + `position-synthesis/`. Motif nodes use `motif_*` generator IDs; story check uses `story_check_line`. Verify: `npm run validate:generators`. Optional export: `npm run generate:puzzles`.
 
 Validate seeds: `cd packages/chess-core && npm run validate:puzzles`.
 

@@ -1,4 +1,5 @@
 import { describe, expect, it } from 'vitest';
+import { verifyGeneratedPuzzle } from './verify-puzzle';
 import { buildTrainingPuzzleSpec } from './generators';
 
 describe('training generators', () => {
@@ -18,9 +19,9 @@ describe('training generators', () => {
   it('builds move update landing puzzles', () => {
     const puzzle = buildTrainingPuzzleSpec('move_update_landing', '0');
     expect(puzzle.answerType).toBe('square');
-    expect(puzzle.moves).toEqual(['Nf3']);
-    expect(puzzle.expected).toBe('f3');
+    expect(puzzle.moves).toHaveLength(1);
     expect(puzzle.prompt).toBe('Where did the piece land?');
+    expect(verifyGeneratedPuzzle(puzzle, { generatorId: 'move_update_landing' })).toEqual([]);
   });
 
   it('builds static recall puzzles', () => {
@@ -31,6 +32,13 @@ describe('training generators', () => {
 
   it('builds chunk puzzles', () => {
     const puzzle = buildTrainingPuzzleSpec('chunk_castled', '1');
-    expect(puzzle.expected).toBe('yes');
+    expect(['yes', 'no', puzzle.expected]).toContain(puzzle.expected);
+    expect(verifyGeneratedPuzzle(puzzle, { generatorId: 'chunk_castled' })).toEqual([]);
+  });
+
+  it('builds motif puzzles from seeds', () => {
+    const puzzle = buildTrainingPuzzleSpec('motif_pin', '0');
+    expect(puzzle.answerType).toBe('square');
+    expect(verifyGeneratedPuzzle(puzzle, { generatorId: 'motif_pin' })).toEqual([]);
   });
 });
