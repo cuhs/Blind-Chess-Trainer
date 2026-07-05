@@ -56,7 +56,7 @@ interface PieceMap {
 
 Adapter: `src/motifs/adapters.ts` (`motifToResult`, `pieceToSanRef`).
 Questions: `src/motifs/questions.ts` (`buildPuzzleFromMotif`).
-Mobile resolve: `src/motifs/resolve-training-puzzle.ts` — engine prompt when `expected` matches; curated alternate prompts (e.g. bishop square on a pin) stay in `puzzle_bank`.
+Mobile resolve: `src/motifs/resolve-training-puzzle.ts` — engine prompt when `expected` matches; curated alternate prompts (e.g. bishop square on a pin) may remain in optional `puzzle_bank` regression rows.
 
 ```typescript
 interface MotifResult {
@@ -85,7 +85,7 @@ DailyDrill implements Story-of-the-Position UX (both Stitch training frames). No
 FEN → analyzePosition() → Motif | null → buildPuzzleFromMotif() → question text
 ```
 
-LLM never analyzes position. `null` → use static `puzzle_bank` prompt.
+LLM never analyzes position. `null` → skip or use static prompt from generator/`puzzle_bank` regression fixture.
 
 ## Seed validation
 

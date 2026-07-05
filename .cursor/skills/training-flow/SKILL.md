@@ -2,8 +2,8 @@
 name: training-flow
 description: >-
   Phase 2 training suite — TrainingHub path, TrainingNode levels, DailyDrill,
-  puzzle_bank loading, curriculum generators, memorize/narration phases, and
-  motif-backed prompt resolution. Use when building or extending training drills.
+  runtime puzzle generators (primary), optional puzzle_bank top-up, memorize/narration
+  phases, and motif-backed prompt resolution. Use when building or extending training drills.
 disable-model-invocation: false
 ---
 

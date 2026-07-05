@@ -1,6 +1,8 @@
 import { Chess, type Color, type PieceSymbol, type Square } from 'chess.js';
 import { analyzePosition } from '../motifs/analyze-position';
+import { detectOverloadedDefenders } from '../motifs/divergent';
 import { buildInfluenceMap } from '../motifs/influence';
+import { rankMotifs } from '../motifs/sorter';
 import { buildPuzzleFromMotif } from '../motifs/questions';
 import { applyMoves } from '../validate';
 import type { GeneratedTrainingPuzzle } from './generators/types';
@@ -468,7 +470,7 @@ export function verifyGeneratedPuzzle(
   if (generatorId?.startsWith('motif_') && chess) {
     const motifType = motifTypeFromGeneratorId(generatorId);
     const prev = previousFenFor(puzzle.fen, puzzle.moves);
-    const motif = analyzePosition(chess.fen(), prev);
+    const motif = resolveMotifForVerification(chess.fen(), prev, motifType);
     if (!motif) {
       issues.push({ puzzleRef: ref, message: 'Expected motif detection' });
     } else if (motif.type !== motifType) {
@@ -518,10 +520,27 @@ const GENERATOR_TO_MOTIF: Record<string, MotifType> = {
   motif_overloaded: 'overloaded_defender',
 };
 
-function motifTypeFromGeneratorId(generatorId: string): MotifType {
+export function motifTypeFromGeneratorId(generatorId: string): MotifType {
   const mapped = GENERATOR_TO_MOTIF[generatorId];
   if (mapped) return mapped;
   return generatorId.replace('motif_', '') as MotifType;
+}
+
+export function resolveMotifForVerification(
+  fen: string,
+  previousFen: string | undefined,
+  motifType: MotifType,
+): ReturnType<typeof analyzePosition> {
+  const ranked = analyzePosition(fen, previousFen);
+  if (ranked?.type === motifType) return ranked;
+
+  if (motifType === 'overloaded_defender') {
+    const influenceMap = buildInfluenceMap(fen);
+    if (!influenceMap) return null;
+    return rankMotifs(detectOverloadedDefenders(fen, influenceMap));
+  }
+
+  return null;
 }
 
 export function assertVerifiedPuzzle(

@@ -1,7 +1,6 @@
 import {
   buildPuzzleFromCategory,
   buildTrainingPuzzleSpec,
-  categoryDailyBucket,
   deriveNodePuzzleSeed,
   getNode,
   selectDailyCategoryPuzzles,

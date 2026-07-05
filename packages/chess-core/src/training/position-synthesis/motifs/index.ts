@@ -2,6 +2,9 @@ import { Chess } from 'chess.js';
 import type { Color, Square } from 'chess.js';
 import type { Motif, MotifType } from '../../../types/motifs';
 import { analyzePosition } from '../../../motifs/analyze-position';
+import { detectOverloadedDefenders } from '../../../motifs/divergent';
+import { buildInfluenceMap } from '../../../motifs/influence';
+import { rankMotifs } from '../../../motifs/sorter';
 import { buildPuzzleFromMotif } from '../../../motifs/questions';
 import { applyMoves } from '../../../validate';
 import type { GeneratedTrainingPuzzle } from '../../generators/types';
@@ -116,15 +119,15 @@ const DISCOVERED_TEMPLATES: Array<(seed: string) => MotifLayout | null> = [
 
 const OVERLOADED_TEMPLATES: Array<(seed: string) => MotifLayout | null> = [
   () => ({
-    fen: '4k3/8/8/4q3/3B4/8/4n3/4K3 w - - 0 1',
+    fen: '4k3/8/5N2/5q2/4P1N1/8/8/4K3 w - - 0 1',
     moves: [],
   }),
   () => ({
-    fen: '4k3/8/4q3/8/3B4/4n3/8/4K3 w - - 0 1',
+    fen: '4k3/8/5N2/5q2/4P1N1/8/8/4K3 w - - 0 1',
     moves: [],
   }),
   () => ({
-    fen: '4k3/8/8/3q4/3R4/4n3/8/4K3 w - - 0 1',
+    fen: '4k3/8/4N3/5q2/4P1N1/8/8/4K3 w - - 0 1',
     moves: [],
   }),
 ];
@@ -189,6 +192,23 @@ function previousFenFor(layout: MotifLayout): string | undefined {
   return applyMoves(layout.fen, layout.moves.slice(0, -1));
 }
 
+function resolveMotifForType(
+  fen: string,
+  previousFen: string | undefined,
+  motifType: MotifType,
+): Motif | null {
+  const ranked = analyzePosition(fen, previousFen);
+  if (ranked?.type === motifType) return ranked;
+
+  if (motifType === 'overloaded_defender') {
+    const influenceMap = buildInfluenceMap(fen);
+    if (!influenceMap) return null;
+    return rankMotifs(detectOverloadedDefenders(fen, influenceMap));
+  }
+
+  return null;
+}
+
 export function synthesizeMotifLayout(
   motifType: MotifType,
   seed: string,
@@ -213,7 +233,7 @@ export function synthesizeMotifLayout(
     }
 
     const previousFen = previousFenFor(layout);
-    const motif = analyzePosition(fen, previousFen);
+    const motif = resolveMotifForType(fen, previousFen, motifType);
     if (motif?.type === motifType) {
       return { layout, motif };
     }

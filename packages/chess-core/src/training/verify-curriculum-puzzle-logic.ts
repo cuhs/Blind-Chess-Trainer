@@ -9,6 +9,10 @@ import { CURRICULUM } from './curriculum';
 import { buildTrainingPuzzleSpec } from './generators';
 import { isLightSquare } from './generators/coordinate';
 import type { GeneratedTrainingPuzzle } from './generators/types';
+import {
+  motifTypeFromGeneratorId,
+  resolveMotifForVerification,
+} from './verify-puzzle';
 
 export interface PuzzleLogicIssue {
   nodeId: string;
@@ -295,7 +299,8 @@ function solveGeneratedPuzzle(
         : puzzle.moves.length === 1
           ? puzzle.fen
           : applyMoves(puzzle.fen, puzzle.moves.slice(0, -1));
-    const motif = analyzePosition(afterFen, previousFen);
+    const motifType = motifTypeFromGeneratorId(generatorId);
+    const motif = resolveMotifForVerification(afterFen, previousFen, motifType);
     if (!motif) return null;
     return buildPuzzleFromMotif(motif).expected;
   }

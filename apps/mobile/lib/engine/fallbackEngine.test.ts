@@ -28,7 +28,7 @@ describe('getFallbackMove', () => {
     afterE4.move('e4');
 
     const replies = new Set<string>();
-    for (let i = 0; i < 8; i++) {
+    for (let i = 0; i < 48; i++) {
       replies.add(getFallbackMove(afterE4.fen(), 1200));
     }
 

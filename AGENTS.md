@@ -217,7 +217,7 @@ cd apps/api && npm run dev
 cd packages/chess-core && npm test
 cd packages/chess-core && npm run validate:puzzles    # motif bank fixtures
 cd packages/chess-core && npm run validate:curriculum # fixed training-path seeds
-cd packages/chess-core && npm run validate:generators # fuzz all puzzle categories
+cd packages/chess-core && npm run validate:generators # fuzz all categories + verify-puzzle golden tests
 cd packages/chess-core && npm run generate:puzzles -- --category pin --count 100 --verify
 npx @_davideast/stitch-mcp doctor          # verify Stitch API
 ```

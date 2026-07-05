@@ -59,11 +59,12 @@ Target pipeline (not fully wired):
 
 ```
 Voice match peek → heatmap_ledger (match_peek) + guestStore.peekEvents
-  → motif engine → puzzle_bank row (source: peek)
+  → lib/peekPuzzles.ts (runtime motif puzzle, source: peek)
+  → useDailySession (up to 2 peek slots + generated categories + optional bank)
   → DailyDrill → fog lifts
 ```
 
-**Today:** puzzle training records `heatmap_ledger` on answer via `useTrainingAnswer`. Match peeks write a `match_peek` ledger row on **every** peek; `guestStore.addPeekEvent` stores at most **one** event per position (`positionKeyFromFen`). Finished matches persist to `guestStore.matchHistory` (AsyncStorage, cap 50) on finalize; Analysis tab lists them and `ReplayScreen` uses `buildMatchReplaySteps` so peeks/illegal attempts are their own timeline steps at the exact FEN, with dismissible `ReplayHeatmapBoard` overlay. `lib/peekPuzzles.ts` turns yesterday's peeks into `source: 'peek'` drills merged in `useDailySession`. Server-side `puzzle_bank` insert remains Phase 4.
+**Today:** puzzle training records `heatmap_ledger` on answer via `useTrainingAnswer`. Match peeks write a `match_peek` ledger row on **every** peek; `guestStore.addPeekEvent` stores at most **one** event per position (`positionKeyFromFen`). Finished matches persist to `guestStore.matchHistory` (AsyncStorage, cap 50) on finalize; Analysis tab lists them and `ReplayScreen` uses `buildMatchReplaySteps` so peeks/illegal attempts are their own timeline steps at the exact FEN, with dismissible `ReplayHeatmapBoard` overlay. `lib/peekPuzzles.ts` turns yesterday's peeks into `source: 'peek'` drills; remaining daily slots are filled by **runtime generators** (`buildPuzzleFromCategory` via `selectDailyPuzzles`). Optional `puzzle_bank` rows may top up variety; server-side bank insert remains Phase 4 cache/export.
 
 ## Checklist
 
