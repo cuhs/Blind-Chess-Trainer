@@ -49,7 +49,39 @@ describe('resolveTrainingPuzzle', () => {
     expect(resolved.prompt).toBe('Is the Black King in check?');
   });
 
-  it('should resolve an overloaded defender even when hanging pieces also exist', () => {
+  it('should keep a curated alternate prompt when a hanging piece shares the answer square', () => {
+    const resolved = resolveTrainingPuzzle({
+      id: 'drill-hanging-attacker-rook',
+      fen: '4k3/8/8/8/q7/8/8/R3K3 w - - 0 1',
+      moves: [],
+      prompt: 'What square is the attacking rook on?',
+      answerType: 'square',
+      expected: 'a1',
+      squaresTouched: ['a1', 'a4'],
+    });
+
+    expect(resolved.engineBacked).toBe(false);
+    expect(resolved.prompt).toBe('What square is the attacking rook on?');
+    expect(resolved.expected).toBe('a1');
+  });
+
+  it('should keep a static-recall prompt when a hanging piece shares the square but is not the ranked motif', () => {
+    const resolved = resolveTrainingPuzzle({
+      id: 'recall-forked-knight',
+      fen: '8/8/8/3n1b2/4P3/8/8/4K2k w - - 0 1',
+      moves: [],
+      prompt: 'Which square is the Black knight on?',
+      answerType: 'square',
+      expected: 'd5',
+      squaresTouched: ['d5'],
+    });
+
+    expect(resolved.engineBacked).toBe(false);
+    expect(resolved.prompt).toBe('Which square is the Black knight on?');
+    expect(resolved.expected).toBe('d5');
+  });
+
+  it('should engine-back an overloaded defender when it is the ranked motif', () => {
     const resolved = resolveTrainingPuzzle({
       id: 'drill-overload-knight',
       fen: '3k4/8/5Np1/5q2/4P1N1/8/8/4K3 w - - 0 1',

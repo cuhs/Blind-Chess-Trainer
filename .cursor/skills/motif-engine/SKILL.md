@@ -29,7 +29,7 @@ const draft = motif ? buildPuzzleFromMotif(motif) : null;
 const resolved = resolveTrainingPuzzle(trainingPuzzle); // mobile DailyDrill
 ```
 
-Orchestrator: influence map → linear / divergent / discovered detectors → `rankMotifs` (single winner). `resolveTrainingPuzzle` overlays the engine prompt when **any** detected motif matches `expected` (not only the ranked winner), so overload questions still engine-back when a hanging piece also exists.
+Orchestrator: influence map → linear / divergent / discovered detectors → `rankMotifs` (single winner).
 
 Forks and non-check discovered attacks filter through `isSquareTacticallyThreatened` (undefended, underdefended, or royal fork / value-winning fork). A fork needs **two** tactically threatened targets unless it is royal or value-winning. See `reference.md` § Fork Edge Cases.
 
@@ -58,7 +58,7 @@ interface PieceMap {
 
 Adapter: `src/motifs/adapters.ts` (`motifToResult`, `pieceToSanRef`).
 Questions: `src/motifs/questions.ts` (`buildPuzzleFromMotif`).
-Mobile resolve: `src/motifs/resolve-training-puzzle.ts` — engine prompt when `expected` matches **any** detected motif (ranked winner preferred on ties); curated alternate prompts (e.g. bishop square on a pin) may remain in optional `puzzle_bank` regression rows.
+Mobile resolve: `src/motifs/resolve-training-puzzle.ts` — engine prompt when `expected` matches the **ranked** motif; curated alternate prompts (e.g. bishop square on a pin) stay when they differ.
 
 ```typescript
 interface MotifResult {
