@@ -31,12 +31,27 @@ function previousFenFor(puzzle: TrainingPuzzleInput): string | undefined {
   return applyMoves(puzzle.fen, puzzle.moves.slice(0, -1));
 }
 
+/**
+ * Engine prompt overlay is only for motif puzzles (generators, motif bank
+ * fixtures, match peeks). Recall / move-tracking / coordinate drills keep
+ * their own prompts even when a hanging piece shares the answer square.
+ */
+export function shouldOverlayEnginePrompt(puzzleId: string): boolean {
+  return /(?:^|-)motif_|^(?:drill-(?:pin|fork|skewer|hang|disc|overload)|peek-)/i.test(
+    puzzleId,
+  );
+}
+
 export function resolveTrainingPuzzle(
   puzzle: TrainingPuzzleInput,
 ): ResolvedTrainingPuzzle {
   const displayFen = displayFenFor(puzzle);
 
   if (puzzle.answerType !== 'square') {
+    return { ...puzzle, displayFen, engineBacked: false };
+  }
+
+  if (!shouldOverlayEnginePrompt(puzzle.id)) {
     return { ...puzzle, displayFen, engineBacked: false };
   }
 

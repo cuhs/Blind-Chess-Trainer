@@ -60,7 +60,7 @@ Onboarding credits `node-2-1` + `node-5-1` via `onboardingCurriculumBridge` on `
 | `useNodePuzzles` | Resolve node puzzles from generators with session-derived seeds (no bank) |
 | `useTrainingPath` | Path map units/nodes, active node |
 | `useDrillSessionController` | Deprecated — use `useTrainingSessionController` |
-| `useResolvedPuzzle` | `resolveTrainingPuzzle` per puzzle |
+| `useResolvedPuzzle` | `resolveTrainingPuzzle` — motif/peek overlay only; recall/move prompts stay |
 | `usePuzzleSessionPhase` | memorize → narrate → answer |
 | `useTrainingAnswer` | Validate + heatmap ledger |
 | `useDailyMatrix` | Daily puzzle count + peek loop badge |

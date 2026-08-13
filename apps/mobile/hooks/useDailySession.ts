@@ -38,7 +38,7 @@ export function useDailySession() {
     sessionSize: puzzles.length,
     isCompletedToday: lastDrillCompletedDate === todayKey(),
     isLoading: bank.isLoading,
-    isError: bank.isError,
-    error: bank.error,
+    isError: bank.isError && puzzles.length === 0,
+    error: bank.isError && puzzles.length === 0 ? bank.error : null,
   };
 }

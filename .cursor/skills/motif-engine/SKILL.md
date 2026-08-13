@@ -58,7 +58,7 @@ interface PieceMap {
 
 Adapter: `src/motifs/adapters.ts` (`motifToResult`, `pieceToSanRef`).
 Questions: `src/motifs/questions.ts` (`buildPuzzleFromMotif`).
-Mobile resolve: `src/motifs/resolve-training-puzzle.ts` — engine prompt when `expected` matches the **ranked** motif; curated alternate prompts (e.g. bishop square on a pin) stay when they differ.
+Mobile resolve: `src/motifs/resolve-training-puzzle.ts` — engine prompt only for motif/peek/bank-motif ids, and only when `expected` matches the **ranked** motif. Recall, move-tracking, and coordinate drills keep their own prompts. Curated alternate prompts (e.g. bishop square on a pin) stay when they differ.
 
 ```typescript
 interface MotifResult {
@@ -104,7 +104,7 @@ Fixtures: `src/motifs/fixtures/puzzle-bank-fixtures.json` (regression only — t
 ```
 - [x] ≥5 positive + ≥3 negative FENs per motif
 - [x] Adapter + deterministic question builder
-- [ ] ≥90% branch coverage (run test:coverage)
+- [x] ≥90% branch coverage (src/motifs 91.6% branch via `test:coverage`)
 - [x] Questions match Stitch geometry style, not engine lines
 ```
 

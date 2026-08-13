@@ -11,7 +11,7 @@ export { detectDiscoveredAttacks } from './discovered';
 export { rankMotifs } from './sorter';
 export { motifToResult, pieceToSanRef } from './adapters';
 export { buildPuzzleFromMotif } from './questions';
-export { resolveTrainingPuzzle } from './resolve-training-puzzle';
+export { resolveTrainingPuzzle, shouldOverlayEnginePrompt } from './resolve-training-puzzle';
 export type {
   ResolvedTrainingPuzzle,
   TrainingPuzzleInput,

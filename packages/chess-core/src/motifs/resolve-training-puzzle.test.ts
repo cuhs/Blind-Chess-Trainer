@@ -1,5 +1,8 @@
 import { describe, it, expect } from 'vitest';
-import { resolveTrainingPuzzle } from './resolve-training-puzzle';
+import {
+  resolveTrainingPuzzle,
+  shouldOverlayEnginePrompt,
+} from './resolve-training-puzzle';
 
 describe('resolveTrainingPuzzle', () => {
   it('should use engine prompt when expected answer matches the detected motif', () => {
@@ -113,5 +116,38 @@ describe('resolveTrainingPuzzle', () => {
     expect(resolved.engineBacked).toBe(true);
     expect(resolved.prompt).toBe('What square does the White Bishop attack from?');
     expect(resolved.displayFen).toContain('3P4');
+  });
+
+  it('does not overlay a hanging-piece prompt onto a static-recall drill', () => {
+    const resolved = resolveTrainingPuzzle({
+      id: 'gen-static_recall_2-0:0',
+      fen: '8/8/8/8/8/4P3/8/4K3 w - - 0 1',
+      moves: [],
+      prompt: 'Which square is the White pawn on?',
+      answerType: 'square',
+      expected: 'e3',
+      squaresTouched: ['e3'],
+    });
+
+    expect(shouldOverlayEnginePrompt(resolved.id)).toBe(false);
+    expect(resolved.engineBacked).toBe(false);
+    expect(resolved.prompt).toBe('Which square is the White pawn on?');
+    expect(resolved.expected).toBe('e3');
+  });
+
+  it('does not overlay a hanging-piece prompt onto a move-landing drill', () => {
+    const resolved = resolveTrainingPuzzle({
+      id: 'gen-move_update_landing-0',
+      fen: '4k3/8/8/8/8/8/4P3/4K3 w - - 0 1',
+      moves: ['e4'],
+      prompt: 'Where did the piece land?',
+      answerType: 'square',
+      expected: 'e4',
+      squaresTouched: ['e2', 'e4'],
+    });
+
+    expect(resolved.engineBacked).toBe(false);
+    expect(resolved.prompt).toBe('Where did the piece land?');
+    expect(resolved.expected).toBe('e4');
   });
 });
