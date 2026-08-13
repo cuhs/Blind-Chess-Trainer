@@ -19,6 +19,37 @@ describe('detectDiscoveredAttacks', () => {
     );
   });
 
+  it('should detect a discovered check when a pawn capture opens a rook file among extra pawns', () => {
+    const previousFen = '7k/8/8/8/8/6p1/P6P/2K4R w - - 0 1';
+    const currentFen = '7k/8/8/8/8/6P1/P7/2K4R b - - 0 1';
+    const discoveries = detectDiscoveredAttacks(previousFen, currentFen);
+
+    expect(discoveries).toContainEqual(
+      expect.objectContaining({
+        type: 'discovered_attack',
+        attacker: expect.objectContaining({ square: 'h1', type: 'r' }),
+        target: expect.objectContaining({ square: 'h8', type: 'k' }),
+        unmaskedBy: expect.objectContaining({ square: 'g3', type: 'p', color: 'w' }),
+        isCheck: true,
+      }),
+    );
+  });
+
+  it('should detect a discovered check when one of two knights vacates a rook file', () => {
+    const previousFen = '7k/8/8/8/8/8/N6N/2K4R w - - 0 1';
+    const currentFen = '7k/8/8/8/6N1/8/N7/2K4R b - - 1 1';
+    const discoveries = detectDiscoveredAttacks(previousFen, currentFen);
+
+    expect(discoveries).toContainEqual(
+      expect.objectContaining({
+        attacker: expect.objectContaining({ square: 'h1', type: 'r' }),
+        target: expect.objectContaining({ square: 'h8', type: 'k' }),
+        unmaskedBy: expect.objectContaining({ square: 'g4', type: 'n', color: 'w' }),
+        isCheck: true,
+      }),
+    );
+  });
+
   it('should detect a discovered check when a pawn capture opens a rook file', () => {
     const previousFen = '7k/8/8/8/8/6p1/7P/2K4R w - - 0 1';
     const currentFen = '7k/8/8/8/8/6P1/8/2K4R b - - 0 1';

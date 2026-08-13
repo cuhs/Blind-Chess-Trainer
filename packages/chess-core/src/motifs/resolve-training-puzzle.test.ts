@@ -49,6 +49,24 @@ describe('resolveTrainingPuzzle', () => {
     expect(resolved.prompt).toBe('Is the Black King in check?');
   });
 
+  it('should resolve an overloaded defender even when hanging pieces also exist', () => {
+    const resolved = resolveTrainingPuzzle({
+      id: 'drill-overload-knight',
+      fen: '3k4/8/5Np1/5q2/4P1N1/8/8/4K3 w - - 0 1',
+      moves: [],
+      prompt: 'Placeholder',
+      answerType: 'square',
+      expected: 'f6',
+      squaresTouched: ['f6', 'e4', 'g4'],
+    });
+
+    expect(resolved.engineBacked).toBe(true);
+    expect(resolved.prompt).toBe(
+      'What square is the White Knight that defends multiple attacked pieces on?',
+    );
+    expect(resolved.expected).toBe('f6');
+  });
+
   it('should resolve discovered attacks when moves supply the previous ply', () => {
     const resolved = resolveTrainingPuzzle({
       id: 'drill-discovered-bishop',

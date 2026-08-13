@@ -15,8 +15,12 @@ function motifPieceValueSum(motif: Motif): number {
       pieces.push(motif.attacker, ...motif.targets);
       break;
     case 'hanging_piece':
-      pieces.push(motif.piece, ...motif.attackers);
-      break;
+      // Weight the hanging piece so a hanging queen outranks a hanging rook
+      // when they attack each other (equal attacker+target sums otherwise).
+      return (
+        PIECE_VALUES[motif.piece.type] * 10 +
+        motif.attackers.reduce((sum, piece) => sum + PIECE_VALUES[piece.type], 0)
+      );
     case 'overloaded_defender':
       pieces.push(motif.defender, ...motif.threatenedPieces);
       break;

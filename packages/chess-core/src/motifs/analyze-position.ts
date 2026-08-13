@@ -9,9 +9,9 @@ import { buildInfluenceMap } from './influence';
 import { detectLinearMotifs } from './linear';
 import { rankMotifs } from './sorter';
 
-export function analyzePosition(fen: string, previousFen?: string): Motif | null {
+export function collectMotifs(fen: string, previousFen?: string): Motif[] {
   const influenceMap = buildInfluenceMap(fen);
-  if (!influenceMap) return null;
+  if (!influenceMap) return [];
 
   const motifs: Motif[] = [
     ...detectLinearMotifs(fen, influenceMap),
@@ -24,5 +24,9 @@ export function analyzePosition(fen: string, previousFen?: string): Motif | null
     motifs.push(...detectDiscoveredAttacks(previousFen, fen));
   }
 
-  return rankMotifs(motifs);
+  return motifs;
+}
+
+export function analyzePosition(fen: string, previousFen?: string): Motif | null {
+  return rankMotifs(collectMotifs(fen, previousFen));
 }

@@ -1,4 +1,4 @@
-export { analyzePosition } from './analyze-position';
+export { analyzePosition, collectMotifs } from './analyze-position';
 export { buildInfluenceMap } from './influence';
 export { detectLinearMotifs } from './linear';
 export {

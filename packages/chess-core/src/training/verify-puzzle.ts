@@ -21,6 +21,9 @@ import {
   pawnDiagonallyDefends,
   previousFenFor,
   promptLeaksSquare,
+  sideNotToMoveIsInCheck,
+  solveCoordinateNeighborSeed,
+  solveKnightReachSeed,
 } from './puzzle-semantics';
 
 export interface VerifyIssue {
@@ -63,6 +66,15 @@ export function verifyGeneratedPuzzle(
         issues.push({ puzzleRef: ref, message: 'Invalid display FEN' });
         return issues;
       }
+      if (
+        generatorId?.startsWith('motif_') &&
+        sideNotToMoveIsInCheck(chess.fen())
+      ) {
+        issues.push({
+          puzzleRef: ref,
+          message: 'Display FEN leaves the side not to move in check',
+        });
+      }
     } catch (error) {
       issues.push({
         puzzleRef: ref,
@@ -87,22 +99,17 @@ export function verifyGeneratedPuzzle(
 
   if (generatorId === 'coordinate_neighbor') {
     const match = puzzle.prompt.match(/(?:above|right of)\s+([a-h][1-8])/i);
-    const square = match?.[1]?.toLowerCase() as Square | undefined;
+    const square = match?.[1]?.toLowerCase();
     if (square) {
       const axis = puzzle.prompt.includes('rank') ? 'rank' : 'file';
-      const file = square.charCodeAt(0);
-      const rank = Number.parseInt(square[1]!, 10);
-      const expected =
-        axis === 'rank'
-          ? (`${square[0]}${rank + 1}` as Square)
-          : (`${String.fromCharCode(file + 1)}${square[1]}` as Square);
-      if (puzzle.expected !== expected) {
+      const expected = solveCoordinateNeighborSeed(`${square}:${axis}`);
+      if (!expected) {
+        issues.push({ puzzleRef: ref, message: `Neighbor off board from ${square}` });
+      } else if (puzzle.expected !== expected) {
         issues.push({
           puzzleRef: ref,
           message: `Neighbor mismatch: expected ${expected}, got ${puzzle.expected}`,
         });
-      } else if (!/^[a-h][1-8]$/.test(expected)) {
-        issues.push({ puzzleRef: ref, message: `Neighbor ${expected} off board` });
       }
     }
   }
@@ -112,16 +119,10 @@ export function verifyGeneratedPuzzle(
       /knight on ([a-h][1-8]) reach ([a-h][1-8])/i,
     );
     if (match) {
-      const from = match[1]!.toLowerCase() as Square;
-      const to = match[2]!.toLowerCase() as Square;
-      const reachChess = new Chess();
-      reachChess.remove('a1');
-      reachChess.put({ type: 'n', color: 'w' }, from);
-      const canReach = reachChess
-        .moves({ square: from, verbose: true })
-        .some((move) => move.to === to);
-      const expected = canReach ? 'yes' : 'no';
-      if (puzzle.expected !== expected) {
+      const from = match[1]!.toLowerCase();
+      const to = match[2]!.toLowerCase();
+      const expected = solveKnightReachSeed(`${from}:${to}`);
+      if (expected && puzzle.expected !== expected) {
         issues.push({
           puzzleRef: ref,
           message: `Knight reach mismatch for ${from}→${to}`,

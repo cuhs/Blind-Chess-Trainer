@@ -1,4 +1,5 @@
 import { describe, it, expect } from 'vitest';
+import { analyzePosition } from './analyze-position';
 import { buildInfluenceMap, isSquareTacticallyThreatened } from './influence';
 import {
   detectDivergentMotifs,
@@ -145,6 +146,32 @@ describe('detectHangingPieces', () => {
     );
   });
 
+  it('should prefer a hanging queen over a hanging rook when they attack each other', () => {
+    const fen = '4k3/8/8/8/q7/8/8/R3K3 w - - 0 1';
+    const hanging = detectHangingPieces(fen, mapFor(fen));
+    const squares = hanging.map((h) => h.piece.square);
+
+    expect(squares).toEqual(expect.arrayContaining(['a1', 'a4']));
+    expect(analyzePosition(fen)).toEqual(
+      expect.objectContaining({
+        type: 'hanging_piece',
+        piece: expect.objectContaining({ square: 'a4', type: 'q' }),
+      }),
+    );
+  });
+
+  it('should detect a hanging bishop attacked along a file', () => {
+    const fen = '4k3/8/8/5R2/8/5b2/8/4K3 w - - 0 1';
+    const hanging = detectHangingPieces(fen, mapFor(fen));
+
+    expect(hanging).toContainEqual(
+      expect.objectContaining({
+        piece: expect.objectContaining({ square: 'f3', type: 'b' }),
+      }),
+    );
+    expect(analyzePosition(fen)?.type).toBe('hanging_piece');
+  });
+
   it('should not flag a defended piece as hanging', () => {
     const fen = '3k4/8/8/4b3/3Q4/4B3/8/4K3 w - - 0 1';
     const hanging = detectHangingPieces(fen, mapFor(fen));
@@ -161,6 +188,20 @@ describe('detectHangingPieces', () => {
 });
 
 describe('detectOverloadedDefenders', () => {
+  it('should detect a legal overloaded knight as the ranked motif', () => {
+    const fen = '3k4/8/5Np1/5q2/4P1N1/8/8/4K3 w - - 0 1';
+    const map = mapFor(fen);
+    const overloaded = detectOverloadedDefenders(fen, map);
+
+    expect(overloaded).toContainEqual(
+      expect.objectContaining({
+        defender: expect.objectContaining({ square: 'f6', type: 'n' }),
+        defendedSquares: expect.arrayContaining(['e4', 'g4']),
+      }),
+    );
+    expect(analyzePosition(fen)?.type).toBe('overloaded_defender');
+  });
+
   it('should detect a knight that is the sole defender of two attacked pieces', () => {
     const fen = '4k3/8/5N2/5q2/4P1N1/8/8/4K3 w - - 0 1';
     const map = mapFor(fen);

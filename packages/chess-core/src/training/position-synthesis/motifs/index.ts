@@ -7,6 +7,7 @@ import { buildInfluenceMap } from '../../../motifs/influence';
 import { rankMotifs } from '../../../motifs/sorter';
 import { buildPuzzleFromMotif } from '../../../motifs/questions';
 import { applyMoves } from '../../../validate';
+import { sideNotToMoveIsInCheck } from '../../puzzle-semantics';
 import type { GeneratedTrainingPuzzle } from '../../generators/types';
 import { puzzleId, seedToRng, pickFrom } from '../../seed';
 
@@ -35,6 +36,10 @@ const PIN_TEMPLATES: Array<(seed: string) => MotifLayout | null> = [
     fen: '4k3/8/8/8/4q3/8/4P3/4K3 w - - 0 1',
     moves: [],
   }),
+  () => ({
+    fen: 'r3k3/8/8/8/8/5n2/6B1/4K3 w - - 0 1',
+    moves: [],
+  }),
 ];
 
 const FORK_TEMPLATES: Array<(seed: string) => MotifLayout | null> = [
@@ -51,7 +56,7 @@ const FORK_TEMPLATES: Array<(seed: string) => MotifLayout | null> = [
     moves: [],
   }),
   () => ({
-    fen: 'k7/8/8/8/3N4/8/2q5/K7 w - - 0 1',
+    fen: 'k7/8/8/5r2/3N4/8/2q5/K7 w - - 0 1',
     moves: [],
   }),
   () => ({
@@ -70,14 +75,14 @@ const SKEWER_TEMPLATES: Array<(seed: string) => MotifLayout | null> = [
     moves: [],
   }),
   () => ({
-    fen: '4k3/8/8/8/8/3K4/3B4/4r3 w - - 0 1',
+    fen: '4k3/8/8/8/1r1K3Q/8/8/8 w - - 0 1',
     moves: [],
   }),
 ];
 
 const HANGING_TEMPLATES: Array<(seed: string) => MotifLayout | null> = [
   () => ({
-    fen: '4k3/8/8/8/q7/8/8/R3K3 w - - 0 1',
+    fen: '4k3/8/8/8/q7/8/8/RK6 w - - 0 1',
     moves: [],
   }),
   () => ({
@@ -85,11 +90,11 @@ const HANGING_TEMPLATES: Array<(seed: string) => MotifLayout | null> = [
     moves: [],
   }),
   () => ({
-    fen: '4k3/q7/8/8/8/8/8/R3K3 w - - 0 1',
+    fen: '4k3/q7/8/8/8/8/8/RK6 w - - 0 1',
     moves: [],
   }),
   () => ({
-    fen: '4k3/8/8/8/8/4r3/8/4K3 w - - 0 1',
+    fen: '4k3/8/8/5R2/8/5b2/8/4K3 w - - 0 1',
     moves: [],
   }),
 ];
@@ -119,15 +124,15 @@ const DISCOVERED_TEMPLATES: Array<(seed: string) => MotifLayout | null> = [
 
 const OVERLOADED_TEMPLATES: Array<(seed: string) => MotifLayout | null> = [
   () => ({
-    fen: '4k3/8/5N2/5q2/4P1N1/8/8/4K3 w - - 0 1',
+    fen: '3k4/8/5Np1/5q2/4P1N1/8/8/4K3 w - - 0 1',
     moves: [],
   }),
   () => ({
-    fen: '4k3/8/5N2/5q2/4P1N1/8/8/4K3 w - - 0 1',
+    fen: '2k5/8/5Np1/5q2/4P1N1/8/8/4K3 w - - 0 1',
     moves: [],
   }),
   () => ({
-    fen: '4k3/8/4N3/5q2/4P1N1/8/8/4K3 w - - 0 1',
+    fen: '1k6/8/5Np1/5q2/4P1N1/8/8/4K3 w - - 0 1',
     moves: [],
   }),
 ];
@@ -233,6 +238,8 @@ export function synthesizeMotifLayout(
     }
 
     const previousFen = previousFenFor(layout);
+    if (sideNotToMoveIsInCheck(fen)) continue;
+
     const motif = resolveMotifForType(fen, previousFen, motifType);
     if (motif?.type === motifType) {
       return { layout, motif };

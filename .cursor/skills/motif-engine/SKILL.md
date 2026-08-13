@@ -16,18 +16,20 @@ Pure TypeScript in `packages/chess-core/src/motifs/`. No LLM calls. Powers Stitc
 ```typescript
 import {
   analyzePosition,
+  collectMotifs,
   motifToResult,
   buildPuzzleFromMotif,
   resolveTrainingPuzzle,
 } from '@mindboard/chess-core';
 
-const motif = analyzePosition(fen, previousFen?); // Motif | null
+const motifs = collectMotifs(fen, previousFen?); // Motif[]
+const motif = analyzePosition(fen, previousFen?); // Motif | null (ranked winner)
 const result = motif ? motifToResult(motif) : null;
 const draft = motif ? buildPuzzleFromMotif(motif) : null;
 const resolved = resolveTrainingPuzzle(trainingPuzzle); // mobile DailyDrill
 ```
 
-Orchestrator: influence map → linear / divergent / discovered detectors → `rankMotifs` (single winner).
+Orchestrator: influence map → linear / divergent / discovered detectors → `rankMotifs` (single winner). `resolveTrainingPuzzle` overlays the engine prompt when **any** detected motif matches `expected` (not only the ranked winner), so overload questions still engine-back when a hanging piece also exists.
 
 Forks and non-check discovered attacks filter through `isSquareTacticallyThreatened` (undefended, underdefended, or royal fork / value-winning fork). A fork needs **two** tactically threatened targets unless it is royal or value-winning. See `reference.md` § Fork Edge Cases.
 

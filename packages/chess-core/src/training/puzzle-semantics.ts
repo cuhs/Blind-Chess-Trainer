@@ -1,4 +1,5 @@
 import { Chess, type Color, type PieceSymbol, type Square } from 'chess.js';
+import { ALL_SQUARES } from '@mindboard/shared';
 import { applyMoves } from '../validate';
 
 export const PIECE_WORD: Record<string, PieceSymbol> = {
@@ -154,6 +155,21 @@ export function solveCoordinateNeighborSeed(seed: string): Square | null {
       ? (`${square[0]}${rank + 1}` as Square)
       : (`${String.fromCharCode(file + 1)}${square[1]}` as Square);
   return /^[a-h][1-8]$/.test(expected) ? expected : null;
+}
+
+/** True when the side that just moved left their king in check (illegal FEN). */
+export function sideNotToMoveIsInCheck(fen: string): boolean {
+  const chess = loadFen(fen);
+  if (!chess) return true;
+  const attacker = chess.turn();
+  const enemy: Color = attacker === 'w' ? 'b' : 'w';
+  for (const square of ALL_SQUARES) {
+    const piece = chess.get(square);
+    if (piece?.type === 'k' && piece.color === enemy) {
+      return chess.isAttacked(square, attacker);
+    }
+  }
+  return false;
 }
 
 export function solveKnightReachSeed(seed: string): 'yes' | 'no' | null {
