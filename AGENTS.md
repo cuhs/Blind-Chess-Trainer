@@ -253,3 +253,12 @@ feat(mobile): implement HookBoard from Stitch frame a7e36868
 feat(mobile): add tokens.ts from Playful Tactile Minimalism
 fix(voice-pipeline): map homophone "night" to knight
 ```
+
+## Cursor Cloud specific instructions
+
+The cloud VM is **Linux with no macOS/Xcode/iOS Simulator**. This shapes what runs here:
+
+- **Runs here:** all Vitest suites (`chess-core`, `mobile`, `heatmap`, `voice-pipeline`) and the chess-core CLIs (`generate:puzzles`, `validate:*`). Node 22 is preinstalled; deps install with `npm ci` at the repo root (npm workspaces). Vitest exercises the engine via Stockfish **WASM** (the `stockfish` devDep) — the native `npm run nnue` weights download and `npm run ios:build` are **not** needed for tests.
+- **Does NOT run here:** `npm run ios` / `ios:build` (needs Xcode), and the `ios-simulator` MCP UI checks (needs a booted Simulator). `npx expo start --web` **fails** — this app has no `react-native-web` and web is intentionally not a target; do not add it.
+- **Verify the app JS bundles without a device:** `cd apps/mobile && npx expo start` (Metro), then request the iOS bundle from the expo-router entry: `curl "http://localhost:8081/node_modules/expo-router/entry.bundle?platform=ios&dev=true"`. A `200` + "Bundled … entry.js (N modules)" in the Metro log proves the full app compiles. Note `/index.bundle` **404s** because `main` is `expo-router/entry`, not `index`.
+- **Supabase is optional.** The app is guest-first/offline (`guestStore` + AsyncStorage) and all training puzzles are generated at runtime, so no `.env.local` is required to run tests or bundle. Configure `.env.local` only when validating cloud sync.
