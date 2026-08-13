@@ -43,7 +43,7 @@ Works offline from generators when Supabase bank is empty.
 
 ```
 CURRICULUM (chess-core) + buildTrainingPuzzleSpec / buildPuzzleFromCategory
-  → useNodePuzzles(nodeId) — fresh sessions keep curriculum seeds; retries derive new seeds for variety
+  → useNodePuzzles(nodeId) — first attempt keeps curriculum seeds; in-progress resume stays on that same key; replays after stars use `replay-${stars}`
   → useTrainingSessionController (kind: node)
   → completeTrainingNode → trainingProgress
 ```
@@ -57,7 +57,7 @@ Onboarding credits `node-2-1` + `node-5-1` via `onboardingCurriculumBridge` on `
 | `usePuzzleBank` | Optional: load active `puzzle_bank` rows for hybrid daily top-up |
 | `useDailySession` | Generated + peek puzzles (+ optional bank); 3 per `todayKey()` |
 | `useTrainingSessionController` | Daily or node session bootstrap, resume, completion |
-| `useNodePuzzles` | Resolve node puzzles from generators with session-derived seeds (no bank) |
+| `useNodePuzzles` | Resolve node puzzles from generators; session key is stable mid-session (no bank) |
 | `useTrainingPath` | Path map units/nodes, active node |
 | `useDrillSessionController` | Deprecated — use `useTrainingSessionController` |
 | `useResolvedPuzzle` | `resolveTrainingPuzzle` — motif/peek overlay only; recall/move prompts stay |

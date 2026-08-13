@@ -55,6 +55,23 @@ describe('resolveNodePuzzles', () => {
     );
   });
 
+  it('must not use completed puzzle ids as the session key', () => {
+    const fresh = resolveNodePuzzles('node-4-1', [], 'fresh');
+    const midSessionKey = fresh.map((puzzle) => puzzle.id).join(',');
+    const regenerated = resolveNodePuzzles('node-4-1', [], midSessionKey);
+    expect(regenerated.map((puzzle) => puzzle.id)).not.toEqual(
+      fresh.map((puzzle) => puzzle.id),
+    );
+  });
+
+  it('keeps the same puzzles for a stable fresh key after the first answer', () => {
+    const before = resolveNodePuzzles('node-4-1', [], 'fresh');
+    const after = resolveNodePuzzles('node-4-1', [], 'fresh');
+    expect(after.map((puzzle) => puzzle.id)).toEqual(
+      before.map((puzzle) => puzzle.id),
+    );
+  });
+
   it('resolves story_check_line node without bank', () => {
     const puzzles = resolveNodePuzzles('node-5-1', [], 'fresh');
     expect(puzzles).toHaveLength(3);

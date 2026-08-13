@@ -62,7 +62,7 @@ chess.js owns position. UI state in Zustand. Server state via TanStack Query.
 | `usePuzzleBank` | Optional: load `puzzle_bank` rows for hybrid daily top-up (not required for generators) |
 | `useDailySession` | Generated + peek puzzles (+ optional bank); 3 per `todayKey()`; works without bank |
 | `useTrainingSessionController` | Daily or node session bootstrap/resume; `completeDailyDrill` or `completeTrainingNode` on finish |
-| `useNodePuzzles` | Resolve node puzzles from generators only (no Supabase bank) |
+| `useNodePuzzles` | Resolve node puzzles from generators only; stable session key mid-session |
 | `useTrainingPath` | Path map units/nodes, active node |
 | `useDrillSessionController` | Deprecated wrapper — prefer `useTrainingSessionController` |
 | `useProfileSync` | Hydrate `matchElo` from `profiles` — mount once under `(main)` |

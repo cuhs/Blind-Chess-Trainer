@@ -109,6 +109,24 @@ export function completedIdsForNode(
   return nodeSessionProgress.completedPuzzleIds;
 }
 
+/**
+ * Seed key for curriculum generators. Must stay stable while a node session
+ * is in progress — completed puzzle ids must never be folded into the key
+ * or remaining puzzles regenerate mid-session and resume breaks.
+ *
+ * First attempt (node not yet completed) uses curriculum seeds (`fresh`).
+ * Replays after earning stars use `replay-${stars}` so the set differs
+ * from the canonical first attempt without changing during resume.
+ */
+export function nodePuzzleSessionKey(
+  nodeId: string,
+  trainingProgress: TrainingProgress,
+): string {
+  if (!isNodeCompleted(trainingProgress, nodeId)) return 'fresh';
+  const stars = trainingProgress.nodeStars[nodeId] ?? 0;
+  return `replay-${stars}`;
+}
+
 export function nodePassed(
   node: TrainingNode,
   correctCount: number,

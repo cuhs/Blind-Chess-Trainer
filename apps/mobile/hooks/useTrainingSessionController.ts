@@ -48,6 +48,9 @@ export function useTrainingSessionController(mode: SessionMode) {
     (s) => s.recordNodePuzzleComplete,
   );
   const completeTrainingNode = useGuestStore((s) => s.completeTrainingNode);
+  const clearNodeSessionProgress = useGuestStore(
+    (s) => s.clearNodeSessionProgress,
+  );
   const setActiveTrainingNode = useGuestStore((s) => s.setActiveTrainingNode);
 
   const finishDailyDrill = useCallback(() => {
@@ -64,12 +67,15 @@ export function useTrainingSessionController(mode: SessionMode) {
     ) as NodeStarRating;
     if (correctCountRef.current >= mode.passThreshold) {
       completeTrainingNode(mode.nodeId, stars);
+    } else {
+      clearNodeSessionProgress();
     }
     router.back();
   }, [
     mode,
     peekCount,
     completeTrainingNode,
+    clearNodeSessionProgress,
     router,
   ]);
 
