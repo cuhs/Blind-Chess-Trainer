@@ -1,5 +1,8 @@
 import { describe, it, expect } from 'vitest';
-import { resolveTrainingPuzzle } from './resolve-training-puzzle';
+import {
+  resolveTrainingPuzzle,
+  shouldOverlayEnginePrompt,
+} from './resolve-training-puzzle';
 
 describe('resolveTrainingPuzzle', () => {
   it('should use engine prompt when expected answer matches the detected motif', () => {
@@ -49,6 +52,56 @@ describe('resolveTrainingPuzzle', () => {
     expect(resolved.prompt).toBe('Is the Black King in check?');
   });
 
+  it('should keep a curated alternate prompt when a hanging piece shares the answer square', () => {
+    const resolved = resolveTrainingPuzzle({
+      id: 'drill-hanging-attacker-rook',
+      fen: '4k3/8/8/8/q7/8/8/R3K3 w - - 0 1',
+      moves: [],
+      prompt: 'What square is the attacking rook on?',
+      answerType: 'square',
+      expected: 'a1',
+      squaresTouched: ['a1', 'a4'],
+    });
+
+    expect(resolved.engineBacked).toBe(false);
+    expect(resolved.prompt).toBe('What square is the attacking rook on?');
+    expect(resolved.expected).toBe('a1');
+  });
+
+  it('should keep a static-recall prompt when a hanging piece shares the square but is not the ranked motif', () => {
+    const resolved = resolveTrainingPuzzle({
+      id: 'recall-forked-knight',
+      fen: '8/8/8/3n1b2/4P3/8/8/4K2k w - - 0 1',
+      moves: [],
+      prompt: 'Which square is the Black knight on?',
+      answerType: 'square',
+      expected: 'd5',
+      squaresTouched: ['d5'],
+    });
+
+    expect(resolved.engineBacked).toBe(false);
+    expect(resolved.prompt).toBe('Which square is the Black knight on?');
+    expect(resolved.expected).toBe('d5');
+  });
+
+  it('should engine-back an overloaded defender when it is the ranked motif', () => {
+    const resolved = resolveTrainingPuzzle({
+      id: 'drill-overload-knight',
+      fen: '3k4/8/5Np1/5q2/4P1N1/8/8/4K3 w - - 0 1',
+      moves: [],
+      prompt: 'Placeholder',
+      answerType: 'square',
+      expected: 'f6',
+      squaresTouched: ['f6', 'e4', 'g4'],
+    });
+
+    expect(resolved.engineBacked).toBe(true);
+    expect(resolved.prompt).toBe(
+      'What square is the White Knight that defends multiple attacked pieces on?',
+    );
+    expect(resolved.expected).toBe('f6');
+  });
+
   it('should resolve discovered attacks when moves supply the previous ply', () => {
     const resolved = resolveTrainingPuzzle({
       id: 'drill-discovered-bishop',
@@ -63,5 +116,38 @@ describe('resolveTrainingPuzzle', () => {
     expect(resolved.engineBacked).toBe(true);
     expect(resolved.prompt).toBe('What square does the White Bishop attack from?');
     expect(resolved.displayFen).toContain('3P4');
+  });
+
+  it('does not overlay a hanging-piece prompt onto a static-recall drill', () => {
+    const resolved = resolveTrainingPuzzle({
+      id: 'gen-static_recall_2-0:0',
+      fen: '8/8/8/8/8/4P3/8/4K3 w - - 0 1',
+      moves: [],
+      prompt: 'Which square is the White pawn on?',
+      answerType: 'square',
+      expected: 'e3',
+      squaresTouched: ['e3'],
+    });
+
+    expect(shouldOverlayEnginePrompt(resolved.id)).toBe(false);
+    expect(resolved.engineBacked).toBe(false);
+    expect(resolved.prompt).toBe('Which square is the White pawn on?');
+    expect(resolved.expected).toBe('e3');
+  });
+
+  it('does not overlay a hanging-piece prompt onto a move-landing drill', () => {
+    const resolved = resolveTrainingPuzzle({
+      id: 'gen-move_update_landing-0',
+      fen: '4k3/8/8/8/8/8/4P3/4K3 w - - 0 1',
+      moves: ['e4'],
+      prompt: 'Where did the piece land?',
+      answerType: 'square',
+      expected: 'e4',
+      squaresTouched: ['e2', 'e4'],
+    });
+
+    expect(resolved.engineBacked).toBe(false);
+    expect(resolved.prompt).toBe('Where did the piece land?');
+    expect(resolved.expected).toBe('e4');
   });
 });

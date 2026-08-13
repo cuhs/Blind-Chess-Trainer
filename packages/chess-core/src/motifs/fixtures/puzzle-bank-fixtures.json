@@ -345,11 +345,11 @@
     "moves": [],
     "motifJson": {
       "motif": "hanging_piece",
-      "attacker": "Qa4",
-      "target": "Ra1"
+      "attacker": "Ra1",
+      "target": "Qa4"
     },
-    "nlpPrompt": "What square is the undefended rook on?",
-    "expectedAnswer": "a1",
+    "nlpPrompt": "What square is the undefended queen on?",
+    "expectedAnswer": "a4",
     "skipEngine": false
   },
   {
@@ -358,8 +358,8 @@
     "moves": [],
     "motifJson": {
       "motif": "hanging_piece",
-      "attacker": "Qa4",
-      "target": "Ra1"
+      "attacker": "Ra1",
+      "target": "Qa4"
     },
     "nlpPrompt": "What square is the attacking rook on?",
     "expectedAnswer": "a1",
@@ -567,11 +567,11 @@
     "moves": [],
     "motifJson": {
       "motif": "hanging_piece",
-      "attacker": "Qa7",
-      "target": "Ra1"
+      "attacker": "Ra1",
+      "target": "Qa7"
     },
-    "nlpPrompt": "What square is the undefended rook on?",
-    "expectedAnswer": "a1",
+    "nlpPrompt": "What square is the undefended queen on?",
+    "expectedAnswer": "a7",
     "skipEngine": false
   },
   {

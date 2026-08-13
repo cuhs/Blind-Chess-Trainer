@@ -110,6 +110,19 @@ describe('detectLinearMotifs', () => {
     );
   });
 
+  it('should detect a skewer along a rank when a rook attacks a king with a queen behind', () => {
+    const fen = '4k3/8/8/8/1r1K3Q/8/8/8 w - - 0 1';
+    const motifs = detect(fen).filter((m) => m.type === 'skewer');
+
+    expect(motifs).toContainEqual(
+      expect.objectContaining({
+        attacker: expect.objectContaining({ square: 'b4', type: 'r' }),
+        frontPiece: expect.objectContaining({ square: 'd4', type: 'k' }),
+        rearPiece: expect.objectContaining({ square: 'h4', type: 'q' }),
+      }),
+    );
+  });
+
   it('should not detect linear motifs when the attacker does not actually attack the front piece', () => {
     const fen = '4k3/8/8/8/8/8/4P3/4K3 w - - 0 1';
     const board = buildInfluenceMap(fen)!;
@@ -118,6 +131,35 @@ describe('detectLinearMotifs', () => {
     const motifs = detectLinearMotifs(fen, board).filter((m) => m.type === 'pin');
 
     expect(motifs).toHaveLength(0);
+  });
+
+  it('should detect a relative pin when a bishop pins a knight to a rook', () => {
+    const fen = 'r3k3/8/8/8/8/5n2/6B1/4K3 w - - 0 1';
+    const motifs = detect(fen).filter((m) => m.type === 'pin');
+
+    expect(motifs).toContainEqual(
+      expect.objectContaining({
+        type: 'pin',
+        pinKind: 'relative',
+        pinnedPiece: expect.objectContaining({ square: 'f3', type: 'n' }),
+        kingBehind: expect.objectContaining({ square: 'a8', type: 'r' }),
+        attacker: expect.objectContaining({ square: 'g2', type: 'b' }),
+      }),
+    );
+  });
+
+  it('should detect an absolute pin when a queen pins a pawn to the king', () => {
+    const fen = '4k3/8/8/8/4q3/8/4P3/4K3 w - - 0 1';
+    const motifs = detect(fen).filter((m) => m.type === 'pin');
+
+    expect(motifs).toContainEqual(
+      expect.objectContaining({
+        pinKind: 'absolute',
+        pinnedPiece: expect.objectContaining({ square: 'e2', type: 'p' }),
+        kingBehind: expect.objectContaining({ square: 'e1', type: 'k' }),
+        attacker: expect.objectContaining({ square: 'e4', type: 'q' }),
+      }),
+    );
   });
 
   it('should not detect a relative pin when the rear is defended and not tactically capturable', () => {

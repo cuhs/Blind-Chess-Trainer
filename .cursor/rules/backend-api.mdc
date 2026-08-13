@@ -36,4 +36,4 @@ alwaysApply: false
 
 ## Peek → Puzzle
 
-Peek event → queue FEN → motif engine → LLM template → `puzzle_bank` row with `source = 'peek'`.
+Match peek (client) → `guestStore.peekEvents` (deduped by position) → `peekPuzzles` for daily drill (up to 2/session). Remaining daily slots come from runtime generators (`selectDailyCategoryPuzzles`); optional `puzzle_bank` top-up when Supabase is linked. Bulk export: `npm run generate:puzzles` in chess-core. Server-side peek → bank insert remains optional Phase 4 cache.

@@ -5,6 +5,7 @@ import {
   isNodeCompleted,
   isNodeUnlocked,
   nextPlayableNode,
+  nodePuzzleSessionKey,
   starsForSession,
 } from './trainingProgress';
 
@@ -38,5 +39,28 @@ describe('trainingProgress', () => {
     expect(starsForSession(3, 3, 0)).toBe(3);
     expect(starsForSession(3, 3, 2)).toBe(1);
     expect(starsForSession(2, 3, 0)).toBe(2);
+  });
+});
+
+describe('nodePuzzleSessionKey', () => {
+  it('stays fresh while an uncompleted node is in progress', () => {
+    expect(nodePuzzleSessionKey('node-4-1', EMPTY_TRAINING_PROGRESS)).toBe(
+      'fresh',
+    );
+    const otherNodeCompleted = applyNodeCompletion(
+      EMPTY_TRAINING_PROGRESS,
+      'node-1-1',
+      3,
+    );
+    expect(nodePuzzleSessionKey('node-4-1', otherNodeCompleted)).toBe('fresh');
+  });
+
+  it('uses a stable replay key after the node is completed', () => {
+    const completed = applyNodeCompletion(
+      EMPTY_TRAINING_PROGRESS,
+      'node-4-1',
+      2,
+    );
+    expect(nodePuzzleSessionKey('node-4-1', completed)).toBe('replay-2');
   });
 });

@@ -22,20 +22,22 @@ supabase config push   # syncs enable_anonymous_sign_ins from config.toml
 6. After verifying the app works, disable legacy **anon** / **service_role** keys under **API → Legacy API Keys**.
 7. Restart Metro: `cd apps/mobile && npm start`.
 
-### Puzzle bank updates
+### Puzzle bank (optional regression + hybrid top-up)
 
-Curated drills live in `packages/chess-core/src/motifs/fixtures/puzzle-bank-fixtures.json` (54 rows) and `supabase/seed.sql`.
+Training drills are **generated at runtime** in `packages/chess-core/src/training/` (`buildPuzzleFromCategory`, `buildTrainingPuzzleSpec`). The mobile app works without any `puzzle_bank` rows.
+
+The 54 curated fixtures in `packages/chess-core/src/motifs/fixtures/puzzle-bank-fixtures.json` and `supabase/seed.sql` are golden regression tests and an optional hybrid daily top-up when Supabase is linked.
 
 ```bash
 cd packages/chess-core
-npm run probe:puzzles          # validate candidate FENs → probe-output.json (gitignored)
-# merge new rows into puzzle-bank-fixtures.json
-npm run generate:seed          # regenerate seed.sql
-npm run validate:puzzles
-supabase db query --linked -f supabase/seed.sql   # upsert cloud puzzle_bank
+npm run validate:generators    # fuzz all categories (primary CI gate)
+npm run validate:puzzles       # 54 bank fixtures
+npm run generate:puzzles -- --category pin --count 100 --verify   # bulk verified export
+npm run generate:seed          # regenerate seed.sql from fixtures (after manual fixture edits)
+supabase db query --linked -f supabase/seed.sql   # upsert cloud puzzle_bank (optional)
 ```
 
-`probe-output.json` is local-only — do not commit.
+Legacy authoring flow (`probe:puzzles` → merge fixtures → `generate:seed`) remains for hand-curated rows. `probe-output.json` is local-only — do not commit.
 
 ### Agent / MCP
 

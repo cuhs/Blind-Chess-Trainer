@@ -113,6 +113,8 @@ For fresh onboarding: clear guest storage or reinstall — onboarding only shows
 | 9 | Training hub | Tab Training → `DailyMatrixCard` visible; Start navigates to drill |
 | 10 | Daily drill | 5s board → invisible grid → keypad answer; progress chrome updates |
 | 10b | Drill resume | Complete 1 of 3 → leave drill → re-enter | Resumes at position 2 of 3 |
+| 10c | Generator daily | With empty `puzzle_bank` / offline auth only | Daily drill still shows 3 puzzles (generated categories) |
+| 10d | Training node | Open unit 4 pin node | 3 motif puzzles load without bank slugs |
 | 11 | Match setup | Tab Match → scroll to `Start blindfold match` → tap |
 | 12 | Match play | Type in `Enter move in SAN` + `Submit move`; or tap mic → heard text in field → auto-submits only when confidence meets length tier, else tap Play; after submit: status spinner + "Engine thinking…" + "Move sent"; peek + cover controls |
 

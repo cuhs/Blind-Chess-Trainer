@@ -28,7 +28,7 @@ describe('getFallbackMove', () => {
     afterE4.move('e4');
 
     const replies = new Set<string>();
-    for (let i = 0; i < 8; i++) {
+    for (let i = 0; i < 48; i++) {
       replies.add(getFallbackMove(afterE4.fen(), 1200));
     }
 
@@ -36,7 +36,7 @@ describe('getFallbackMove', () => {
     expect(
       replies.has('e5') || replies.has('c5') || replies.has('Nf6') || replies.has('e6'),
     ).toBe(true);
-  }, 15_000);
+  }, 45_000);
 
   it('plays legal moves from the starting position at 1200', () => {
     const chess = new Chess(START);

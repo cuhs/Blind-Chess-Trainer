@@ -11,7 +11,7 @@ alwaysApply: false
 | Layer | Tool | When |
 |-------|------|------|
 | Unit | Vitest | `packages/*` logic — **always before merge** |
-| Integration | Vitest + fixtures | API, normalizer, validate |
+| Integration | Vitest + fixtures | API, normalizer, validate; chess-core `validate:generators` + `validate:curriculum` |
 | Simulator UI | **ios-simulator MCP** | `apps/mobile` screens/flows after UI changes |
 
 Motif engine: ≥90% branch coverage. Voice normalizer: table-driven homophone tests.

@@ -59,14 +59,14 @@ chess.js owns position. UI state in Zustand. Server state via TanStack Query.
 
 | Hook | Role |
 |------|------|
-| `usePuzzleBank` | Load all active `puzzle_bank` rows via React Query |
-| `useDailySession` | Slice to 3 puzzles per `todayKey()`; `isCompletedToday` from `lastDrillCompletedDate`; resume via `drillProgress` |
+| `usePuzzleBank` | Optional: load `puzzle_bank` rows for hybrid daily top-up (not required for generators) |
+| `useDailySession` | Generated + peek puzzles (+ optional bank); 3 per `todayKey()`; works without bank |
 | `useTrainingSessionController` | Daily or node session bootstrap/resume; `completeDailyDrill` or `completeTrainingNode` on finish |
-| `useNodePuzzles` | Resolve curriculum node puzzles (bank + generators) |
+| `useNodePuzzles` | Resolve node puzzles from generators only; stable session key mid-session |
 | `useTrainingPath` | Path map units/nodes, active node |
 | `useDrillSessionController` | Deprecated wrapper — prefer `useTrainingSessionController` |
 | `useProfileSync` | Hydrate `matchElo` from `profiles` — mount once under `(main)` |
-| `useResolvedPuzzle` | `resolveTrainingPuzzle` — engine prompt when motif matches `expected` |
+| `useResolvedPuzzle` | `resolveTrainingPuzzle` — motif/peek ids only; ranked motif must match `expected` |
 | `usePuzzleSessionPhase` | memorize → narrate → answer; `showBoard: false` skips board/peek (coordinate drills); standard-start + moves skips memorize |
 | `useMemorizePhase` | 5s board memorize step |
 | `useStoryNarration` | Move TTS via `expo-speech` (puzzles with `moves[]`) |

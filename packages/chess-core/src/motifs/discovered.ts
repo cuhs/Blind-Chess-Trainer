@@ -18,27 +18,55 @@ interface MoveDiff {
   piece: PieceMap;
 }
 
+function samePiece(
+  a: PieceMap | null,
+  b: PieceMap | null,
+): boolean {
+  return Boolean(a && b && a.type === b.type && a.color === b.color);
+}
+
+/**
+ * Match pieces that left a square to pieces that arrived on another.
+ * Captured pieces leave without arriving. Same-type extras (two knights,
+ * extra pawns) must not steal the mover's destination.
+ */
 function diffMoves(previousFen: string, currentFen: string): MoveDiff[] {
   const prev = scanBoard(previousFen);
   const curr = scanBoard(currentFen);
   if (!prev || !curr) return [];
 
-  const diffs: MoveDiff[] = [];
+  const leavers: PieceMap[] = [];
+  const arrivers: PieceMap[] = [];
 
   for (const square of ALL_SQUARES) {
     const before = prev[square];
     const after = curr[square];
-    if (!before || after) continue;
+    if (samePiece(before, after)) continue;
+    if (before) leavers.push(before);
+    if (after) arrivers.push(after);
+  }
 
-    const destination = getOccupiedSquares(curr).find(
-      (p) => p.type === before.type && p.color === before.color && p.square !== square,
+  const usedArrivers = new Set<number>();
+  const diffs: MoveDiff[] = [];
+
+  for (const leaver of leavers) {
+    let matchIndex = arrivers.findIndex(
+      (arriver, index) =>
+        !usedArrivers.has(index) &&
+        arriver.color === leaver.color &&
+        arriver.type === leaver.type,
     );
-    if (!destination) continue;
-
-    const destBefore = prev[destination.square];
-    if (!destBefore || destBefore.color !== before.color) {
-      diffs.push({ from: square, to: destination.square, piece: before });
+    if (matchIndex === -1 && leaver.type === 'p') {
+      matchIndex = arrivers.findIndex(
+        (arriver, index) =>
+          !usedArrivers.has(index) && arriver.color === leaver.color,
+      );
     }
+    if (matchIndex === -1) continue;
+
+    usedArrivers.add(matchIndex);
+    const arriver = arrivers[matchIndex]!;
+    diffs.push({ from: leaver.square, to: arriver.square, piece: leaver });
   }
 
   return diffs;

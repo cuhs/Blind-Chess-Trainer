@@ -1,6 +1,7 @@
 import { Chess, type Color, type PieceSymbol, type Square } from 'chess.js';
 import type { NodePuzzleSource } from '@mindboard/shared';
 import { analyzePosition } from '../motifs/analyze-position';
+import { buildPuzzleFromMotif } from '../motifs/questions';
 import { buildInfluenceMap } from '../motifs/influence';
 import fixtures from '../motifs/fixtures/puzzle-bank-fixtures.json';
 import { applyMoves } from '../validate';
@@ -8,6 +9,23 @@ import { CURRICULUM } from './curriculum';
 import { buildTrainingPuzzleSpec } from './generators';
 import { isLightSquare } from './generators/coordinate';
 import type { GeneratedTrainingPuzzle } from './generators/types';
+import {
+  displayFen,
+  extractSquareFromPrompt,
+  hasCastledKingside,
+  hasKingsideFianchetto,
+  isColorInCheck,
+  isPawnIsolated,
+  parsePieceFromPrompt,
+  pawnDiagonallyDefends,
+  PIECE_WORD,
+  solveCoordinateNeighborSeed,
+  solveKnightReachSeed,
+} from './puzzle-semantics';
+import {
+  motifTypeFromGeneratorId,
+  resolveMotifForVerification,
+} from './verify-puzzle';
 
 export interface PuzzleLogicIssue {
   nodeId: string;
@@ -20,39 +38,7 @@ export interface PuzzleLogicIssue {
 
 type BankFixture = (typeof fixtures)[number];
 
-const PIECE_WORD: Record<string, PieceSymbol> = {
-  king: 'k',
-  queen: 'q',
-  rook: 'r',
-  bishop: 'b',
-  knight: 'n',
-  pawn: 'p',
-};
-
 const FILES = 'abcdefgh';
-
-function displayFen(fen: string, moves: string[]): string {
-  return moves.length > 0 ? applyMoves(fen, moves) : fen;
-}
-
-function parsePieceFromPrompt(prompt: string): {
-  color: Color;
-  type: PieceSymbol;
-} | null {
-  const match = prompt.match(
-    /\b(white|black)\s+(king|queen|rook|bishop|knight|pawn)\b/i,
-  );
-  if (!match) return null;
-  return {
-    color: match[1]!.toLowerCase().startsWith('w') ? 'w' : 'b',
-    type: PIECE_WORD[match[2]!.toLowerCase()]!,
-  };
-}
-
-function extractSquareFromPrompt(prompt: string): Square | null {
-  const match = prompt.match(/\b([a-h][1-8])\b/i);
-  return match ? (match[1]!.toLowerCase() as Square) : null;
-}
 
 function findPieceSquare(
   fen: string,
@@ -72,58 +58,6 @@ function findPieceSquare(
   return null;
 }
 
-function isPawnIsolated(chess: Chess, square: Square, color: Color): boolean {
-  const piece = chess.get(square);
-  if (!piece || piece.type !== 'p' || piece.color !== color) return false;
-
-  const fileIndex = FILES.indexOf(square[0]!);
-  for (const neighbor of [fileIndex - 1, fileIndex + 1]) {
-    if (neighbor < 0 || neighbor > 7) continue;
-    const neighborFile = FILES[neighbor]!;
-    for (let rank = 1; rank <= 8; rank += 1) {
-      const neighborPiece = chess.get(`${neighborFile}${rank}` as Square);
-      if (
-        neighborPiece &&
-        neighborPiece.color === color &&
-        neighborPiece.type === 'p'
-      ) {
-        return false;
-      }
-    }
-  }
-  return true;
-}
-
-function pawnDefendsFriendlyPawn(
-  chess: Chess,
-  defender: Square,
-  target: Square,
-  color: Color,
-): boolean {
-  const defenderPiece = chess.get(defender);
-  const targetPiece = chess.get(target);
-  if (
-    !defenderPiece ||
-    !targetPiece ||
-    defenderPiece.type !== 'p' ||
-    targetPiece.type !== 'p' ||
-    defenderPiece.color !== color ||
-    targetPiece.color !== color
-  ) {
-    return false;
-  }
-
-  const defenderFile = defender.charCodeAt(0) - 'a'.charCodeAt(0);
-  const defenderRank = Number.parseInt(defender[1]!, 10);
-  const targetFile = target.charCodeAt(0) - 'a'.charCodeAt(0);
-  const targetRank = Number.parseInt(target[1]!, 10);
-  const fileDelta = Math.abs(targetFile - defenderFile);
-  const rankDelta = targetRank - defenderRank;
-
-  if (fileDelta !== 1) return false;
-  return color === 'w' ? rankDelta === 1 : rankDelta === -1;
-}
-
 function hasPawnChain(
   chess: Chess,
   sqA: Square,
@@ -131,61 +65,17 @@ function hasPawnChain(
   color: Color,
 ): boolean {
   return (
-    pawnDefendsFriendlyPawn(chess, sqA, sqB, color) ||
-    pawnDefendsFriendlyPawn(chess, sqB, sqA, color)
+    pawnDiagonallyDefends(chess, sqA, sqB, color) ||
+    pawnDiagonallyDefends(chess, sqB, sqA, color)
   );
-}
-
-function hasKingsideFianchetto(chess: Chess, color: Color): boolean {
-  const bishopSquare = color === 'w' ? 'g2' : 'g7';
-  const pawnSquare = color === 'w' ? 'g3' : 'g6';
-  const bishop = chess.get(bishopSquare);
-  const pawn = chess.get(pawnSquare);
-  return (
-    bishop?.type === 'b' &&
-    bishop.color === color &&
-    pawn?.type === 'p' &&
-    pawn.color === color
-  );
-}
-
-function hasCastledKingside(chess: Chess, color: Color): boolean {
-  const kingSquare = color === 'w' ? 'g1' : 'g8';
-  const rookSquare = color === 'w' ? 'f1' : 'f8';
-  const king = chess.get(kingSquare);
-  const rook = chess.get(rookSquare);
-  return (
-    king?.type === 'k' &&
-    king.color === color &&
-    rook?.type === 'r' &&
-    rook.color === color
-  );
-}
-
-function isColorInCheck(fen: string, color: Color): boolean {
-  const chess = new Chess(fen);
-  return chess.turn() === color && chess.inCheck();
 }
 
 function solveCoordinateNeighbor(seed: string): Square {
-  const [square, axis] = seed.split(':') as [Square, 'rank' | 'file'];
-  const file = square.charCodeAt(0);
-  const rank = Number.parseInt(square[1]!, 10);
-  if (axis === 'rank') {
-    return `${square[0]}${rank + 1}` as Square;
-  }
-  return `${String.fromCharCode(file + 1)}${square[1]}` as Square;
+  return solveCoordinateNeighborSeed(seed) ?? ('' as Square);
 }
 
 function solveKnightReach(seed: string): 'yes' | 'no' {
-  const [from, to] = seed.split(':') as [Square, Square];
-  const chess = new Chess();
-  chess.remove('a1');
-  chess.put({ type: 'n', color: 'w' }, from);
-  const canReach = chess
-    .moves({ square: from, verbose: true })
-    .some((move) => move.to === to);
-  return canReach ? 'yes' : 'no';
+  return solveKnightReachSeed(seed) ?? 'no';
 }
 
 function solveGeneratedPuzzle(
@@ -282,6 +172,24 @@ function solveGeneratedPuzzle(
     return hasPawnChain(chess, sqA, sqB, color) ? 'yes' : 'no';
   }
 
+  if (generatorId === 'story_check_line') {
+    const color = puzzle.prompt.toLowerCase().includes('white') ? 'w' : 'b';
+    return isColorInCheck(afterFen, color) ? 'yes' : 'no';
+  }
+
+  if (generatorId.startsWith('motif_')) {
+    const previousFen =
+      puzzle.moves.length === 0
+        ? undefined
+        : puzzle.moves.length === 1
+          ? puzzle.fen
+          : applyMoves(puzzle.fen, puzzle.moves.slice(0, -1));
+    const motifType = motifTypeFromGeneratorId(generatorId);
+    const motif = resolveMotifForVerification(afterFen, previousFen, motifType);
+    if (!motif) return null;
+    return buildPuzzleFromMotif(motif).expected;
+  }
+
   return null;
 }
 
@@ -349,7 +257,7 @@ function solveBankPuzzle(fixture: BankFixture): string | null {
   return null;
 }
 
-function verifyGeneratedPuzzle(
+function verifyCurriculumGeneratorAnswer(
   nodeId: string,
   generatorId: string,
   seed: string,
@@ -692,7 +600,7 @@ export function verifyCurriculumPuzzleLogic(): PuzzleLogicIssue[] {
         source.generatorId,
         source.seed,
       );
-      const answerIssue = verifyGeneratedPuzzle(
+      const answerIssue = verifyCurriculumGeneratorAnswer(
         nodeId,
         source.generatorId,
         source.seed,

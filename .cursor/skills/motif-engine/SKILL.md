@@ -16,12 +16,14 @@ Pure TypeScript in `packages/chess-core/src/motifs/`. No LLM calls. Powers Stitc
 ```typescript
 import {
   analyzePosition,
+  collectMotifs,
   motifToResult,
   buildPuzzleFromMotif,
   resolveTrainingPuzzle,
 } from '@mindboard/chess-core';
 
-const motif = analyzePosition(fen, previousFen?); // Motif | null
+const motifs = collectMotifs(fen, previousFen?); // Motif[]
+const motif = analyzePosition(fen, previousFen?); // Motif | null (ranked winner)
 const result = motif ? motifToResult(motif) : null;
 const draft = motif ? buildPuzzleFromMotif(motif) : null;
 const resolved = resolveTrainingPuzzle(trainingPuzzle); // mobile DailyDrill
@@ -56,7 +58,7 @@ interface PieceMap {
 
 Adapter: `src/motifs/adapters.ts` (`motifToResult`, `pieceToSanRef`).
 Questions: `src/motifs/questions.ts` (`buildPuzzleFromMotif`).
-Mobile resolve: `src/motifs/resolve-training-puzzle.ts` — engine prompt when `expected` matches; curated alternate prompts (e.g. bishop square on a pin) stay in `puzzle_bank`.
+Mobile resolve: `src/motifs/resolve-training-puzzle.ts` — engine prompt only for motif/peek/bank-motif ids, and only when `expected` matches the **ranked** motif. Recall, move-tracking, and coordinate drills keep their own prompts. Curated alternate prompts (e.g. bishop square on a pin) stay when they differ.
 
 ```typescript
 interface MotifResult {
@@ -85,19 +87,24 @@ DailyDrill implements Story-of-the-Position UX (both Stitch training frames). No
 FEN → analyzePosition() → Motif | null → buildPuzzleFromMotif() → question text
 ```
 
-LLM never analyzes position. `null` → use static `puzzle_bank` prompt.
+LLM never analyzes position. `null` → skip or use static prompt from generator/`puzzle_bank` regression fixture.
 
-## Seed validation
+## Validation
 
-Fixtures: `src/motifs/fixtures/puzzle-bank-fixtures.json`.
-Run: `cd packages/chess-core && npm run validate:puzzles`.
+| Script | Scope |
+|--------|-------|
+| `validate:generators` | Runtime categories + motif synthesis (200 seeds × 8 daily-rotation categories; 100 seeds × all 22 categories) |
+| `validate:puzzles` | 54 golden `puzzle-bank-fixtures.json` rows |
+| `validate:curriculum` | 18 curriculum nodes (generators + legacy bank_slug if any) |
+
+Fixtures: `src/motifs/fixtures/puzzle-bank-fixtures.json` (regression only — training is generator-first).
 
 ## Checklist
 
 ```
 - [x] ≥5 positive + ≥3 negative FENs per motif
 - [x] Adapter + deterministic question builder
-- [ ] ≥90% branch coverage (run test:coverage)
+- [x] ≥90% branch coverage (src/motifs 91.6% branch via `test:coverage`)
 - [x] Questions match Stitch geometry style, not engine lines
 ```
 

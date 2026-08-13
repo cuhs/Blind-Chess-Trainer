@@ -7,10 +7,11 @@ import {
 } from '@/lib/peekPuzzles';
 import { todayKey } from '@/lib/dateKey';
 import { useGuestStore } from '@/stores/guestStore';
+import { isSupabaseConfigured } from '@/lib/supabase';
 import { usePuzzleBank } from './usePuzzleBank';
 
 export function useDailySession() {
-  const bank = usePuzzleBank();
+  const bank = usePuzzleBank({ enabled: isSupabaseConfigured });
   const peekEvents = useGuestStore((s) => s.peekEvents);
   const lastDrillCompletedDate = useGuestStore((s) => s.lastDrillCompletedDate);
 
@@ -30,18 +31,14 @@ export function useDailySession() {
     [puzzles],
   );
 
-  const puzzleCount = puzzles.length;
-  const isCompletedToday = lastDrillCompletedDate === todayKey();
-
   return {
     puzzles,
-    puzzleCount,
+    puzzleCount: puzzles.length,
     peekPuzzleCount,
-    sessionSize: puzzleCount,
-    isCompletedToday,
-    isNotConfigured: bank.isNotConfigured,
+    sessionSize: puzzles.length,
+    isCompletedToday: lastDrillCompletedDate === todayKey(),
     isLoading: bank.isLoading,
-    isError: bank.isError,
-    error: bank.error,
+    isError: bank.isError && puzzles.length === 0,
+    error: bank.isError && puzzles.length === 0 ? bank.error : null,
   };
 }

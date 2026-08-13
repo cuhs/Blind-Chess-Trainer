@@ -23,6 +23,15 @@ import {
   buildChunkFianchettoPuzzle,
   buildChunkPawnChainPuzzle,
 } from './chunk';
+import {
+  buildMotifDiscoveredPuzzle,
+  buildMotifForkPuzzle,
+  buildMotifHangingPuzzle,
+  buildMotifOverloadedPuzzle,
+  buildMotifPinPuzzle,
+  buildMotifSkewerPuzzle,
+  buildStoryCheckLinePuzzle,
+} from './motif';
 
 const GENERATORS: Record<
   GeneratorId,
@@ -42,6 +51,13 @@ const GENERATORS: Record<
   chunk_castled: buildChunkCastledPuzzle,
   chunk_fianchetto: buildChunkFianchettoPuzzle,
   chunk_pawn_chain: buildChunkPawnChainPuzzle,
+  motif_pin: buildMotifPinPuzzle,
+  motif_fork: buildMotifForkPuzzle,
+  motif_skewer: buildMotifSkewerPuzzle,
+  motif_hanging: buildMotifHangingPuzzle,
+  motif_discovered: buildMotifDiscoveredPuzzle,
+  motif_overloaded: buildMotifOverloadedPuzzle,
+  story_check_line: buildStoryCheckLinePuzzle,
 };
 
 export function isGeneratorId(value: string): value is GeneratorId {

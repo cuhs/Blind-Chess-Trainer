@@ -1,4 +1,5 @@
 import type { TrainingPuzzle } from '@/data/training-puzzles';
+import { promptCategoryFromText } from '@mindboard/chess-core';
 import { isSquare, type AnswerType, type Square } from '@mindboard/shared';
 
 export interface PuzzleBankRow {
@@ -54,6 +55,7 @@ export function mapPuzzleBankRow(row: PuzzleBankRow): TrainingPuzzle | null {
     expected: row.expected_answer,
     squaresTouched: heatmapSquares,
     source: toSource(row.source),
+    promptCategory: promptCategoryFromText(row.nlp_prompt),
   };
 }
 

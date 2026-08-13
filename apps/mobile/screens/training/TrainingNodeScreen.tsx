@@ -14,14 +14,7 @@ export function TrainingNodeScreen() {
   const trainingProgress = useGuestStore((s) => s.trainingProgress);
   const node = nodeId ? resolveTrainingNode(nodeId) : null;
 
-  const {
-    puzzles,
-    puzzleCount,
-    isLoading,
-    isError,
-    isNotConfigured,
-    error,
-  } = useNodePuzzles(nodeId);
+  const { puzzles, puzzleCount, isLoading, isError } = useNodePuzzles(nodeId);
 
   const unlocked = nodeId
     ? isNodeUnlocked(nodeId, trainingProgress)
@@ -73,28 +66,15 @@ export function TrainingNodeScreen() {
     );
   }
 
-  if (isNotConfigured) {
-    return (
-      <ScreenState
-        actionLabel="Go back"
-        message="Sign-in and puzzle sync are not set up on this device yet."
-        onAction={() => router.back()}
-        title="Training unavailable"
-      />
-    );
-  }
-
   if (isLoading || isBootstrapping) {
     return <ScreenState message={`Loading ${node.title}...`} />;
   }
 
   if (isError || !puzzle || !resolvedPuzzle || puzzleCount === 0) {
-    const devHint =
-      __DEV__ && error instanceof Error ? `\n\n(${error.message})` : '';
     return (
       <ScreenState
         actionLabel="Go back"
-        message={`Could not load puzzles for this level.${devHint}`}
+        message="Could not load puzzles for this level."
         onAction={() => router.back()}
         title="Could not load puzzles"
       />

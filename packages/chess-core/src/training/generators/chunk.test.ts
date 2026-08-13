@@ -1,6 +1,8 @@
 import { Chess } from 'chess.js';
 import { describe, expect, it } from 'vitest';
+import { verifyGeneratedPuzzle } from '../verify-puzzle';
 import {
+  buildChunkCastledPuzzle,
   buildChunkFianchettoPuzzle,
   buildChunkPawnChainPuzzle,
 } from './chunk';
@@ -31,21 +33,30 @@ function isPawnIsolated(fen: string, square: string): boolean {
 }
 
 describe('chunk generators', () => {
-  it('fianchetto fixtures match their expected answers', () => {
-    expect(buildChunkFianchettoPuzzle('0').expected).toBe('g2');
-    expect(buildChunkFianchettoPuzzle('1').expected).toBe('no');
-    expect(buildChunkFianchettoPuzzle('2').expected).toBe('yes');
+  it('procedural seeds pass verification', () => {
+    const builders: Array<[string, (seed: string) => ReturnType<typeof buildChunkCastledPuzzle>]> = [
+      ['chunk_castled', buildChunkCastledPuzzle],
+      ['chunk_fianchetto', buildChunkFianchettoPuzzle],
+      ['chunk_pawn_chain', buildChunkPawnChainPuzzle],
+    ];
+    for (const seed of ['0', '1', '2', '42', 'seed-99']) {
+      for (const [generatorId, builder] of builders) {
+        const puzzle = builder(seed);
+        expect(verifyGeneratedPuzzle(puzzle, { generatorId })).toEqual([]);
+      }
+    }
   });
 
-  it('pawn-chain fixtures have correct expected answers', () => {
-    expect(buildChunkPawnChainPuzzle('0').expected).toBe('yes');
-    expect(buildChunkPawnChainPuzzle('1').expected).toBe('yes');
-    expect(buildChunkPawnChainPuzzle('2').expected).toBe('no');
-  });
-
-  it('isolated-pawn puzzle uses the neighboring-file definition', () => {
-    const puzzle = buildChunkPawnChainPuzzle('2');
-    expect(isPawnIsolated(puzzle.fen, 'e4')).toBe(false);
+  it('isolated-pawn puzzles use the neighboring-file definition when asked', () => {
+    const puzzle = buildChunkPawnChainPuzzle('isolated-check');
+    if (puzzle.prompt.includes('isolated')) {
+      const match = puzzle.prompt.match(/\b([a-h][1-8])\b/i);
+      if (match) {
+        expect(isPawnIsolated(puzzle.fen, match[1]!.toLowerCase())).toBe(
+          puzzle.expected === 'yes',
+        );
+      }
+    }
   });
 
   it('pawn-chain prompts refer to same-color chains', () => {

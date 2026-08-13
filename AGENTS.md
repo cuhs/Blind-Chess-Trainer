@@ -125,8 +125,8 @@ Post-onboarding `/(main)/index` — Stitch frame `b1eff5fd32e743e2a7f8a4b78a3403
 
 1. Onboarding — `HookBoard` → `MatchPrimer` (Stitch: Invisible Grid Hook)
 1b. Home — `HomeDashboard` from Stitch `b1eff5fd32e743e2a7f8a4b78a340318`
-2. Training — `TrainingHub` (6-unit path), `TrainingNodeScreen` (per-level sessions), `DailyDrill` (daily 3); backed by `puzzle_bank` + `packages/chess-core/src/training/` generators; motif resolve via `useResolvedPuzzle`
-   - Done: engine-backed prompts when top motif matches `expected_answer`; daily cap at 3 puzzles (`selectDailyPuzzles` + `useDailySession`); completion gate via `lastDrillCompletedDate`; home + hub `DailyMatrixCard`; TrainingHub path map + `trainingProgress` in guest store; 54 curated `puzzle_bank` seed rows with optional `puzzle_kind` / `training_node_id`
+2. Training — `TrainingHub` (6-unit path), `TrainingNodeScreen` (per-level sessions), `DailyDrill` (daily 3); **runtime puzzle generators** in `packages/chess-core/src/training/` (primary) + optional `puzzle_bank` cache/regression; motif resolve via `useResolvedPuzzle`
+   - Done: `buildPuzzleFromCategory` + `verifyGeneratedPuzzle` + `validate:generators` fuzz (200 seeds × daily rotation, 100 × all 22 categories); procedural generators for all 7 `PuzzleKind` families + 6 motif types; daily drill fills from generated categories (bank optional); training nodes use seed-derived variety via `useNodePuzzles`; 54 curated `puzzle_bank` rows remain golden regression fixtures
 3. Voice match — `MatchSetupScreen` (Elo slider) → `VoiceMatchScreen` (native Stockfish on iOS dev build)
    - Done: `MatchRecorder` captures moves, peeks, illegal attempts, disambiguation, and resign; fuzzy voice resolver with piece-intent guards, length-scaled auto-submit confidence, and voice-triggered disambiguation overlay; engine-wait UI (spinner + "Move sent"); on-device STT via `useMatchSpeech` + `expo-speech-recognition` (requires dev build rebuild after native dep change)
 4. Post-game — `ReplayScreen` event timeline (peek/illegal as own steps) + dismissible heatmap overlay
@@ -140,11 +140,11 @@ Supabase schema lives in `supabase/migrations/`; seed rows live in `supabase/see
 |-------|---------|
 | `profiles` | Global Elo handicap, current streak, total fog cleared |
 | `heatmap_ledger` | Append-only puzzle/match-peek square interactions; `client_event_id` idempotency key dedupes retried flushes |
-| `puzzle_bank` | Curated Story of the Position FENs/prompts |
+| `puzzle_bank` | Optional curated Story of the Position FENs/prompts (regression + hybrid daily top-up) |
 
 Client table grants are minimal: `authenticated` only (no `anon`), select/insert on ledger, select on puzzles. Streak and daily-drill date keys use the device's local calendar day (`apps/mobile/lib/dateKey.ts`). The bolt streak bumps on daily matrix completion (`completeDailyDrill`) or finishing a voice match (`recordHabitActivity`), not on bare app launch.
 
-Mobile server state uses `@tanstack/react-query` and `apps/mobile/lib/supabase.ts`. `guestStore` remains the offline-first cache for heatmap aggregates and pending ledger inserts. Onboarding resume: `app/index.tsx` redirects to `currentOnboardingStep` (persisted in guest store) until `onboardingComplete`. Daily drill mid-session progress: `drillProgress` (`dateKey` + `completedPuzzleIds`) resumes via `useTrainingSessionController` (daily mode) + `lib/drillBootstrap.ts`; cleared on `completeDailyDrill`. Training path progress: `trainingProgress` (`completedNodeIds`, `nodeStars`) + `nodeSessionProgress` for mid-node resume; node completion via `completeTrainingNode`. Onboarding credits equivalent nodes via `onboardingCurriculumBridge`. Match peeks append `match_peek` ledger rows on every peek; `peekEvents` dedupes by `positionKeyFromFen` (one stored event and one generated puzzle per position). Finished matches append a `MatchRecord` to `guestStore.matchHistory` (capped at 50, persisted in AsyncStorage) synchronously when a game ends; Analysis tab + `ReplayScreen` consume this offline with no server round-trip. `usePuzzleBank` loads all active `puzzle_bank` rows; `useDailySession` picks 3 per local calendar day via `lib/dailySession.ts` (up to 2 peek-generated from match events, remaining slots from the bank with prompt-category spread when possible; order shuffled by date) and gates re-entry with `lastDrillCompletedDate`. `useProfileSync` hydrates match Elo from `profiles`. `useResolvedPuzzle` overlays engine prompts when `analyzePosition` agrees with `expected_answer`. Validate seeds: `cd packages/chess-core && npm run validate:puzzles`. Skill: `training-flow`.
+Mobile server state uses `@tanstack/react-query` and `apps/mobile/lib/supabase.ts`. `guestStore` remains the offline-first cache for heatmap aggregates and pending ledger inserts. **Training puzzles:** `packages/chess-core` generators (`buildPuzzleFromCategory`, `buildTrainingPuzzleSpec`) are primary; `usePuzzleBank` is optional (hybrid daily top-up). Daily drill: `selectDailyPuzzles` mixes up to 2 peek puzzles + generated category spread + optional bank rows (`apps/mobile/lib/dailySession.ts`, `generatedPuzzles.ts`). Node sessions: `useNodePuzzles` resolves curriculum sources with a stable session key (`fresh` until the node is completed, then `replay-${stars}` so mid-session answers cannot regenerate remaining puzzles). Onboarding resume: `app/index.tsx` redirects to `currentOnboardingStep` (persisted in guest store) until `onboardingComplete`. Daily drill mid-session progress: `drillProgress` (`dateKey` + `completedPuzzleIds`) resumes via `useTrainingSessionController` (daily mode) + `lib/drillBootstrap.ts`; cleared on `completeDailyDrill`. Training path progress: `trainingProgress` (`completedNodeIds`, `nodeStars`) + `nodeSessionProgress` for mid-node resume; node completion via `completeTrainingNode`. Onboarding credits equivalent nodes via `onboardingCurriculumBridge`. Match peeks append `match_peek` ledger rows on every peek; `peekEvents` dedupes by `positionKeyFromFen` (one stored event and one generated puzzle per position). Finished matches append a `MatchRecord` to `guestStore.matchHistory` (capped at 50, persisted in AsyncStorage) synchronously when a game ends; Analysis tab + `ReplayScreen` consume this offline with no server round-trip. `usePuzzleBank` loads active `puzzle_bank` rows when Supabase is configured; `useDailySession` picks 3 per local calendar day via `selectDailyPuzzles` (up to 2 peek-sourced, remaining from generated categories, optional bank top-up; order shuffled by date key) and gates re-entry with `lastDrillCompletedDate`. `useProfileSync` hydrates match Elo from `profiles`. `useResolvedPuzzle` overlays engine prompts only for motif/peek/bank-motif ids, and only when the ranked motif agrees with `expected_answer`. Validate: `validate:puzzles` (54 bank fixtures), `validate:curriculum` (18 nodes), `validate:generators` (category fuzz). Skill: `training-flow`.
 
 ## Agent Doc Maintenance
 
@@ -168,7 +168,7 @@ Verify `AGENTS.md` rules/skills tables match files in `.cursor/rules/` and `.cur
 | `doc-maintenance` | After changes that affect architecture, routes, components, or conventions |
 | `stitch-designs` | Re-sync Stitch → DESIGN.md + tokens.ts |
 | `onboarding-flow` | Phase 1 screens |
-| `training-flow` | TrainingHub path, TrainingNode, DailyDrill, puzzle_bank, curriculum generators |
+| `training-flow` | TrainingHub path, TrainingNode, DailyDrill, runtime generators, optional puzzle_bank |
 | `motif-engine` | Tactical detection + tests |
 | `voice-match` | STT pipeline, disambiguation |
 | `heatmap-analytics` | Fog, peek, replay, drilling |
@@ -216,7 +216,9 @@ cd apps/mobile && npm run ios              # same, opens iOS simulator
 cd apps/api && npm run dev
 cd packages/chess-core && npm test
 cd packages/chess-core && npm run validate:puzzles    # motif bank fixtures
-cd packages/chess-core && npm run validate:curriculum # per-puzzle logic + semantics for all 54 training-path puzzles
+cd packages/chess-core && npm run validate:curriculum # fixed training-path seeds
+cd packages/chess-core && npm run validate:generators # fuzz all categories + verify-puzzle golden tests
+cd packages/chess-core && npm run generate:puzzles -- --category pin --count 100 --verify
 npx @_davideast/stitch-mcp doctor          # verify Stitch API
 ```
 
@@ -251,3 +253,12 @@ feat(mobile): implement HookBoard from Stitch frame a7e36868
 feat(mobile): add tokens.ts from Playful Tactile Minimalism
 fix(voice-pipeline): map homophone "night" to knight
 ```
+
+## Cursor Cloud specific instructions
+
+The cloud VM is **Linux with no macOS/Xcode/iOS Simulator**. This shapes what runs here:
+
+- **Runs here:** all Vitest suites (`chess-core`, `mobile`, `heatmap`, `voice-pipeline`) and the chess-core CLIs (`generate:puzzles`, `validate:*`). Node 22 is preinstalled; deps install with `npm ci` at the repo root (npm workspaces). Vitest exercises the engine via Stockfish **WASM** (the `stockfish` devDep) — the native `npm run nnue` weights download and `npm run ios:build` are **not** needed for tests.
+- **Does NOT run here:** `npm run ios` / `ios:build` (needs Xcode), and the `ios-simulator` MCP UI checks (needs a booted Simulator). `npx expo start --web` **fails** — this app has no `react-native-web` and web is intentionally not a target; do not add it.
+- **Verify the app JS bundles without a device:** `cd apps/mobile && npx expo start` (Metro), then request the iOS bundle from the expo-router entry: `curl "http://localhost:8081/node_modules/expo-router/entry.bundle?platform=ios&dev=true"`. A `200` + "Bundled … entry.js (N modules)" in the Metro log proves the full app compiles. Note `/index.bundle` **404s** because `main` is `expo-router/entry`, not `index`.
+- **Supabase is optional.** The app is guest-first/offline (`guestStore` + AsyncStorage) and all training puzzles are generated at runtime, so no `.env.local` is required to run tests or bundle. Configure `.env.local` only when validating cloud sync.

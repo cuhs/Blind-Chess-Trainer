@@ -45,7 +45,7 @@ describe('extended curriculum audit', () => {
             puzzle.moves,
           );
           if (!ok) failures.push(`${nodeId} ${ref}`);
-        } else {
+        } else if (source.type === 'bank_slug') {
           const row = (fixtures as BankFixture[]).find(
             (fixture) => fixture.slug === source.slug,
           );
