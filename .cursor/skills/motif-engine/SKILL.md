@@ -58,7 +58,7 @@ interface PieceMap {
 
 Adapter: `src/motifs/adapters.ts` (`motifToResult`, `pieceToSanRef`).
 Questions: `src/motifs/questions.ts` (`buildPuzzleFromMotif`).
-Mobile resolve: `src/motifs/resolve-training-puzzle.ts` — engine prompt when `expected` matches; curated alternate prompts (e.g. bishop square on a pin) may remain in optional `puzzle_bank` regression rows.
+Mobile resolve: `src/motifs/resolve-training-puzzle.ts` — engine prompt when `expected` matches **any** detected motif (ranked winner preferred on ties); curated alternate prompts (e.g. bishop square on a pin) may remain in optional `puzzle_bank` regression rows.
 
 ```typescript
 interface MotifResult {
